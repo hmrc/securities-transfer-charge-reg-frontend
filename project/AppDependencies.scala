@@ -1,4 +1,3 @@
-import sbt.Keys.libraryDependencies
 import sbt._
 
 object AppDependencies {
@@ -7,16 +6,18 @@ object AppDependencies {
   private val hmrcMongoVersion = "2.7.0"
 
   val compile = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-frontend-play-30" % bootstrapVersion,
-    "uk.gov.hmrc"             %% "play-frontend-hmrc-play-30" % "12.15.0",
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-play-30"         % hmrcMongoVersion
+    play.sbt.PlayImport.ws,
+    "uk.gov.hmrc"       %% "play-frontend-hmrc-play-30"    % "12.8.0",
+    "uk.gov.hmrc"       %% "bootstrap-frontend-play-30"    % bootstrapVersion,
+    "uk.gov.hmrc.mongo" %% "hmrc-mongo-play-30"            % hmrcMongoVersion
+
   )
 
   val test = Seq(
-    "uk.gov.hmrc"             %% "bootstrap-test-play-30"     % bootstrapVersion            % Test,
-    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30"    % hmrcMongoVersion            % Test,
-    "org.jsoup"               %  "jsoup"                      % "1.13.1"            % Test,
-  )
+    "uk.gov.hmrc"             %% "bootstrap-test-play-30"  % bootstrapVersion,
+    "uk.gov.hmrc.mongo"       %% "hmrc-mongo-test-play-30" % hmrcMongoVersion,
+    "org.scalatestplus"       %% "scalacheck-1-17"         % "3.2.17.0"
+  ).map(_ % Test)
 
-  val it = Seq.empty
+  def apply(): Seq[ModuleID] = compile ++ test
 }
