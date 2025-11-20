@@ -17,8 +17,9 @@
 package navigation
 
 import play.api.mvc.Call
-import pages._
-import models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregistration.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregistration.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregistration.pages.Page
 
 class FakeNavigator(desiredRoute: Call) extends Navigator {
 

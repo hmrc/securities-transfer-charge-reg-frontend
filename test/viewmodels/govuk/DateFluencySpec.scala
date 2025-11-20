@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-package viewmodels.govuk
+package govuk
 
-import forms.mappings.Mappings
 import org.scalatest.OptionValues
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import viewmodels.govuk.all._
+import uk.gov.hmrc.securitiestransferchargeregistration.forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk
+import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk.all.*
 
 import java.time.LocalDate
 

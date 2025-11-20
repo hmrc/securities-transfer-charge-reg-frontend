@@ -19,8 +19,9 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import viewmodels.govuk.SummaryListFluency
-import views.html.CheckYourAnswersView
+import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk.SummaryListFluency
+import uk.gov.hmrc.securitiestransferchargeregistration.views.html.CheckYourAnswersView
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 class CheckYourAnswersControllerSpec extends SpecBase with SummaryListFluency {
 

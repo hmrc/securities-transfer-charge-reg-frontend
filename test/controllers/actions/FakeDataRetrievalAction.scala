@@ -16,8 +16,10 @@
 
 package controllers.actions
 
-import models.UserAnswers
-import models.requests.{IdentifierRequest, OptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregistration.models.requests.{OptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.DataRetrievalAction
+import uk.gov.hmrc.securitiestransferchargeregistration.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregistration.models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 

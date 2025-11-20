@@ -1,13 +1,13 @@
 package viewmodels.checkAnswers
 
-import config.CurrencyFormatter.currencyFormat
+import uk.gov.hmrc.securitiestransferchargeregistration.config.CurrencyFormatter.currencyFormat
 import controllers.routes
-import models.{CheckMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregistration.models.{CheckMode, UserAnswers}
 import pages.$className$Page
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
-import viewmodels.govuk.summarylist._
-import viewmodels.implicits._
+import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk.summarylist._
+import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.implicits._
 
 object $className$Summary  {
 

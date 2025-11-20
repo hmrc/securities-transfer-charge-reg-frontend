@@ -19,7 +19,8 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.UnauthorisedView
+import uk.gov.hmrc.securitiestransferchargeregistration.views.html.UnauthorisedView
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 class UnauthorisedControllerSpec extends SpecBase {
 

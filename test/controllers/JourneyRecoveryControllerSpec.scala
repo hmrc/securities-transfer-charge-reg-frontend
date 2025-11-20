@@ -20,7 +20,8 @@ import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
 import uk.gov.hmrc.play.bootstrap.binders.RedirectUrl
-import views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
+import uk.gov.hmrc.securitiestransferchargeregistration.views.html.{JourneyRecoveryContinueView, JourneyRecoveryStartAgainView}
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 class JourneyRecoveryControllerSpec extends SpecBase {
 

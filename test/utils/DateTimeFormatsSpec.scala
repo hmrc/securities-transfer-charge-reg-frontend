@@ -19,7 +19,7 @@ package utils
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
-import utils.DateTimeFormats.dateTimeFormat
+import uk.gov.hmrc.securitiestransferchargeregistration.utils.DateTimeFormats.dateTimeFormat
 
 import java.time.LocalDate
 

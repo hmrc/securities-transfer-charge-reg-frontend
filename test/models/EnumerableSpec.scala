@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package models
+package securitiestransferchargeregistration.models
 
 import org.scalatest.{EitherValues, OptionValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import play.api.libs.json._
+import play.api.libs.json.*
+import uk.gov.hmrc.securitiestransferchargeregistration
+import uk.gov.hmrc.securitiestransferchargeregistration.models
+import uk.gov.hmrc.securitiestransferchargeregistration.models.Enumerable
 
 object EnumerableSpec {
 

@@ -16,8 +16,7 @@
 
 package base
 
-import controllers.actions._
-import models.UserAnswers
+import controllers.actions.*
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
@@ -27,6 +26,8 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregistration.models.UserAnswers
 
 trait SpecBase
   extends AnyFreeSpec

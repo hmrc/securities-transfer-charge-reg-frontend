@@ -19,8 +19,10 @@ package controllers.actions
 import base.SpecBase
 import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.http.SessionKeys
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.{IdentifierAction, SessionIdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -48,7 +50,7 @@ class SessionActionSpec extends SpecBase {
           val result = controller.onPageLoad()(FakeRequest())
 
           status(result) mustBe SEE_OTHER
-          redirectLocation(result).value must startWith(controllers.routes.JourneyRecoveryController.onPageLoad().url)
+          redirectLocation(result).value must startWith(routes.JourneyRecoveryController.onPageLoad().url)
         }
       }
     }

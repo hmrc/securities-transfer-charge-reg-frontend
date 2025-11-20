@@ -23,7 +23,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregistration.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 import scala.concurrent.Future
 

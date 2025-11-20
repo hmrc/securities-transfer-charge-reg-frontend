@@ -19,7 +19,8 @@ package controllers
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import views.html.IndexView
+import uk.gov.hmrc.securitiestransferchargeregistration.views.html.IndexView
+import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
 
 class IndexControllerSpec extends SpecBase {
 
