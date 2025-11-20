@@ -26,8 +26,8 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.test.FakeRequest
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregistration.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 
 trait SpecBase
   extends AnyFreeSpec

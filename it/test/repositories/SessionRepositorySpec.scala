@@ -28,9 +28,9 @@ import org.slf4j.MDC
 import uk.gov.hmrc.mdc.MdcExecutionContext
 import play.api.libs.json.Json
 import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
-import uk.gov.hmrc.securitiestransferchargeregistration.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregistration.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregistration.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit

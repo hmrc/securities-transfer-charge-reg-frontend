@@ -16,7 +16,7 @@
 
 package models
 
-import uk.gov.hmrc.securitiestransferchargeregistration.models
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
 case class Field(name: String, errorKeys: Map[ErrorType, String])
 

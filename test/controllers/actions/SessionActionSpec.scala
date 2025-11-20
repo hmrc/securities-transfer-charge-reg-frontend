@@ -21,8 +21,8 @@ import play.api.mvc.{Action, AnyContent, BodyParsers, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.SessionKeys
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.{IdentifierAction, SessionIdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IdentifierAction, SessionIdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 

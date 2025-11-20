@@ -17,10 +17,10 @@
 package navigation
 
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregistration.models.*
-import uk.gov.hmrc.securitiestransferchargeregistration.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregistration.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 class NavigatorSpec extends SpecBase {
 

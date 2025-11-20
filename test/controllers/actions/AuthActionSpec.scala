@@ -25,9 +25,9 @@ import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregistration.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.actions.{AuthenticatedIdentifierAction, IdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContext, Future}

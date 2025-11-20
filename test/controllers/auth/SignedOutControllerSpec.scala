@@ -19,8 +19,8 @@ package controllers.auth
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.securitiestransferchargeregistration.views.html.auth.SignedOutView
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.auth.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.auth.SignedOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.routes
 
 class SignedOutControllerSpec extends SpecBase {
 

@@ -23,8 +23,8 @@ import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.data.validation.{Invalid, Valid}
-import uk.gov.hmrc.securitiestransferchargeregistration.config.CurrencyFormatter
-import uk.gov.hmrc.securitiestransferchargeregistration.forms.mappings.Constraints
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.CurrencyFormatter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Constraints
 
 class ConstraintsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators  with Constraints {
 

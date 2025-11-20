@@ -23,9 +23,9 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
 import play.api.test.Helpers._
-import uk.gov.hmrc.securitiestransferchargeregistration.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregistration.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregistration.controllers.auth.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.routes
 
 import java.net.URLEncoder
 

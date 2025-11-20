@@ -22,9 +22,9 @@ import org.scalatest.matchers.must.Matchers
 import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
-import uk.gov.hmrc.securitiestransferchargeregistration.forms.mappings.Mappings
-import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk
-import uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk.all.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk
+import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.all.*
 
 import java.time.LocalDate
 

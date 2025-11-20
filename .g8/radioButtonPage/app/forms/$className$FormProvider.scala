@@ -4,7 +4,7 @@ import javax.inject.Inject
 
 import forms.mappings.Mappings
 import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregistration.models.$className$
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.$className$
 
 class $className$FormProvider @Inject() extends Mappings {
 

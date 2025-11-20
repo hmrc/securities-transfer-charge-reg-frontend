@@ -16,7 +16,7 @@ lazy val microservice = (project in file("."))
   .settings(
     name := appName,
     RoutesKeys.routesImport ++= Seq(
-      "uk.gov.hmrc.securitiestransferchargeregistration.models._",
+      "uk.gov.hmrc.securitiestransferchargeregfrontend.models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
     ),
     TwirlKeys.templateImports ++= Seq(
@@ -26,10 +26,10 @@ lazy val microservice = (project in file("."))
       "uk.gov.hmrc.hmrcfrontend.views.html.components._",
       "uk.gov.hmrc.hmrcfrontend.views.html.helpers._",
       "uk.gov.hmrc.hmrcfrontend.views.config._",
-      "uk.gov.hmrc.securitiestransferchargeregistration.views.ViewUtils._",
-      "uk.gov.hmrc.securitiestransferchargeregistration.models.Mode",
-      "uk.gov.hmrc.securitiestransferchargeregistration.controllers.routes._",
-      "uk.gov.hmrc.securitiestransferchargeregistration.viewmodels.govuk.all._"
+      "uk.gov.hmrc.securitiestransferchargeregfrontend.views.ViewUtils._",
+      "uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode",
+      "uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes._",
+      "uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.all._"
     ),
     PlayKeys.playDefaultPort := 9000,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +

@@ -1,6 +1,6 @@
 package pages
 
-import uk.gov.hmrc.securitiestransferchargeregistration.models.$className$
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.$className$
 import play.api.libs.json.JsPath
 
 case object $className$Page extends QuestionPage[$className$] {

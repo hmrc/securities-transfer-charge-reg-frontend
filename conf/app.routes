@@ -2,20 +2,20 @@
 
 ->          /hmrc-frontend                               hmrcfrontend.Routes
 
-GET         /                                            uk.gov.hmrc.securitiestransferchargeregistration.controllers.IndexController.onPageLoad()
+GET         /                                            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.IndexController.onPageLoad()
 
 GET         /assets/*file                                controllers.Assets.versioned(path="/public", file: Asset)
 
-GET         /language/:lang                              uk.gov.hmrc.securitiestransferchargeregistration.controllers.LanguageSwitchController.switchToLanguage(lang: String)
+GET         /language/:lang                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.LanguageSwitchController.switchToLanguage(lang: String)
 
-GET         /refresh-session                             uk.gov.hmrc.securitiestransferchargeregistration.controllers.KeepAliveController.keepAlive()
+GET         /refresh-session                             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.KeepAliveController.keepAlive()
 
-GET         /there-is-a-problem                          uk.gov.hmrc.securitiestransferchargeregistration.controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
+GET         /there-is-a-problem                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.JourneyRecoveryController.onPageLoad(continueUrl: Option[RedirectUrl] ?= None)
 
-GET         /check-your-answers                          uk.gov.hmrc.securitiestransferchargeregistration.controllers.CheckYourAnswersController.onPageLoad()
+GET         /check-your-answers                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourAnswersController.onPageLoad()
 
-GET         /account/sign-out-survey                     uk.gov.hmrc.securitiestransferchargeregistration.controllers.auth.AuthController.signOut()
-GET         /account/sign-out                            uk.gov.hmrc.securitiestransferchargeregistration.controllers.auth.AuthController.signOutNoSurvey()
-GET         /account/signed-out                          uk.gov.hmrc.securitiestransferchargeregistration.controllers.auth.SignedOutController.onPageLoad()
+GET         /account/sign-out-survey                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.AuthController.signOut()
+GET         /account/sign-out                            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.AuthController.signOutNoSurvey()
+GET         /account/signed-out                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.SignedOutController.onPageLoad()
 
-GET         /unauthorised                                uk.gov.hmrc.securitiestransferchargeregistration.controllers.UnauthorisedController.onPageLoad()
+GET         /unauthorised                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UnauthorisedController.onPageLoad()
