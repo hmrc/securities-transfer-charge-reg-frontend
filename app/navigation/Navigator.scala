@@ -17,16 +17,16 @@
 package navigation
 
 import javax.inject.{Inject, Singleton}
-
 import play.api.mvc.Call
-import controllers.routes
-import pages._
-import models._
+import controllers.{RegForSecuritiesTransferChargeController, routes}
+import pages.*
+import models.*
 
 @Singleton
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case RegForSecuritiesTransferChargePage => _ => routes.CheckYourAnswersController.onPageLoad()
     case _ => _ => routes.IndexController.onPageLoad()
   }
 
