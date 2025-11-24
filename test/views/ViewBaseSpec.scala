@@ -28,12 +28,6 @@ trait ViewBaseSpec extends BeforeAndAfterAll with GuiceOneAppPerSuite with Jsoup
 
   implicit val request: DataRequest[AnyContent] = fakeDataRequest(emptyUserAnswers)
 
-  override def beforeAll(): Unit =
-    super.beforeAll()
-
-  override def afterAll(): Unit =
-    super.afterAll()
-
   implicit def messages: Messages = messages(app)
   
 }
