@@ -41,9 +41,6 @@ class AuthenticatedIdentifierAction @Inject()(
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    
-    val nino = Retrievals.nino.toString
-    val affinityGroup = Retrievals.affinityGroup.toString
 
     authorised().retrieve(Retrievals.internalId) {
       _.map {
@@ -62,9 +59,6 @@ class SessionIdentifierAction @Inject()(
                                          val parser: BodyParsers.Default
                                        )
                                        (implicit val executionContext: ExecutionContext) extends IdentifierAction {
-
-  val nino = Retrievals.nino.toString
-  val affinityGroup = Retrievals.affinityGroup.toString
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 

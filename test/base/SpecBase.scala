@@ -42,7 +42,6 @@ trait SpecBase
 
   val userAnswersId: String = "id"
   val sessionId                      = "sessionId1234"
-  val nino                           = Nino("AA112233A")
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
