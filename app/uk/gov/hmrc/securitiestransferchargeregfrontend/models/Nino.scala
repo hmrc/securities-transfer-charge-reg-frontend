@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.libs.json.{JsString, Writes}
 
-case class IdentifierRequest[A] (request: Request[A], userId: String, user: User) extends WrappedRequest[A](request)
+final case class Nino(value: String) extends AnyVal {
+  override def toString: String = value
+}
+
+object Nino {
+  implicit val writes: Writes[Nino] = nino => JsString(nino.value)
+}

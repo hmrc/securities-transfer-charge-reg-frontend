@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models.common
 
-import play.api.mvc.{Request, WrappedRequest}
+sealed trait UserType
 
-case class IdentifierRequest[A] (request: Request[A], userId: String, user: User) extends WrappedRequest[A](request)
+object UserType {
+  case object Individual extends UserType {
+    override def toString = "individual"
+  }
+
+  val values: List[UserType] = List(Individual)
+}

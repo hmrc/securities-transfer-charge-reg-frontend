@@ -16,6 +16,13 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
-import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.common.UserType
 
-case class IdentifierRequest[A] (request: Request[A], userId: String, user: User) extends WrappedRequest[A](request)
+case class User(
+    nino: String,
+    sessionId: String,
+    affinityGroup: String
+) {
+
+  val userType: UserType = UserType.Individual
+}

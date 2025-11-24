@@ -25,9 +25,12 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.{AnyContent, AnyContentAsEmpty}
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Nino, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, User}
 
 trait SpecBase
   extends AnyFreeSpec
@@ -38,6 +41,13 @@ trait SpecBase
     with IntegrationPatience {
 
   val userAnswersId: String = "id"
+  val sessionId                      = "sessionId1234"
+  val nino                           = Nino("AA112233A")
+  val user                           = User(nino.value, sessionId, AffinityGroup.Individual.toString)
+
+  val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
+
+  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", user, userAnswers)
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

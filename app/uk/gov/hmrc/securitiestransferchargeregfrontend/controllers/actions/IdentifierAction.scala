@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.User
 import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
@@ -26,6 +27,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -41,10 +43,13 @@ class AuthenticatedIdentifierAction @Inject()(
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    
+    val nino = Retrievals.nino.toString
+    val affinityGroup = Retrievals.affinityGroup.toString
 
     authorised().retrieve(Retrievals.internalId) {
       _.map {
-        internalId => block(IdentifierRequest(request, internalId))
+        internalId => block(IdentifierRequest(request, internalId, User(nino, "", affinityGroup)))
       }.getOrElse(throw new UnauthorizedException("Unable to retrieve internal Id"))
     } recover {
       case _: NoActiveSession =>
@@ -60,13 +65,16 @@ class SessionIdentifierAction @Inject()(
                                        )
                                        (implicit val executionContext: ExecutionContext) extends IdentifierAction {
 
+  val nino = Retrievals.nino.toString
+  val affinityGroup = Retrievals.affinityGroup.toString
+
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value))
+        block(IdentifierRequest(request, session.value, User(nino, "", affinityGroup)))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

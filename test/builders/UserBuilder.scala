@@ -14,8 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package builders
 
-import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.User
 
-case class IdentifierRequest[A] (request: Request[A], userId: String, user: User) extends WrappedRequest[A](request)
+object UserBuilder {
+  val anIndividualUser: User      = User("nino", "sessionId1234", AffinityGroup.Individual.toString)
+
+}
