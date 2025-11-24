@@ -25,11 +25,10 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{AnyContent, AnyContentAsEmpty}
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
-import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Nino, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
 
 trait SpecBase
