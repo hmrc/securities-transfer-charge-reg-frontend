@@ -17,14 +17,12 @@
 package controllers.actions
 
 import base.SpecBase
-import builders.UserBuilder.anIndividualUser
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalActionImpl
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, OptionalDataRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -46,7 +44,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get("id")) thenReturn Future(None)
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(IdentifierRequest(FakeRequest(), "id", anIndividualUser)).futureValue
+        val result = action.callTransform(IdentifierRequest(FakeRequest(), "id")).futureValue
 
         result.userAnswers must not be defined
       }
@@ -60,7 +58,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get("id")) thenReturn Future(Some(UserAnswers("id")))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(new IdentifierRequest(FakeRequest(), "id", anIndividualUser)).futureValue
+        val result = action.callTransform(new IdentifierRequest(FakeRequest(), "id")).futureValue
 
         result.userAnswers mustBe defined
       }

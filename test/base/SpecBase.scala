@@ -30,7 +30,7 @@ import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.AffinityGroup
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Nino, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, User}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
 
 trait SpecBase
   extends AnyFreeSpec
@@ -43,11 +43,10 @@ trait SpecBase
   val userAnswersId: String = "id"
   val sessionId                      = "sessionId1234"
   val nino                           = Nino("AA112233A")
-  val user                           = User(nino.value, sessionId, AffinityGroup.Individual.toString)
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
-  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", user, userAnswers)
+  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", userAnswers)
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

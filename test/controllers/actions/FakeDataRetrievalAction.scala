@@ -16,18 +16,16 @@
 
 package controllers.actions
 
-import builders.UserBuilder.anIndividualUser
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, OptionalDataRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction {
 
   override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] =
-    Future(OptionalDataRequest(request.request, request.userId, anIndividualUser, dataToReturn))
+    Future(OptionalDataRequest(request.request, request.userId, dataToReturn))
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
