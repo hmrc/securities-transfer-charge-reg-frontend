@@ -18,42 +18,54 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import play.api.Logging
 import play.api.mvc.*
+import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.*
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Enrolments}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments, InsufficientConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+/*
+  An ActionBuilder that checks whether the user is enrolled for the Securities Transfer Charge service
+  and has a current subscription. If both conditions are met, the user is redirected to the service.
+  If not enrolled or no current subscription, the user is redirected to the registration page.
+  If not logged in, they are redirected to the login page.
+  Note: confidence level is not checked here as it only applies to Individuals and is handled in the RegistrationController.
+
+  This action builder should be used by all controllers to protect their endpoints.
+*/
+
 class EnrolmentCheck @Inject()(val parser: BodyParsers.Default,
                                appConfig: FrontendAppConfig,
                                redirects: Redirects,
+                               registrationClient: RegistrationClient,
                                val authConnector: AuthConnector )(implicit ec: ExecutionContext)
   extends ActionBuilder[Request, AnyContent] with AuthorisedFunctions with Logging {
 
   import redirects.*
+
   private[controllers] val retrievals = Retrievals.authorisedEnrolments
   private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
 
-  /*  TODO: We will need to implement a check to see if the user has a current subscription
-   *  TODO: this will required finding their subscription in EACD and then asking ETMP what the end date on it is.
-   */
-  private[controllers] val hasCurrentSubscription: () => Boolean = () => true
+  private[controllers] def hasCurrentSubscription = registrationClient.hasCurrentSubscription
 
   override protected def executionContext: ExecutionContext = ec
 
   override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
     // Provide an implicit HeaderCarrier for the authorised call
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequest(request)
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
-      case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription() => Future.successful(redirectToService)
+      case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(redirectToService)
       case _ => Future.successful(redirectToRegister)
     } recover {
-      case _ => redirectToLogin
+      case _: InsufficientConfidenceLevel => redirectToIVUplift
+      case _                              => redirectToLogin
     }
   }
 }

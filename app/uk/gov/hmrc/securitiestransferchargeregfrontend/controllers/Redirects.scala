@@ -21,6 +21,9 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 import javax.inject.{Inject, Singleton}
 
+/*
+ * This class holds common redirects used across the controllers.
+ */
 @Singleton
 abstract class Redirects @Inject()(appConfig: FrontendAppConfig)  {
 

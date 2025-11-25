@@ -20,36 +20,52 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AffinityGroup.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments, InsufficientConfidenceLevel}
+import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheck
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, EnrolmentCheck}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
+/*
+ * This controller handles the registration routing logic based on the user's Affinity Group and enrolment status.
+ */
 @Singleton
 class RegistrationController @Inject()(
                                         mcc: MessagesControllerComponents,
+                                        appConfig: FrontendAppConfig,
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
+                                        authenticatedIdentifierAction: AuthenticatedIdentifierAction,
                                         enrolmentCheck: EnrolmentCheck
                                       ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions {
 
   import redirects.*
-  private[controllers] val predicates = ConfidenceLevel.L250
-  private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.nino and Retrievals.itmpName
+  private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
 
-  private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment("HMRC-STC-ORG").isDefined
+  private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
+  private[controllers] val check: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
 
-  val routingLogic: Action[AnyContent] = enrolmentCheck.async { implicit request =>
-    authorised(predicates).retrieve(retrievals) {
-      case Some(Individual) ~ Some(nino) ~ Some(name) => Future.successful(redirectToRegisterIndividual)
-      case Some(Individual) ~ _ ~ _                   => Future.successful(redirectToIVUplift)
-      case Some(Organisation) ~ _ ~ _                 => Future.successful(redirectToRegisterOrganisation)
-      case Some(Agent) ~ _ ~ _                        => Future.successful(redirectToASA)
-      case _                                          => Future.failed(new Exception("Could not retrieve the user's Affinity Group"))
+  /*
+   * Individuals require a confidence level of 250 or above and a name and NINO to register directly.
+   * otherwise, they are redirected to the IV uplift process.
+   * Organisations are redirected to the organisation registration page which collects the type of company they are
+   * and then sends them on the appropriate GRS journey.
+   * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
+   */
+  val routingLogic: Action[AnyContent] = (authenticatedIdentifierAction andThen enrolmentCheck).async { implicit request =>
+    authorised().retrieve(retrievals) {
+      case Some(Individual) ~ confidenceLevel ~ Some(nino) ~ Some(name) if check(confidenceLevel)
+                                            => Future.successful(redirectToRegisterIndividual)
+      case Some(Individual) ~ _ ~ _ ~ _     => Future.successful(redirectToIVUplift)
+      case Some(Organisation) ~ _ ~ _  ~ _  => Future.successful(redirectToRegisterOrganisation)
+      case Some(Agent) ~ _ ~ _ ~ _          => Future.successful(redirectToASA)
+      case _                                => Future.failed(new UnauthorizedException("Could not retrieve the user's Affinity Group"))
     } recover {
-      case _ => redirectToLogin
+      case _: InsufficientConfidenceLevel => redirectToIVUplift
+      case _                              => redirectToLogin
     }
   }
 }
