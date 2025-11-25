@@ -18,15 +18,14 @@ package views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.common.UserType
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
 
 class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
 
-  private val view         = app.injector.instanceOf[RegForSecuritiesTransferChargeView]
+  private val viewInstance         = app.injector.instanceOf[RegForSecuritiesTransferChargeView]
 
-  def view(userType: UserType): Document = Jsoup.parse(
-    view()(fakeRequest, messages).body
+  def view(): Document = Jsoup.parse(
+    viewInstance()(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {
@@ -40,7 +39,7 @@ class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
 
   "The RegForSecuritiesTransferChargeView" - {
     "the user is an Individual" - {
-      val individualPage = view(UserType.Individual)
+      val individualPage = view()
 
       "have the correct title" in {
         individualPage.title must include(ExpectedIndividual.title)
