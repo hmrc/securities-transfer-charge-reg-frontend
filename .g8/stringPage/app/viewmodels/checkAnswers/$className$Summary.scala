@@ -1,4 +1,4 @@
-package viewmodels.checkAnswers
+package uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.checkAnswers
 
 import controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{CheckMode, UserAnswers}

@@ -1,6 +1,6 @@
-package forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
 
-import forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 import javax.inject.Inject
 import play.api.data.Form
 

@@ -1,16 +1,16 @@
-package controllers
+package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import controllers.actions._
-import forms.$className$FormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions._
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.$className$FormProvider
 import javax.inject.Inject
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
-import navigation.Navigator
-import pages.$className$Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.$className$Page
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import views.html.$className$View
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.$className$View
 
 import scala.concurrent.{ExecutionContext, Future}
 

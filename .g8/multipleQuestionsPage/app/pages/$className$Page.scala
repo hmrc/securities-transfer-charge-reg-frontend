@@ -1,4 +1,4 @@
-package pages
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.$className$
 import play.api.libs.json.JsPath
