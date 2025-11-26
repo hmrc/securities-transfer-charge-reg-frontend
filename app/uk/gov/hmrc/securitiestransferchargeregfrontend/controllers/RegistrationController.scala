@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.auth.core.AffinityGroup.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments, InsufficientConfidenceLevel}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
@@ -38,7 +38,6 @@ class RegistrationController @Inject()(
                                         appConfig: FrontendAppConfig,
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
-                                        authenticatedIdentifierAction: AuthenticatedIdentifierAction,
                                         enrolmentCheck: EnrolmentCheck
                                       ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions {
 
@@ -46,7 +45,8 @@ class RegistrationController @Inject()(
   private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
 
   private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
-  private[controllers] val check: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
+  private[controllers] val checkConfidence: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
+  private[controllers] val checkName: ItmpName => Boolean = n => n.givenName.isDefined && n.familyName.isDefined
 
   /*
    * Individuals require a confidence level of 250 or above and a name and NINO to register directly.
@@ -55,9 +55,9 @@ class RegistrationController @Inject()(
    * and then sends them on the appropriate GRS journey.
    * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
    */
-  val routingLogic: Action[AnyContent] = (authenticatedIdentifierAction andThen enrolmentCheck).async { implicit request =>
+  val routingLogic: Action[AnyContent] = enrolmentCheck.async { implicit request =>
     authorised().retrieve(retrievals) {
-      case Some(Individual) ~ confidenceLevel ~ Some(nino) ~ Some(name) if check(confidenceLevel)
+      case Some(Individual) ~ cl ~ Some(nino) ~ Some(name) if checkConfidence(cl) && checkName(name)
                                             => Future.successful(redirectToRegisterIndividual)
       case Some(Individual) ~ _ ~ _ ~ _     => Future.successful(redirectToIVUplift)
       case Some(Organisation) ~ _ ~ _  ~ _  => Future.successful(redirectToRegisterOrganisation)
