@@ -16,7 +16,6 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.repositories
 
-import com.google.inject.ImplementedBy
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
 import play.api.libs.json.Format
