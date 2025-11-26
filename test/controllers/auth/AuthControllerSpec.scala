@@ -41,7 +41,7 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(None)
+        applicationBuilderWithoutSessionRepository(None)
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
@@ -70,7 +70,7 @@ class AuthControllerSpec extends SpecBase with MockitoSugar {
       when(mockSessionRepository.clear(any())) thenReturn Future.successful(true)
 
       val application =
-        applicationBuilder(None)
+        applicationBuilderWithoutSessionRepository(None)
           .overrides(bind[SessionRepository].toInstance(mockSessionRepository))
           .build()
 
