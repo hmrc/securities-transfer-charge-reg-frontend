@@ -47,3 +47,8 @@ signedOut.guidance = We did not save your answers.
 
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
+
+regForSecuritiesTransferCharge.title = Register to tell us about a securities transfer
+regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer
+regForSecuritiesTransferCharge.p1 = Before using this service you will need to register and confirm or provide some personal details.
+regForSecuritiesTransferCharge.p2 = You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account.

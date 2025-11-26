@@ -35,6 +35,12 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
       }
+
+      pending
+      "must go from the RegForSecuritiesTransferChargePage to AreYourDetailsCorrectPage" in {
+        case object RegForSecuritiesTransferChargePage extends Page
+        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe ???
+      }
     }
 
     "in Check mode" - {

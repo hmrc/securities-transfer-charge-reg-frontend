@@ -24,8 +24,8 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 

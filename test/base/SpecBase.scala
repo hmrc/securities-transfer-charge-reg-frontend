@@ -25,11 +25,14 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+
 
 trait SpecBase
   extends AnyFreeSpec
@@ -40,6 +43,11 @@ trait SpecBase
     with IntegrationPatience {
 
   val userAnswersId: String = "id"
+  val sessionId = "sessionId1234"
+
+  val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
+
+  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", userAnswers)
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 
