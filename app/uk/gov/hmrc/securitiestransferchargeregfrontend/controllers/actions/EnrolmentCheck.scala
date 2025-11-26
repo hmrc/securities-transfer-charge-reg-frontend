@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
+import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.mvc.*
-import uk.gov.hmrc.auth.core.authorise.EmptyPredicate
 import uk.gov.hmrc.auth.core.retrieve.v2.*
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments, InsufficientConfidenceLevel}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Enrolments, InsufficientConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
@@ -40,12 +40,15 @@ import scala.concurrent.{ExecutionContext, Future}
   This action builder should be used by all controllers to protect their endpoints.
 */
 
-class EnrolmentCheck @Inject()(val parser: BodyParsers.Default,
+@ImplementedBy(classOf[EnrolmentCheckImpl])
+trait EnrolmentCheck extends ActionBuilder[Request, AnyContent]
+
+class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
                                appConfig: FrontendAppConfig,
                                redirects: Redirects,
                                registrationClient: RegistrationClient,
                                val authConnector: AuthConnector )(implicit ec: ExecutionContext)
-  extends ActionBuilder[Request, AnyContent] with AuthorisedFunctions with Logging {
+  extends EnrolmentCheck with AuthorisedFunctions with Logging {
 
   import redirects.*
 
@@ -64,7 +67,6 @@ class EnrolmentCheck @Inject()(val parser: BodyParsers.Default,
       case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(redirectToService)
       case _ => Future.successful(redirectToRegister)
     } recover {
-      case _: InsufficientConfidenceLevel => redirectToIVUplift
       case _                              => redirectToLogin
     }
   }

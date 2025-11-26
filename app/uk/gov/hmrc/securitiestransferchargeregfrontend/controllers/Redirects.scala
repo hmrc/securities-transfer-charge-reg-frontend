@@ -25,14 +25,14 @@ import javax.inject.{Inject, Singleton}
  * This class holds common redirects used across the controllers.
  */
 @Singleton
-abstract class Redirects @Inject()(appConfig: FrontendAppConfig)  {
+class Redirects @Inject()(appConfig: FrontendAppConfig)  {
 
-  private[controllers] val redirectToLogin = Redirect(appConfig.loginUrl)
-  private[controllers] val redirectToRegisterIndividual = Redirect(appConfig.registerIndividualUrl)
-  private[controllers] val redirectToIVUplift = Redirect(appConfig.ivUpliftUrl)
-  private[controllers] val redirectToRegisterOrganisation = Redirect(appConfig.registerOrganisationUrl)
-  private[controllers] val redirectToASA = Redirect(appConfig.asaUrl)
-  private[controllers] val redirectToRegister = Redirect(appConfig.registerUrl)
-  private[controllers] val redirectToService = Redirect(appConfig.stcServiceUrl)
+  val redirectToLogin: play.api.mvc.Result = Redirect(appConfig.loginUrl)
+  val redirectToRegisterIndividual: play.api.mvc.Result = Redirect(appConfig.registerIndividualUrl)
+  val redirectToIVUplift: play.api.mvc.Result = Redirect(appConfig.ivUpliftUrl)
+  val redirectToRegisterOrganisation: play.api.mvc.Result = Redirect(appConfig.registerOrganisationUrl)
+  val redirectToASA: play.api.mvc.Result = Redirect(appConfig.asaUrl)
+  val redirectToRegister: play.api.mvc.Result = Redirect(appConfig.registerUrl)
+  val redirectToService: play.api.mvc.Result = Redirect(appConfig.stcServiceUrl)
 
 }
