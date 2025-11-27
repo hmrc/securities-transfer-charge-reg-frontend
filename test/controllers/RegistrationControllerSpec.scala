@@ -17,15 +17,17 @@
 package controllers
 
 import base.SpecBase
-import play.api.mvc.{AnyContent, AnyContentAsEmpty}
+import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
+import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval, ~}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Nino}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{EnrolmentCheck, IdentifierAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,25 +38,26 @@ class RegistrationControllerSpec extends SpecBase {
   // simple stub AuthConnector that returns a preconfigured value for any retrieval
   class FakeAuthConnector[T](value: T) extends AuthConnector {
     val serviceUrl: String = ""
-    override def authorise[A](predicate: uk.gov.hmrc.auth.core.authorise.Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
+    override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
       Future.successful(value.asInstanceOf[A])
   }
 
   // Simple pass-through IdentifierAction used instead of the real AuthenticatedIdentifierAction
   class TestIdentifierAction extends IdentifierAction {
-    override def invokeBlock[A](request: play.api.mvc.Request[A], block: uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest[A] => Future[play.api.mvc.Result]): Future[play.api.mvc.Result] =
-      block(uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest(request, "test-internal-id"))
+    override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
+      block(IdentifierRequest(request, "test-internal-id"))
 
-    override def parser: play.api.mvc.BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
+    override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
 
     override protected def executionContext: ExecutionContext = ec
   }
 
   // Pass-through EnrolmentCheck that just invokes the block
   class PassThroughEnrolmentCheck extends EnrolmentCheck {
-    override def parser: play.api.mvc.BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
+    override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
     override protected def executionContext: ExecutionContext = ec
-    override def invokeBlock[A](request: play.api.mvc.Request[A], block: play.api.mvc.Request[A] => Future[play.api.mvc.Result]): Future[play.api.mvc.Result] = block(request)
+    override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
+      block(IdentifierRequest(request, "test-internal-id"))
   }
 
   def buildRetrieval(affinityGroup: AffinityGroup, confidenceLevel: ConfidenceLevel, nino: Option[String], itmpName: Option[ItmpName])
@@ -70,7 +73,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
@@ -94,7 +97,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
@@ -116,7 +119,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
@@ -138,7 +141,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
@@ -160,7 +163,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
@@ -182,7 +185,7 @@ class RegistrationControllerSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val mcc = application.injector.instanceOf[play.api.mvc.MessagesControllerComponents]
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 

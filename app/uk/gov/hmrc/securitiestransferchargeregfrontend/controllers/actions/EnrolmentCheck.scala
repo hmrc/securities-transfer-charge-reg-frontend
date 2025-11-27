@@ -26,6 +26,7 @@ import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -41,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 */
 
 @ImplementedBy(classOf[EnrolmentCheckImpl])
-trait EnrolmentCheck extends ActionBuilder[Request, AnyContent]
+trait EnrolmentCheck extends ActionBuilder[IdentifierRequest, AnyContent]
 
 class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
                                appConfig: FrontendAppConfig,
@@ -59,7 +60,7 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   override protected def executionContext: ExecutionContext = ec
 
-  override def invokeBlock[A](request: Request[A], block: Request[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
     // Provide an implicit HeaderCarrier for the authorised call
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
@@ -71,3 +72,4 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
     }
   }
 }
+

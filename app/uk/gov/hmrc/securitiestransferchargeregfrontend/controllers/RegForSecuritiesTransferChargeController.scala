@@ -29,20 +29,18 @@ import javax.inject.Inject
 import scala.concurrent.Future
 
 class RegForSecuritiesTransferChargeController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
+                                       auth: StcAuthAction,
                                        navigator: Navigator,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: RegForSecuritiesTransferChargeView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify {
+  def onPageLoad: Action[AnyContent] = auth.authorise {
     implicit request =>
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = identify {
+  def onSubmit(): Action[AnyContent] = auth.authorise {
     implicit request =>
       Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
   }
