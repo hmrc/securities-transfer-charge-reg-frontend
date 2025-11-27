@@ -17,15 +17,19 @@
 package controllers.actions
 
 import base.SpecBase
-import play.api.mvc.Results
+import play.api.mvc.BodyParsers.Default
+import play.api.mvc.{AnyContent, Request, Results}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Random
@@ -36,13 +40,13 @@ class EnrolmentCheckSpec extends SpecBase {
 
   class FakeSuccessAuthConnector[A](value: A) extends AuthConnector {
     val serviceUrl: String = ""
-    override def authorise[T](predicate: uk.gov.hmrc.auth.core.authorise.Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
+    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
       Future.successful(value.asInstanceOf[T])
   }
 
   class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
     val serviceUrl: String = ""
-    override def authorise[T](predicate: uk.gov.hmrc.auth.core.authorise.Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
+    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
       Future.failed(exceptionToReturn)
   }
 
@@ -52,8 +56,8 @@ class EnrolmentCheckSpec extends SpecBase {
       val application = applicationBuilder().configure().build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
-        val appConfig   = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
+        val bodyParsers = application.injector.instanceOf[Default]
+        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
         val redirects   = application.injector.instanceOf[Redirects]
 
         // create an enrolment that matches the configured key
@@ -68,7 +72,8 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val result = action.invokeBlock(FakeRequest(), (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val result = action.invokeBlock(request, (_: Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(appConfig.stcServiceUrl)
@@ -81,8 +86,8 @@ class EnrolmentCheckSpec extends SpecBase {
         .build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
-        val appConfig   = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
+        val bodyParsers = application.injector.instanceOf[Default]
+        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
         val redirects   = application.injector.instanceOf[Redirects]
 
         val enrolments = Enrolments(Set.empty)
@@ -94,7 +99,8 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val result = action.invokeBlock(FakeRequest(), (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(appConfig.registerUrl)
@@ -107,8 +113,8 @@ class EnrolmentCheckSpec extends SpecBase {
         .build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
-        val appConfig   = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
+        val bodyParsers = application.injector.instanceOf[Default]
+        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
         val redirects   = application.injector.instanceOf[Redirects]
 
         // create an enrolment that matches the configured key
@@ -124,7 +130,8 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val result = action.invokeBlock(FakeRequest(), (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe SEE_OTHER
         // EnrolmentCheckImpl redirects to the registration page when the user lacks a current subscription
@@ -138,8 +145,8 @@ class EnrolmentCheckSpec extends SpecBase {
         .build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
-        val appConfig   = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
+        val bodyParsers = application.injector.instanceOf[Default]
+        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
         val redirects   = application.injector.instanceOf[Redirects]
 
         val authConnector = new FakeFailingAuthConnector(new MissingBearerToken)
@@ -150,7 +157,8 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val result = action.invokeBlock(FakeRequest(), (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(appConfig.loginUrl)

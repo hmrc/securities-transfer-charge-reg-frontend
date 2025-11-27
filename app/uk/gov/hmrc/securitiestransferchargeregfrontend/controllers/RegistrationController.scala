@@ -24,7 +24,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLeve
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, EnrolmentCheck}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, EnrolmentCheck, StcAuthAction}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -38,7 +38,7 @@ class RegistrationController @Inject()(
                                         appConfig: FrontendAppConfig,
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
-                                        enrolmentCheck: EnrolmentCheck
+                                        auth: StcAuthAction,
                                       ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions {
 
   import redirects.*
@@ -55,7 +55,7 @@ class RegistrationController @Inject()(
    * and then sends them on the appropriate GRS journey.
    * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
    */
-  val routingLogic: Action[AnyContent] = enrolmentCheck.async { implicit request =>
+  val routingLogic: Action[AnyContent] = auth.authorise.async { implicit request =>
     authorised().retrieve(retrievals) {
       case Some(Individual) ~ cl ~ Some(nino) ~ Some(name) if checkConfidence(cl) && checkName(name)
                                             => Future.successful(redirectToRegisterIndividual)
@@ -64,7 +64,6 @@ class RegistrationController @Inject()(
       case Some(Agent) ~ _ ~ _ ~ _          => Future.successful(redirectToASA)
       case _                                => Future.failed(new UnauthorizedException("Could not retrieve the user's Affinity Group"))
     } recover {
-      case _: InsufficientConfidenceLevel => redirectToIVUplift
       case _                              => redirectToLogin
     }
   }

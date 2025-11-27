@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{EnrolmentCheck, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{EnrolmentCheck, IdentifierAction, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
@@ -53,11 +53,15 @@ class RegistrationControllerSpec extends SpecBase {
   }
 
   // Pass-through EnrolmentCheck that just invokes the block
-  class PassThroughEnrolmentCheck extends EnrolmentCheck {
-    override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
-    override protected def executionContext: ExecutionContext = ec
-    override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-      block(IdentifierRequest(request, "test-internal-id"))
+  class PassThroughStcAuthAction extends StcAuthAction {
+    override def authorise: ActionBuilder[IdentifierRequest, AnyContent] = new ActionBuilder[IdentifierRequest, AnyContent] {
+      override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
+
+      override protected def executionContext = ec
+
+      override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => Future[play.api.mvc.Result]) =
+        block(IdentifierRequest(request, "userId"))
+    }
   }
 
   def buildRetrieval(affinityGroup: AffinityGroup, confidenceLevel: ConfidenceLevel, nino: Option[String], itmpName: Option[ItmpName])
@@ -82,9 +86,9 @@ class RegistrationControllerSpec extends SpecBase {
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
         //val identifierAction = new TestIdentifierAction
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -104,9 +108,9 @@ class RegistrationControllerSpec extends SpecBase {
         val retrievalValue = buildRetrieval(Agent, ConfidenceLevel.L50, None, None)
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -126,9 +130,9 @@ class RegistrationControllerSpec extends SpecBase {
         val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L50, None, None)
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -148,9 +152,9 @@ class RegistrationControllerSpec extends SpecBase {
         val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, None, Some(ItmpName(Some("First"), None, Some("Last"))))
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -170,9 +174,9 @@ class RegistrationControllerSpec extends SpecBase {
         val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), Some(ItmpName(None, None, Some("Last"))))
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -192,9 +196,9 @@ class RegistrationControllerSpec extends SpecBase {
         val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), Some(ItmpName(Some("First"), None, Some("Last"))))
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
-        val enrolmentCheck = new PassThroughEnrolmentCheck
+        val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, enrolmentCheck)
+        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 

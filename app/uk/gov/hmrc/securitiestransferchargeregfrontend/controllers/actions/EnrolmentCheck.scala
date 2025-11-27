@@ -32,7 +32,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /*
-  An ActionBuilder that checks whether the user is enrolled for the Securities Transfer Charge service
+  An ActionFilter that checks whether the user is enrolled for the Securities Transfer Charge service
   and has a current subscription. If both conditions are met, the user is redirected to the service.
   If not enrolled or no current subscription, the user is redirected to the registration page.
   If not logged in, they are redirected to the login page.
@@ -42,7 +42,7 @@ import scala.concurrent.{ExecutionContext, Future}
 */
 
 @ImplementedBy(classOf[EnrolmentCheckImpl])
-trait EnrolmentCheck extends ActionBuilder[IdentifierRequest, AnyContent]
+trait EnrolmentCheck extends ActionFilter[IdentifierRequest]
 
 class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
                                appConfig: FrontendAppConfig,
@@ -60,16 +60,15 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   override protected def executionContext: ExecutionContext = ec
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
-    // Provide an implicit HeaderCarrier for the authorised call
+  override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-
     authorised().retrieve(retrievals) {
-      case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(redirectToService)
-      case _ => Future.successful(redirectToRegister)
+      case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(Some(redirectToService))
+      case _ => Future.successful(Some(redirectToRegister))
     } recover {
-      case _                              => redirectToLogin
+      case _                              => Some(redirectToLogin)
     }
   }
+
 }
 

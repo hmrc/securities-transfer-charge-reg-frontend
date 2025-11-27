@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
-import play.api.mvc.{ActionBuilder, ActionFunction, AnyContent, Request}
+import play.api.mvc.{ActionBuilder, AnyContent}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 trait StcAuthAction {
