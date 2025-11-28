@@ -27,7 +27,7 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class Redirects @Inject()(appConfig: FrontendAppConfig)  {
 
-  val redirectToLogin: play.api.mvc.Result = Redirect(appConfig.loginUrl)
+  val redirectToLogin: play.api.mvc.Result = Redirect(routes.UnauthorisedController.onPageLoad().url)
   val redirectToRegisterIndividual: play.api.mvc.Result = Redirect(appConfig.registerIndividualUrl)
   val redirectToIVUplift: play.api.mvc.Result = Redirect(appConfig.ivUpliftUrl)
   val redirectToRegisterOrganisation: play.api.mvc.Result = Redirect(appConfig.registerOrganisationUrl)

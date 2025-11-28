@@ -27,8 +27,8 @@ import uk.gov.hmrc.auth.core.retrieve.Retrieval
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, routes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -125,9 +125,10 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
         val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val expected = routes.UnauthorisedController.onPageLoad().url
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.loginUrl)
+        redirectLocation(result) mustBe Some(expected)
       }
     }
   }
