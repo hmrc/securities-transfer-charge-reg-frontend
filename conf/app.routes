@@ -22,3 +22,5 @@ GET         /unauthorised                                uk.gov.hmrc.securitiest
 
 GET        /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onSubmit()
+
+GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()

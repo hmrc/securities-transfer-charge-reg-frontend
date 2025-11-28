@@ -25,7 +25,7 @@ import uk.gov.hmrc.auth.core.authorise.Predicate
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{EnrolmentCheck, IdentifierAction, StcAuthAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IdentifierAction, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
@@ -163,7 +163,7 @@ class RegistrationControllerSpec extends SpecBase {
       }
     }
 
-    "should redirect individuals with sufficient confidence but no forename to IV Uplift" in {
+    "should redirect individuals with sufficient confidence but no name to IV Uplift" in {
       val application = applicationBuilder().configure().build()
 
       running(application) {
@@ -171,7 +171,7 @@ class RegistrationControllerSpec extends SpecBase {
         val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
 
-        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), Some(ItmpName(None, None, Some("Last"))))
+        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), None)
         val authConnectorForController = new FakeAuthConnector(retrievalValue)
 
         val authAction = new PassThroughStcAuthAction

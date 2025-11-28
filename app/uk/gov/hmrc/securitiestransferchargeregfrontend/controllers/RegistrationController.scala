@@ -16,15 +16,16 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
+import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments, InsufficientConfidenceLevel}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, EnrolmentCheck, StcAuthAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
@@ -39,14 +40,14 @@ class RegistrationController @Inject()(
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
                                         auth: StcAuthAction,
-                                      ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions {
+                                      ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions with Logging {
 
   import redirects.*
   private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
 
   private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
   private[controllers] val checkConfidence: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
-  private[controllers] val checkName: ItmpName => Boolean = n => n.givenName.isDefined && n.familyName.isDefined
+  private[controllers] val checkName: Option[ItmpName] => Boolean = maybeName => maybeName.exists(n => n.givenName.isDefined && n.familyName.isDefined)
 
   /*
    * Individuals require a confidence level of 250 or above and a name and NINO to register directly.
@@ -57,14 +58,14 @@ class RegistrationController @Inject()(
    */
   val routingLogic: Action[AnyContent] = auth.authorise.async { implicit request =>
     authorised().retrieve(retrievals) {
-      case Some(Individual) ~ cl ~ Some(nino) ~ Some(name) if checkConfidence(cl) && checkName(name)
+      case Some(Individual) ~ cl ~ Some(nino) ~ name if checkConfidence(cl) && checkName(name)
                                             => Future.successful(redirectToRegisterIndividual)
       case Some(Individual) ~ _ ~ _ ~ _     => Future.successful(redirectToIVUplift)
       case Some(Organisation) ~ _ ~ _  ~ _  => Future.successful(redirectToRegisterOrganisation)
       case Some(Agent) ~ _ ~ _ ~ _          => Future.successful(redirectToASA)
       case _                                => Future.failed(new UnauthorizedException("Could not retrieve the user's Affinity Group"))
     } recover {
-      case _                              => redirectToLogin
+      case _: AuthorisationException                                => redirectToLogin
     }
   }
 }
