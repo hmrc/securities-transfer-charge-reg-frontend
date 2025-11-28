@@ -32,7 +32,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Enrol
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Random
 
 class EnrolmentCheckSpec extends SpecBase {
 
@@ -80,7 +79,7 @@ class EnrolmentCheckSpec extends SpecBase {
       }
     }
 
-    "redirect to register when user is not enrolled" in {
+    "pass through when user is not enrolled" in {
       val application = applicationBuilder()
         .configure()
         .build()
@@ -102,40 +101,7 @@ class EnrolmentCheckSpec extends SpecBase {
         val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
         val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
 
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.registerUrl)
-      }
-    }
-
-    "redirect to IV uplift when user is enrolled but does not have current subscription" in {
-      val application = applicationBuilder()
-        .configure()
-        .build()
-
-      running(application) {
-        val bodyParsers = application.injector.instanceOf[Default]
-        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
-        val redirects   = application.injector.instanceOf[Redirects]
-
-        // create an enrolment that matches the configured key
-        val key = Random().nextInt()
-        val enrolment = Enrolment(appConfig.stcEnrolmentKey, Seq(EnrolmentIdentifier("id", key.toString)), "Activated")
-        val enrolments = Enrolments(Set(enrolment))
-
-        val authConnector = new FakeSuccessAuthConnector[Enrolments](enrolments)
-
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = false
-        }
-
-        val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
-
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
-        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
-
-        status(result) mustBe SEE_OTHER
-        // EnrolmentCheckImpl redirects to the registration page when the user lacks a current subscription
-        redirectLocation(result) mustBe Some(appConfig.registerUrl)
+        status(result) mustBe OK
       }
     }
 

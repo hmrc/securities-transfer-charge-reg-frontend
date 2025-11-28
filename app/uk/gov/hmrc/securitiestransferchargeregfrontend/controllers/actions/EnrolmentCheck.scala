@@ -20,7 +20,7 @@ import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.retrieve.v2.*
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Enrolments, InsufficientConfidenceLevel}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
@@ -64,7 +64,7 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised().retrieve(retrievals) {
       case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(Some(redirectToService))
-      case _ => Future.successful(Some(redirectToRegister))
+      case _ => Future.successful(None)
     } recover {
       case _                              => Some(redirectToLogin)
     }
