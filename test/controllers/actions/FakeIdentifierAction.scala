@@ -20,13 +20,14 @@ import javax.inject.Inject
 import play.api.mvc.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IdentifierAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import base.SpecBase
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction {
+class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with SpecBase {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, "id"))
+    block(IdentifierRequest(request, "id", Some(userDetails)))
 
   override def parser: BodyParser[AnyContent] =
     bodyParsers.default

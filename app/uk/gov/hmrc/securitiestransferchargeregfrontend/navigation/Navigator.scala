@@ -26,6 +26,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{Page, RegForSecuri
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case RegForSecuritiesTransferChargePage => _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
     case _ => _ => routes.IndexController.onPageLoad()
   }
 

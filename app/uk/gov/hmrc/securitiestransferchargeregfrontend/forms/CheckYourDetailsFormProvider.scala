@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import play.api.data.*
+import play.api.data.Forms.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
-case class IdentifierRequest[A](
-                                 request: Request[A],
-                                 userId: String,
-                                 userDetails: Option[UserDetails]
-                               ) extends WrappedRequest[A](request)
+import javax.inject.Inject
 
+class CheckYourDetailsFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("checkYourDetails.error.required")
+    )
+}

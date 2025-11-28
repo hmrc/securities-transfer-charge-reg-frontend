@@ -27,9 +27,13 @@ import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
 trait SpecBase
   extends AnyFreeSpec
@@ -39,12 +43,25 @@ trait SpecBase
     with ScalaFutures
     with IntegrationPatience {
 
+  val firstName = "TestFirstName"
+  val lastName = "TestLastName"
+  val affinityGroup = AffinityGroup.Individual
+  val confidenceLevel = ConfidenceLevel.L250
+  val nino = "AB 12 34 56 C"
   val userAnswersId: String = "id"
   val sessionId                      = "sessionId1234"
+  val userDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
 
-  val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
+  val fakeRequest: FakeRequest[AnyContent] =
+    FakeRequest("GET", "/").withHeaders("sessionId" -> sessionId)
 
-  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", userAnswers)
+  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = {
+    val identifierRequest =
+      IdentifierRequest(fakeRequest, "id", Some(userDetails))
+
+    DataRequest(identifierRequest, userAnswers)
+  }
+
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 
