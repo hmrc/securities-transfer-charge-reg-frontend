@@ -31,7 +31,7 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 /*
- * This controller handles the registration routing logic based on the user's Affinity Group and enrolment status.
+ * This controller handles the registration routing logic based on the user's Affinity Group.
  */
 @Singleton
 class RegistrationController @Inject()(
@@ -47,25 +47,26 @@ class RegistrationController @Inject()(
 
   private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
   private[controllers] val checkConfidence: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
-  private[controllers] val checkName: Option[ItmpName] => Boolean = maybeName => maybeName.exists(n => n.givenName.isDefined && n.familyName.isDefined)
+  private[controllers] val checkName: ItmpName => Boolean = n => n.givenName.isDefined && n.familyName.isDefined
 
   /*
-   * Individuals require a confidence level of 250 or above and a name and NINO to register directly.
-   * otherwise, they are redirected to the IV uplift process.
-   * Organisations are redirected to the organisation registration page which collects the type of company they are
+   * Individuals require a confidence level of 250 or above with both a name and NINO to register directly.
+   * Otherwise, they are redirected to the IV uplift process.
+   * Organisation users are redirected to the organisation registration page which collects the type of company they are
    * and then sends them on the appropriate GRS journey.
    * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
    */
   val routingLogic: Action[AnyContent] = auth.authorise.async { implicit request =>
     authorised().retrieve(retrievals) {
-      case Some(Individual) ~ cl ~ Some(nino) ~ name if checkConfidence(cl) && checkName(name)
-                                            => Future.successful(redirectToRegisterIndividual)
-      case Some(Individual) ~ _ ~ _ ~ _     => Future.successful(redirectToIVUplift)
-      case Some(Organisation) ~ _ ~ _  ~ _  => Future.successful(redirectToRegisterOrganisation)
-      case Some(Agent) ~ _ ~ _ ~ _          => Future.successful(redirectToASA)
-      case _                                => Future.failed(new UnauthorizedException("Could not retrieve the user's Affinity Group"))
+      case Some(Individual) ~ cl ~ Some(nino) ~ Some(name) if checkConfidence(cl) && checkName(name)
+                                            => redirectToRegisterIndividualF
+      case Some(Individual) ~ _ ~ _ ~ _     => redirectToIVUpliftF
+      case Some(Organisation) ~ _ ~ _  ~ _  => redirectToRegisterOrganisationF
+      case Some(Agent) ~ _ ~ _ ~ _          => redirectToAsaF
+      case _                                => Future.failed(new UnauthorizedException("Unable to retrieve Affinity Group"))
     } recover {
-      case _: AuthorisationException                                => redirectToLogin
+      case _: AuthorisationException        => redirectToLogin
+      // Other exceptions will percolate up and be handled by the default error handler
     }
   }
 }

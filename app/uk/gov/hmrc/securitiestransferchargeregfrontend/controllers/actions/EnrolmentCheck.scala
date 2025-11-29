@@ -20,7 +20,7 @@ import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.mvc.*
 import uk.gov.hmrc.auth.core.retrieve.v2.*
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisedFunctions, Enrolments}
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
@@ -32,13 +32,11 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 /*
-  An ActionFilter that checks whether the user is enrolled for the Securities Transfer Charge service
-  and has a current subscription. If both conditions are met, the user is redirected to the service.
-  If not enrolled or no current subscription, the user is redirected to the registration page.
-  If not logged in, they are redirected to the login page.
-  Note: confidence level is not checked here as it only applies to Individuals and is handled in the RegistrationController.
-
-  This action builder should be used by all controllers to protect their endpoints.
+  An ActionFilter that is used to protect endpoints in this service.
+  It protects the invariant that users are both authenticated and NOT already enrolled.
+  If the user is already enrolled, they are redirected to the service proper.
+  If the user is not authenticated, they are redirected to log in.
+  Otherwise, they are allowed to proceed.
 */
 
 @ImplementedBy(classOf[EnrolmentCheckImpl])
@@ -63,10 +61,12 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised().retrieve(retrievals) {
-      case enrolments: Enrolments if enrolledForSTC(enrolments) && hasCurrentSubscription => Future.successful(Some(redirectToService))
+      case enrolments: Enrolments
+        if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option(_))
       case _ => Future.successful(None)
     } recover {
-      case _                              => Some(redirectToLogin)
+      case _: AuthorisationException => Some(redirectToLogin)
+      // Other exceptions will percolate up and be handled by the default error handler
     }
   }
 

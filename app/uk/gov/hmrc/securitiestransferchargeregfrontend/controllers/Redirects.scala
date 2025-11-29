@@ -16,10 +16,12 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
+import play.api.mvc.Result
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.Future
 
 /*
  * This class holds common redirects used across the controllers.
@@ -27,14 +29,16 @@ import javax.inject.{Inject, Singleton}
 @Singleton
 class Redirects @Inject()(appConfig: FrontendAppConfig)  {
 
+  val toFuture: Result => Future[Result] = result => Future.successful(result)
   val unauthorisedPath: String = routes.UnauthorisedController.onPageLoad().url
   
-  val redirectToLogin: play.api.mvc.Result = Redirect(appConfig.unauthorisedUrl)
-  val redirectToRegisterIndividual: play.api.mvc.Result = Redirect(appConfig.registerIndividualUrl)
-  val redirectToIVUplift: play.api.mvc.Result = Redirect(appConfig.ivUpliftUrl)
-  val redirectToRegisterOrganisation: play.api.mvc.Result = Redirect(appConfig.registerOrganisationUrl)
-  val redirectToASA: play.api.mvc.Result = Redirect(appConfig.asaUrl)
-  val redirectToRegister: play.api.mvc.Result = Redirect(appConfig.registerUrl)
-  val redirectToService: play.api.mvc.Result = Redirect(appConfig.stcServiceUrl)
+  val redirectToLogin: Result = Redirect(appConfig.unauthorisedUrl)
+  def redirectToRegisterIndividualF: Future[Result] = toFuture(Redirect(appConfig.registerIndividualUrl))
+  def redirectToIVUpliftF: Future[Result] = toFuture(Redirect(appConfig.ivUpliftUrl))
+  def redirectToRegisterOrganisationF: Future[Result] = toFuture(Redirect(appConfig.registerOrganisationUrl))
+  def redirectToAsaF: Future[Result] = toFuture(Redirect(appConfig.asaUrl))
+  val redirectToRegister: Result = Redirect(appConfig.registerUrl)
+  def redirectToServiceF: Future[Result] = toFuture(Redirect(appConfig.stcServiceUrl))
+
 
 }
