@@ -16,9 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import play.api.mvc.WrappedRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{UserAnswers, UserDetails}
 
 case class OptionalDataRequest[A](
                                    request: IdentifierRequest[A],

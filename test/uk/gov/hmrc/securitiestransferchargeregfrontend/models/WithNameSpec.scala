@@ -14,17 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import play.api.data.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import uk.gov.hmrc.securitiestransferchargeregfrontend
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
 
-import javax.inject.Inject
+class WithNameSpec extends AnyFreeSpec with Matchers {
 
-class CheckYourDetailsFormProvider @Inject() extends Mappings {
+  object Foo extends WithName("bar")
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("checkYourDetails.error.required")
-    )
+  ".toString" - {
+
+    "must return the correct string" in {
+      Foo.toString mustEqual "bar"
+    }
+  }
 }

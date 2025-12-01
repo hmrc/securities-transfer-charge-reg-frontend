@@ -16,15 +16,30 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
 
-import play.api.data.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import play.api.data.FormError
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.behaviours.BooleanFieldBehaviours
 
-import javax.inject.Inject
+class CheckYourDetailsFormProviderSpec extends BooleanFieldBehaviours {
 
-class CheckYourDetailsFormProvider @Inject() extends Mappings {
+  val requiredKey = "checkYourDetails.error.required"
+  val invalidKey = "error.boolean"
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("checkYourDetails.error.required")
+  val form = new CheckYourDetailsFormProvider()()
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like booleanField(
+      form,
+      fieldName,
+      invalidError = FormError(fieldName, invalidKey)
     )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+  }
 }

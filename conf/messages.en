@@ -57,5 +57,5 @@ checkYourDetails.title = Check your details
 checkYourDetails.heading = Check your details
 checkYourDetails.checkYourAnswersLabel = Are these details correct?
 checkYourDetails.areTheseDetailsCorrect = Are these details correct?
-checkYourDetails.error.required = Select yes if checkYourDetails
+checkYourDetails.error.required = Select yes if these details are correct
 checkYourDetails.change.hidden = CheckYourDetails

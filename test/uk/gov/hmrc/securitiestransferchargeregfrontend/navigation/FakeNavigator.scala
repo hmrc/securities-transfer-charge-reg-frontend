@@ -14,17 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
-import play.api.data.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import play.api.mvc.Call
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
-import javax.inject.Inject
+class FakeNavigator(desiredRoute: Call) extends Navigator {
 
-class CheckYourDetailsFormProvider @Inject() extends Mappings {
-
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("checkYourDetails.error.required")
-    )
+  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    desiredRoute
 }

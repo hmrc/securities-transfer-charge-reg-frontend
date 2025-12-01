@@ -14,17 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import play.api.data.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import javax.inject.Inject
+case class Field(name: String, errorKeys: Map[ErrorType, String])
 
-class CheckYourDetailsFormProvider @Inject() extends Mappings {
+object Field {
 
-  def apply(): Form[Boolean] =
-    Form(
-      "value" -> boolean("checkYourDetails.error.required")
-    )
+  def apply(name: String, errors: (ErrorType, String)*): Field =
+    Field(name, errors.toMap)
 }
+
+sealed trait ErrorType
+case object Required extends ErrorType
+case object Invalid extends ErrorType

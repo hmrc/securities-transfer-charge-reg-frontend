@@ -36,14 +36,13 @@
 
 <h1 class="govuk-heading-l">@messages("checkYourDetails.heading")</h1>
 
-@SummaryCard(firstName, lastName, nino)
-
     @formHelper(action = routes.CheckYourDetailsController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
+        @SummaryCard(firstName, lastName, nino)
 
         @govukRadios(
             RadiosViewModel.yesNo(

@@ -16,17 +16,17 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourDetailsView
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourDetailsView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -35,20 +35,18 @@ class CheckYourDetailsController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: SessionRepository,
                                          navigator: Navigator,
-                                         identify: IdentifierAction,
-                                         authenticatedIdentifierAction: AuthenticatedIdentifierAction,
+                                         authenticatedIdentifierAction: IdentifierAction,
                                          getData: DataRetrievalAction,
-                                         requireData: DataRequiredAction,
                                          formProvider: CheckYourDetailsFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
                                          view: CheckYourDetailsView
                                  )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
 
-  val form = formProvider()
+  val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identify andThen authenticatedIdentifierAction andThen getData) { implicit request =>
+    (authenticatedIdentifierAction andThen getData) { implicit request =>
 
       val firstName = request.userDetails.flatMap(_.firstName)
       val lastName = request.userDetails.flatMap(_.lastName)
@@ -67,15 +65,14 @@ class CheckYourDetailsController @Inject()(
         case _ =>
           Redirect(routes.UnauthorisedController.onPageLoad())
       }
-      
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identify andThen authenticatedIdentifierAction andThen getData andThen requireData).async { implicit request =>
+    (authenticatedIdentifierAction andThen getData).async { implicit request =>
 
       val firstName = request.userDetails.flatMap(_.firstName)
-      val lastName  = request.userDetails.flatMap(_.lastName)
-      val nino      = request.userDetails.flatMap(_.nino)
+      val lastName = request.userDetails.flatMap(_.lastName)
+      val nino = request.userDetails.flatMap(_.nino)
 
       (firstName, lastName, nino) match {
 
@@ -84,16 +81,21 @@ class CheckYourDetailsController @Inject()(
             formWithErrors =>
               Future.successful(BadRequest(view(formWithErrors, fn, ln, n, mode))),
 
-            value =>
+            value => {
+              val initialAnswers =
+                request.userAnswers.getOrElse(UserAnswers(request.userId))
+
+              val updatedAnswers =
+                initialAnswers.set(CheckYourDetailsPage, value).get
+
               for {
-                updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourDetailsPage, value))
-                _              <- sessionRepository.set(updatedAnswers)
+                _ <- sessionRepository.set(updatedAnswers)
               } yield Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
+            }
           )
 
         case _ =>
           Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
       }
     }
-
 }
