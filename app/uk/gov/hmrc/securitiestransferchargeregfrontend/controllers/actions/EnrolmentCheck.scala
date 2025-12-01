@@ -35,8 +35,8 @@ import scala.concurrent.{ExecutionContext, Future}
   An ActionFilter that is used to protect endpoints in this service.
   It protects the invariant that users are both authenticated and NOT already enrolled.
   If the user is already enrolled, they are redirected to the service proper.
-  If the user is not authenticated, they are redirected to log in.
-  Otherwise, they are allowed to proceed.
+  If the user is not authenticated, they are redirected to login.
+  Otherwise they are allowed to proceed.
 */
 
 @ImplementedBy(classOf[EnrolmentCheckImpl])
@@ -51,8 +51,11 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   import redirects.*
 
-  private[controllers] val retrievals = Retrievals.authorisedEnrolments
-  private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
+  private[controllers] val retrievals = Retrievals.allEnrolments
+  private[controllers] val enrolledForSTC: Enrolments => Boolean = es => {
+   val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
+    stcEnrolment.exists(_.isActivated)
+  }
 
   private[controllers] def hasCurrentSubscription = registrationClient.hasCurrentSubscription
 
@@ -60,15 +63,21 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    authorised().retrieve(retrievals) {
-      case enrolments: Enrolments
-        if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option(_))
-      case _ => Future.successful(None)
+    authorised().retrieve(retrievals) { retrieved =>
+      // Log the retrieved authorised enrolments for debugging/observability
+      logger.warn(s"(**)EnrolmentCheck.retrieved: $retrieved")
+
+      // Preserve original matching logic after logging
+      retrieved match {
+        case enrolments: Enrolments
+          if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option(_))
+        case _ => Future.successful(None)
+      }
     } recover {
       case _: AuthorisationException => Some(redirectToLogin)
       // Other exceptions will percolate up and be handled by the default error handler
     }
   }
 
-}
 
+}
