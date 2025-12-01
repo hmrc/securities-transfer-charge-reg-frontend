@@ -24,13 +24,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatu
 import javax.inject.Inject
 
 trait RegistrationClient:
-  def hasCurrentSubscription: SubscriptionStatusResult
+  def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult
   def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult
 
 class RegistrationClientImpl @Inject() /*(appConf: FrontendAppConfig, http: HttpClientV2)(implicit ec: ExecutionContext) */extends RegistrationClient with Logging {
-  override def hasCurrentSubscription: SubscriptionStatusResult = Right(SubscriptionActive)
+  override def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult = Right(SubscriptionActive)
   override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
   override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
   override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
