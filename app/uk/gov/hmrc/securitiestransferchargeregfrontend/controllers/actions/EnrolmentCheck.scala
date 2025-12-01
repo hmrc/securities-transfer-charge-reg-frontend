@@ -65,11 +65,14 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
     authorised().retrieve(retrievals) {
         case enrolments: Enrolments
-          if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option(_))
+          if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option.apply)
         case _ => Future.successful(None)
     } recover {
       case _: AuthorisationException => Some(redirectToLogin)
-      // Other exceptions will percolate up and be handled by the default error handler
+      case e: Throwable =>
+        logger.error("RegistrationController.routingLogic - unexpected error retrieving authorisation", e)
+        // Other exceptions will percolate up and be handled by the default error handler
+        throw e
     }
   }
 

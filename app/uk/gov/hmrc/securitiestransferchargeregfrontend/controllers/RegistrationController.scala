@@ -45,7 +45,6 @@ class RegistrationController @Inject()(
   import redirects.*
   private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
 
-  private[controllers] val enrolledForSTC: Enrolments => Boolean = _.getEnrolment(appConfig.stcEnrolmentKey).isDefined
   private[controllers] val checkConfidence: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
   private[controllers] val checkName: ItmpName => Boolean = n => n.givenName.isDefined && n.familyName.isDefined
 
@@ -69,8 +68,8 @@ class RegistrationController @Inject()(
       case _: AuthorisationException        => redirectToLogin
       case e: Throwable =>
         logger.error("RegistrationController.routingLogic - unexpected error retrieving authorisation", e)
+        // Other exceptions will percolate up and be handled by the default error handler
         throw e
-      // Other exceptions will percolate up and be handled by the default error handler
     }
   }
 }
