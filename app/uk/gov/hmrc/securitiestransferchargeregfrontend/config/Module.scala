@@ -17,7 +17,8 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{AuthenticatedIdentifierAction, DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, DataRetrievalActionImpl, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 
 import java.time.{Clock, ZoneOffset}
 
@@ -32,5 +33,8 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+
+    bind(classOf[RegistrationClient]).to(classOf[RegistrationClientImpl]).asEagerSingleton()
+
   }
 }

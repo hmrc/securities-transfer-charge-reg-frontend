@@ -16,19 +16,22 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-import com.google.inject.ImplementedBy
 import play.api.Logging
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 
 import javax.inject.Inject
 
-@ImplementedBy(classOf[RegistrationClientImpl])
 trait RegistrationClient:
-  def hasCurrentSubscription: Boolean
+  def hasCurrentSubscription: SubscriptionStatusResult
+  def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult
+  def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult
+
 
 class RegistrationClientImpl @Inject() /*(appConf: FrontendAppConfig, http: HttpClientV2)(implicit ec: ExecutionContext) */extends RegistrationClient with Logging {
-
-  /*  TODO: We will need to implement a check to see if the user has a current subscription
-   *  TODO: this will required finding their subscription in EACD and then asking ETMP what the end date on it is.
-   */  def hasCurrentSubscription: Boolean = true
+  override def hasCurrentSubscription: SubscriptionStatusResult = Right(SubscriptionActive)
+  override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
+  override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
 
 }
