@@ -41,7 +41,7 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     
     val summaryCard1Key = "First name"
     val summaryCard1Value = "TestFirstName"
-    val summaryCard2Key = "Last Name"
+    val summaryCard2Key = "Last name"
     val summaryCard2Value = "TestLastName"
     val summaryCard3Key = "National insurance number"
     val summaryCard3Value = "AB 12 34 56 C"
@@ -64,13 +64,13 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
       }
 
       "display the correct content in the Summary Card" in {
-        individualPage.summaryRow(1) mustBe Some(
+        individualPage.summaryCardRow(1) mustBe Some(
           SummaryCardRow(ExpectedIndividual.summaryCard1Key, ExpectedIndividual.summaryCard1Value)
         )
-        individualPage.summaryRow(2) mustBe Some(
+        individualPage.summaryCardRow(2) mustBe Some(
           SummaryCardRow(ExpectedIndividual.summaryCard2Key, ExpectedIndividual.summaryCard2Value)
         )
-        individualPage.summaryRow(3) mustBe Some(
+        individualPage.summaryCardRow(3) mustBe Some(
           SummaryCardRow(ExpectedIndividual.summaryCard3Key, ExpectedIndividual.summaryCard3Value)
         )
 

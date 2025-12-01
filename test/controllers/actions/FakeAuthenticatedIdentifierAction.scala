@@ -16,22 +16,27 @@
 
 package controllers.actions
 
-import javax.inject.Inject
+import base.SpecBase
+import org.scalatest.concurrent.ScalaFutures
 import play.api.mvc.*
+import play.api.test.Helpers.stubBodyParser
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IdentifierAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
-import base.SpecBase
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction with SpecBase {
+class FakeAuthenticatedIdentifierAction extends IdentifierAction with SpecBase with ScalaFutures {
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, "id", Some(fakeUserDetails)))
+  override val parser: BodyParser[AnyContent] = stubBodyParser(AnyContentAsEmpty)
+  override protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
+  override def invokeBlock[A](
+                               request: Request[A],
+                               block: IdentifierRequest[A] => Future[Result]
+                             ): Future[Result] = {
 
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+    block(IdentifierRequest(request, "internalId", Some(fakeUserDetails)))
+  }
 }
+
+

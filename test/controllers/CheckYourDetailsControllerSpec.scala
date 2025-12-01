@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import controllers.actions.FakeAuthenticatedIdentifierAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import navigation.FakeNavigator
@@ -26,7 +27,8 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedIdentifierAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
@@ -48,7 +50,12 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
     "must return OK and the correct view for a GET" in {
 
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[AuthenticatedIdentifierAction].toInstance(new FakeAuthenticatedIdentifierAction)
+          )
+          .build()
 
       running(application) {
         val request = FakeRequest(GET, checkYourDetailsRoute)

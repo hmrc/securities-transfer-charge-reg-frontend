@@ -28,12 +28,9 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
-import uk.gov.hmrc.auth.core.ConfidenceLevel.L250
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{UserAnswers, UserDetails}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, IdentifierRequest}
 
 trait SpecBase
   extends AnyFreeSpec
@@ -50,14 +47,14 @@ trait SpecBase
   val nino = "AB 12 34 56 C"
   val userAnswersId: String = "id"
   val sessionId                      = "sessionId1234"
-  val userDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
+  val fakeUserDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
 
   val fakeRequest: FakeRequest[AnyContent] =
     FakeRequest("GET", "/").withHeaders("sessionId" -> sessionId)
 
   def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = {
     val identifierRequest =
-      IdentifierRequest(fakeRequest, "id", Some(userDetails))
+      IdentifierRequest(fakeRequest, "id", Some(fakeUserDetails))
 
     DataRequest(identifierRequest, userAnswers)
   }
