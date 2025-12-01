@@ -16,22 +16,20 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.RegForSecuritiesTransferChargePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
 
 import javax.inject.Inject
-import scala.concurrent.Future
 
 class RegForSecuritiesTransferChargeController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        identify: IdentifierAction,
-                                       getData: DataRetrievalAction,
                                        navigator: Navigator,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: RegForSecuritiesTransferChargeView
