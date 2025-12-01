@@ -63,16 +63,10 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   override protected def filter[A](request: IdentifierRequest[A]): Future[Option[Result]] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-    authorised().retrieve(retrievals) { retrieved =>
-      // Log the retrieved authorised enrolments for debugging/observability
-      logger.warn(s"(**)EnrolmentCheck.retrieved: $retrieved")
-
-      // Preserve original matching logic after logging
-      retrieved match {
+    authorised().retrieve(retrievals) {
         case enrolments: Enrolments
           if enrolledForSTC(enrolments) && hasCurrentSubscription => redirectToServiceF.map(Option(_))
         case _ => Future.successful(None)
-      }
     } recover {
       case _: AuthorisationException => Some(redirectToLogin)
       // Other exceptions will percolate up and be handled by the default error handler
