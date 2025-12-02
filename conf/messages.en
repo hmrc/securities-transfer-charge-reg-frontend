@@ -56,3 +56,7 @@ regForSecuritiesTransferCharge.p2 = You will only have to do this the first time
 upliftPage.title = We need to confirm your identity
 upliftPage.heading = We need to confirm your identity
 upliftPage.body = To register this service, we first need to collect more information about you. You will be redirected to a secure government service to do this.
+
+alreadyRegisteredPage.title = You are already registered
+alreadyRegisteredPage.heading = You are already registered
+alreadyRegisteredPage.body = You can proceed to the service.
