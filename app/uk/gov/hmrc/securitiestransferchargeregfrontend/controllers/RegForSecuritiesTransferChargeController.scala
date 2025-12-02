@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import play.api.i18n.{I18nSupport, MessagesApi}
+import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -28,19 +28,18 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuriti
 import javax.inject.Inject
 
 class RegForSecuritiesTransferChargeController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
+                                       auth: StcAuthAction,
                                        navigator: Navigator,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: RegForSecuritiesTransferChargeView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = identify {
+  def onPageLoad: Action[AnyContent] = auth.authorise {
     implicit request =>
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = identify {
+  def onSubmit(): Action[AnyContent] = auth.authorise {
     implicit request =>
       Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
   }
