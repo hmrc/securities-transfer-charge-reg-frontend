@@ -25,11 +25,24 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.AnyContent
-import play.api.test.FakeRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction}
+import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty}
+import play.api.test.{FakeRequest, Helpers}
+import repositories.FakeSessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, IdentifierRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+
+class FakeStcAuthAction extends StcAuthAction {
+  override def authorise: ActionBuilder[IdentifierRequest, AnyContent] = new ActionBuilder[IdentifierRequest, AnyContent] {
+    override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
+
+    override protected def executionContext = scala.concurrent.ExecutionContext.Implicits.global
+
+    override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => scala.concurrent.Future[play.api.mvc.Result]) =
+      block(IdentifierRequest(request, "userId"))
+  }
+}
 
 trait SpecBase
   extends AnyFreeSpec
@@ -40,7 +53,7 @@ trait SpecBase
     with IntegrationPatience {
 
   val userAnswersId: String = "id"
-  val sessionId                      = "sessionId1234"
+  val sessionId = "sessionId1234"
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
@@ -55,6 +68,17 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers))
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[SessionRepository].to[FakeSessionRepository],
+        bind[StcAuthAction].to[FakeStcAuthAction]
+      )
+
+  protected def applicationBuilderWithoutSessionRepository(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
+    new GuiceApplicationBuilder()
+      .overrides(
+        bind[DataRequiredAction].to[DataRequiredActionImpl],
+        bind[IdentifierAction].to[FakeIdentifierAction],
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[StcAuthAction].to[FakeStcAuthAction]
       )
 }

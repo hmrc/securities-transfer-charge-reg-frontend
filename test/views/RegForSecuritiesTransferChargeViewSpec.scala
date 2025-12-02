@@ -18,10 +18,14 @@ package views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
+import base.SpecBase
 
 class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
 
+  override def fakeApplication(): Application = applicationBuilder().build()
+  
   private val viewInstance         = app.injector.instanceOf[RegForSecuritiesTransferChargeView]
 
   def view(): Document = Jsoup.parse(
