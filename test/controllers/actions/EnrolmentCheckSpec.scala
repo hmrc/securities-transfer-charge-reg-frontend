@@ -71,7 +71,7 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins", fakeUserDetails)
         val result = action.invokeBlock(request, (_: Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe SEE_OTHER
@@ -98,7 +98,7 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins", fakeUserDetails)
         val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
 
         status(result) mustBe OK
@@ -123,7 +123,7 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
+        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins", fakeUserDetails)
         val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
         val expected = appConfig.unauthorisedUrl
 

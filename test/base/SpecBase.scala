@@ -28,19 +28,28 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeSessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction, StcAuthAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, IdentifierRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{UserAnswers, UserDetails}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 class FakeStcAuthAction extends StcAuthAction {
+
+  private val dummyUserDetails = UserDetails(
+    firstName = Some("Test"),
+    lastName = Some("User"),
+    affinityGroup = AffinityGroup.Individual,
+    confidenceLevel = ConfidenceLevel.L200,
+    nino = Some("AA123456A")
+  )
   override def authorise: ActionBuilder[IdentifierRequest, AnyContent] = new ActionBuilder[IdentifierRequest, AnyContent] {
     override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
 
     override protected def executionContext = scala.concurrent.ExecutionContext.Implicits.global
 
     override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => scala.concurrent.Future[play.api.mvc.Result]) =
-      block(IdentifierRequest(request, "userId"))
+      block(IdentifierRequest(request, "userId", dummyUserDetails))
   }
 }
 
@@ -54,6 +63,13 @@ trait SpecBase
 
   val userAnswersId: String = "id"
   val sessionId = "sessionId1234"
+  val firstName = "TestFirstName"
+  val lastName = "TestLastName"
+  val affinityGroup = AffinityGroup.Individual
+  val confidenceLevel = ConfidenceLevel.L250
+  val nino = "AB 12 34 56 C"
+
+  val fakeUserDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
