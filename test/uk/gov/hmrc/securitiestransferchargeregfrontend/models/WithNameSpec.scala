@@ -14,14 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import org.scalatest.freespec.AnyFreeSpec
+import org.scalatest.matchers.must.Matchers
+import uk.gov.hmrc.securitiestransferchargeregfrontend
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
 
-case class IdentifierRequest[A](
-                                 request: Request[A],
-                                 userId: String,
-                                 userDetails: Option[UserDetails]
-                               ) extends WrappedRequest[A](request)
+class WithNameSpec extends AnyFreeSpec with Matchers {
 
+  object Foo extends WithName("bar")
+
+  ".toString" - {
+
+    "must return the correct string" in {
+      Foo.toString mustEqual "bar"
+    }
+  }
+}

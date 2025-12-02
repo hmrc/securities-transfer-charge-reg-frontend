@@ -21,11 +21,13 @@ import play.api.mvc.*
 import play.api.mvc.Results.*
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -42,10 +44,22 @@ class AuthenticatedIdentifierAction @Inject()(
 
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map {
-        internalId => block(IdentifierRequest(request, internalId))
-      }.getOrElse(throw new UnauthorizedException("Unable to retrieve internal Id"))
+    authorised().retrieve(Retrievals.internalId and Retrievals.itmpName and Retrievals.nino and Retrievals.affinityGroup and Retrievals.confidenceLevel) {
+      case Some(internalId) ~ itmpName ~ nino ~ affinityGroup ~ confidenceLevel =>
+
+        val userDetails = Some(
+          UserDetails.fromRetrieval(
+            name = itmpName,
+            affinityGroup = affinityGroup.getOrElse(AffinityGroup.Individual),
+            confidenceLevel = confidenceLevel,
+            nino = nino
+          )
+        )
+
+        block(IdentifierRequest(request, internalId, userDetails))
+
+      case _ =>
+        throw new UnauthorizedException("Unable to retrieve internalId")
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
@@ -66,7 +80,7 @@ class SessionIdentifierAction @Inject()(
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value))
+        block(IdentifierRequest(request, session.value, None))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }

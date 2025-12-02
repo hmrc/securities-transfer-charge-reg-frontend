@@ -16,24 +16,26 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
-import play.api.mvc.ActionTransformer
+import org.scalatest.concurrent.ScalaFutures
+import play.api.mvc.*
+import play.api.test.Helpers.stubBodyParser
+import uk.gov.hmrc.securitiestransferchargeregfrontend.base.SpecBase
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataRetrievalActionImpl @Inject()(
-                                         val sessionRepository: SessionRepository
-                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
+class FakeAuthenticatedIdentifierAction extends IdentifierAction with SpecBase with ScalaFutures {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
+  override val parser: BodyParser[AnyContent] = stubBodyParser(AnyContentAsEmpty)
+  override protected val executionContext: ExecutionContext = scala.concurrent.ExecutionContext.global
 
-    sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request, _)
-    }
+  override def invokeBlock[A](
+                               request: Request[A],
+                               block: IdentifierRequest[A] => Future[Result]
+                             ): Future[Result] = {
+
+    block(IdentifierRequest(request, "id", Some(fakeUserDetails)))
   }
 }
 
-trait DataRetrievalAction extends ActionTransformer[IdentifierRequest, OptionalDataRequest]
+

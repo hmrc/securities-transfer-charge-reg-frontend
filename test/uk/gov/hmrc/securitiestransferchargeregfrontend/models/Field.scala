@@ -14,14 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models
 
-case class IdentifierRequest[A](
-                                 request: Request[A],
-                                 userId: String,
-                                 userDetails: Option[UserDetails]
-                               ) extends WrappedRequest[A](request)
+case class Field(name: String, errorKeys: Map[ErrorType, String])
 
+object Field {
+
+  def apply(name: String, errors: (ErrorType, String)*): Field =
+    Field(name, errors.toMap)
+}
+
+sealed trait ErrorType
+case object Required extends ErrorType
+case object Invalid extends ErrorType

@@ -14,14 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import play.api.mvc.Call
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
-case class IdentifierRequest[A](
-                                 request: Request[A],
-                                 userId: String,
-                                 userDetails: Option[UserDetails]
-                               ) extends WrappedRequest[A](request)
+class FakeNavigator(desiredRoute: Call) extends Navigator {
 
+  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    desiredRoute
+}
