@@ -30,7 +30,6 @@ import scala.concurrent.Future
 class Redirects @Inject()(appConfig: FrontendAppConfig)  {
 
   val toFuture: Result => Future[Result] = result => Future.successful(result)
-  val unauthorisedPath: String = routes.UnauthorisedController.onPageLoad().url
   
   val redirectToLogin: Result = Redirect(appConfig.unauthorisedUrl)
   def redirectToRegisterIndividualF: Future[Result] = toFuture(Redirect(appConfig.registerIndividualUrl))

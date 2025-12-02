@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IdentifierAction, StcAuthAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController, routes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -135,9 +135,10 @@ class RegistrationControllerSpec extends SpecBase {
         val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
+        val expected = routes.UpliftPageController.onPageLoad().url
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.ivUpliftUrl)
+        redirectLocation(result) mustBe Some(expected)
       }
     }
 
@@ -157,9 +158,10 @@ class RegistrationControllerSpec extends SpecBase {
         val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
+        val expected = routes.UpliftPageController.onPageLoad().url
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.ivUpliftUrl)
+        redirectLocation(result) mustBe Some(expected)
       }
     }
 
@@ -179,9 +181,10 @@ class RegistrationControllerSpec extends SpecBase {
         val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
+        val expected = routes.UpliftPageController.onPageLoad().url
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.ivUpliftUrl)
+        redirectLocation(result) mustBe Some(expected)
       }
     }
 

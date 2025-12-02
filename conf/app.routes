@@ -24,3 +24,5 @@ GET        /register                                     uk.gov.hmrc.securitiest
 POST       /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onSubmit()
 
 GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()
+
+GET        /upliftPage                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpliftPageController.onPageLoad()
