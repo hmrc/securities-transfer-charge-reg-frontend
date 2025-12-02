@@ -26,37 +26,82 @@ import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.auth.core.retrieve.~
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
+trait IdentifierAction
+  extends ActionBuilder[IdentifierRequest, AnyContent]
+    with ActionFunction[Request, IdentifierRequest]
+
 
 class AuthenticatedIdentifierAction @Inject()(
                                                override val authConnector: AuthConnector,
                                                config: FrontendAppConfig,
                                                val parser: BodyParsers.Default
-                                             )
-                                             (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
+                                             )(implicit ec: ExecutionContext)
+  extends IdentifierAction
+    with AuthorisedFunctions
+    with Logging {
+  
+  private val retrievals =
+    Retrievals.internalId     and
+      Retrievals.affinityGroup  and
+      Retrievals.confidenceLevel and
+      Retrievals.nino           and
+      Retrievals.itmpName
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](
+                               request: Request[A],
+                               block: IdentifierRequest[A] => Future[Result]
+                             ): Future[Result] = {
 
-    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(Retrievals.internalId) {
-      _.map {
-        internalId => {
-          logger.info(s"******Authorised user $internalId")
-          block(IdentifierRequest(request, internalId))
+    authorised().retrieve(retrievals) {
+      
+      case internalIdOpt ~ affinityOpt ~ confidence ~ maybeNino ~ maybeName =>
+
+        (internalIdOpt, affinityOpt) match {
+          case (Some(internalId), Some(affinityGroup)) =>
+
+            val userDetails = UserDetails.fromRetrieval(
+              name            = maybeName,
+              affinityGroup   = affinityGroup,
+              confidenceLevel = confidence,
+              nino            = maybeNino
+            )
+
+            logger.info(
+              s"[AuthenticatedIdentifierAction] Authenticated internalId=$internalId, " +
+                s"name=${userDetails.firstName.getOrElse("-")} ${userDetails.lastName.getOrElse("-")}"
+            )
+
+            block(
+              IdentifierRequest(
+                request     = request,
+                userId      = internalId,
+                userDetails = userDetails
+              )
+            )
+
+          case _ =>
+            throw new UnauthorizedException("Missing internalId or affinityGroup from auth retrievals")
         }
-      }.getOrElse(throw new UnauthorizedException("Unable to retrieve internal Id"))
+
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+
       case _: AuthorisationException =>
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
   }
+
+  override protected def executionContext: ExecutionContext = ec
 }
 
 class SessionIdentifierAction @Inject()(
@@ -70,7 +115,16 @@ class SessionIdentifierAction @Inject()(
 
     hc.sessionId match {
       case Some(session) =>
-        block(IdentifierRequest(request, session.value))
+
+        val dummyUserDetails = UserDetails(
+          firstName       = None,
+          lastName        = None,
+          affinityGroup   = AffinityGroup.Individual,
+          confidenceLevel = ConfidenceLevel.L250,
+          nino            = None
+        )
+        
+        block(IdentifierRequest(request, session.value, dummyUserDetails))
       case None =>
         Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad()))
     }
