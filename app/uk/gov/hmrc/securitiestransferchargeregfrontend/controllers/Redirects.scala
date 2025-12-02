@@ -36,7 +36,6 @@ class Redirects @Inject()(appConfig: FrontendAppConfig)  {
   def redirectToIVUpliftF: Future[Result] = toFuture(Redirect(appConfig.ivUpliftUrl))
   def redirectToRegisterOrganisationF: Future[Result] = toFuture(Redirect(appConfig.registerOrganisationUrl))
   def redirectToAsaF: Future[Result] = toFuture(Redirect(appConfig.asaUrl))
-  val redirectToRegister: Result = Redirect(appConfig.registerUrl)
   def redirectToServiceF: Future[Result] = toFuture(Redirect(appConfig.stcServiceUrl))
 
 

@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IdentifierAction, StcAuthAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController, routes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -88,7 +88,7 @@ class RegistrationControllerSpec extends SpecBase {
         //val identifierAction = new TestIdentifierAction
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -110,7 +110,7 @@ class RegistrationControllerSpec extends SpecBase {
 
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -132,10 +132,10 @@ class RegistrationControllerSpec extends SpecBase {
 
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
-        val expected = routes.UpliftPageController.onPageLoad().url
+        val expected = appConfig.ivUpliftUrl
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(expected)
@@ -155,10 +155,10 @@ class RegistrationControllerSpec extends SpecBase {
 
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
-        val expected = routes.UpliftPageController.onPageLoad().url
+        val expected = appConfig.ivUpliftUrl
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(expected)
@@ -178,10 +178,10 @@ class RegistrationControllerSpec extends SpecBase {
 
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
-        val expected = routes.UpliftPageController.onPageLoad().url
+        val expected = appConfig.ivUpliftUrl
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result) mustBe Some(expected)
@@ -201,7 +201,7 @@ class RegistrationControllerSpec extends SpecBase {
 
         val authAction = new PassThroughStcAuthAction
 
-        val controller = new RegistrationController(mcc, appConfig, redirects, authConnectorForController, authAction)
+        val controller = new RegistrationController(mcc, redirects, authConnectorForController, authAction)
 
         val result = controller.routingLogic.apply(FakeRequest())
 

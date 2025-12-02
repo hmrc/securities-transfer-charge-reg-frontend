@@ -24,7 +24,6 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 
 import javax.inject.{Inject, Singleton}
@@ -36,7 +35,6 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationController @Inject()(
                                         mcc: MessagesControllerComponents,
-                                        appConfig: FrontendAppConfig,
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
                                         auth: StcAuthAction,
