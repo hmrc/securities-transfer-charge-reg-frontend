@@ -16,21 +16,50 @@
 
 package controllers.actions
 
-import javax.inject.Inject
 import play.api.mvc.*
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IdentifierAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
 
+import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeIdentifierAction @Inject()(bodyParsers: PlayBodyParsers) extends IdentifierAction {
+@Singleton
+class FakeIdentifierAction @Inject()(
+                                      bodyParsers: PlayBodyParsers
+                                    )(implicit ec: ExecutionContext)
+  extends IdentifierAction {
 
-  override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-    block(IdentifierRequest(request, "id"))
+  private var currentUserDetails: UserDetails =
+    UserDetails(
+      firstName       = Some("Test"),
+      lastName        = Some("User"),
+      affinityGroup   = AffinityGroup.Individual,
+      confidenceLevel = ConfidenceLevel.L200,
+      nino            = Some("AA123456A")
+    )
 
-  override def parser: BodyParser[AnyContent] =
-    bodyParsers.default
+  def withUserDetails(details: UserDetails): FakeIdentifierAction = {
+    this.currentUserDetails = details
+    this
+  }
 
-  override protected def executionContext: ExecutionContext =
-    scala.concurrent.ExecutionContext.Implicits.global
+  override def invokeBlock[A](
+                               request: Request[A],
+                               block: IdentifierRequest[A] => Future[Result]
+                             ) =
+    block(
+      IdentifierRequest(
+        request,
+        "id",
+        currentUserDetails
+      )
+    )
+
+  override def parser = bodyParsers.default
+
+  override protected def executionContext: ExecutionContext = ec
 }
+
+

@@ -16,24 +16,34 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
 import play.api.mvc.ActionTransformer
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, OptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 class DataRetrievalActionImpl @Inject()(
-                                         val sessionRepository: SessionRepository
-                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
+                                         sessionRepository: SessionRepository
+                                       )(implicit ec: ExecutionContext)
+  extends DataRetrievalAction {
 
-  override protected def transform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = {
+  override protected def transform[A](
+                                       request: IdentifierRequest[A]
+                                     ): Future[OptionalDataRequest[A]] = {
 
-    sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request.request, request.userId, _)
+    sessionRepository.get(request.userId).map { answers =>
+      OptionalDataRequest(
+        request      = request.request,
+        userId       = request.userId,
+        userDetails  = request.userDetails,
+        userAnswers  = answers
+      )
     }
   }
+
+  override protected def executionContext: ExecutionContext = ec
 }
+
 
 trait DataRetrievalAction extends ActionTransformer[IdentifierRequest, OptionalDataRequest]

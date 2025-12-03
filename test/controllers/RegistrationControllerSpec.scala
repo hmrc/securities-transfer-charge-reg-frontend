@@ -45,7 +45,7 @@ class RegistrationControllerSpec extends SpecBase {
   // Simple pass-through IdentifierAction used instead of the real AuthenticatedIdentifierAction
   class TestIdentifierAction extends IdentifierAction {
     override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] =
-      block(IdentifierRequest(request, "test-internal-id"))
+      block(IdentifierRequest(request, "test-internal-id", fakeUserDetails))
 
     override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
 
@@ -60,7 +60,7 @@ class RegistrationControllerSpec extends SpecBase {
       override protected def executionContext = ec
 
       override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => Future[play.api.mvc.Result]) =
-        block(IdentifierRequest(request, "userId"))
+        block(IdentifierRequest(request, "userId", fakeUserDetails))
     }
   }
 

@@ -17,18 +17,17 @@
 package controllers.auth
 
 import base.SpecBase
-import org.mockito.ArgumentMatchers.{any, eq => eqTo}
+import org.mockito.ArgumentMatchers.{any, eq as eqTo}
 import org.mockito.Mockito.{times, verify, when}
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.inject.bind
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.auth.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import java.net.URLEncoder
-
 import scala.concurrent.Future
 
 class AuthControllerSpec extends SpecBase with MockitoSugar {

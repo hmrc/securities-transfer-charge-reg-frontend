@@ -14,14 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserDetails
+import play.api.libs.json.JsPath
 
-case class IdentifierRequest[A](
-                                 request: Request[A],
-                                 userId: String,
-                                 userDetails: UserDetails
-                               ) extends WrappedRequest[A](request)
+case object CheckYourDetailsPage extends QuestionPage[Boolean] {
 
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "checkYourDetails"
+}
