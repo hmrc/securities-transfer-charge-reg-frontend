@@ -35,7 +35,7 @@ class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             sessionRepository: SessionRepository,
                                             navigator: Navigator,
-                                            identifierAction: IdentifierAction,
+                                            stcAuthAction: StcAuthAction,
                                             getData: DataRetrievalAction,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
@@ -46,7 +46,7 @@ class CheckYourDetailsController @Inject()(
   val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (identifierAction andThen getData) { implicit request =>
+    (stcAuthAction.authorise andThen getData) { implicit request =>
       val firstName = request.userDetails.firstName
       val lastName  = request.userDetails.lastName
       val nino      = request.userDetails.nino
@@ -67,7 +67,7 @@ class CheckYourDetailsController @Inject()(
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
-    (identifierAction andThen getData).async { implicit request =>
+    (stcAuthAction.authorise andThen getData).async { implicit request =>
       val firstName = request.userDetails.firstName
       val lastName  = request.userDetails.lastName
       val nino      = request.userDetails.nino

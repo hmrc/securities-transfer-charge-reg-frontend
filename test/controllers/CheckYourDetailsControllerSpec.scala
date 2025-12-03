@@ -37,19 +37,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
   val form = formProvider()
 
   lazy val checkYourDetailsRoute = routes.CheckYourDetailsController.onPageLoad(NormalMode).url
-
-  private val firstName = "TestFirstName"
-  private val lastName  = "TestLastName"
-  private val nino      = "AA123456A"
-
-  private val testUserDetails = UserDetails(
-    firstName       = Some(firstName),
-    lastName        = Some(lastName),
-    affinityGroup   = AffinityGroup.Individual,
-    confidenceLevel = ConfidenceLevel.L200,
-    nino            = Some(nino)
-  )
-
+  
   "CheckYourDetailsController" - {
 
     "must return OK and the correct view for a GET" in {
@@ -60,7 +48,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         val fakeIdentifier =
           application.injector.instanceOf[FakeIdentifierAction]
 
-        fakeIdentifier.withUserDetails(testUserDetails)
+        fakeIdentifier.withUserDetails(fakeUserDetails)
 
         val request = FakeRequest(GET,
           routes.CheckYourDetailsController.onPageLoad(NormalMode).url
@@ -96,7 +84,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         val fakeIdentifier =
           application.injector.instanceOf[FakeIdentifierAction]
 
-        fakeIdentifier.withUserDetails(testUserDetails)
+        fakeIdentifier.withUserDetails(fakeUserDetails)
 
         val request = FakeRequest(GET, checkYourDetailsRoute)
 
@@ -129,7 +117,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
         val fakeIdentifier =
           application.injector.instanceOf[FakeIdentifierAction]
 
-        fakeIdentifier.withUserDetails(testUserDetails)
+        fakeIdentifier.withUserDetails(fakeUserDetails)
 
         val request =
           FakeRequest(POST, checkYourDetailsRoute)

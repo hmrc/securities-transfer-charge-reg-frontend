@@ -25,7 +25,7 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty}
+import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty, Request, Result}
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
@@ -34,23 +34,25 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequ
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{UserAnswers, UserDetails}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
-class FakeStcAuthAction extends StcAuthAction {
+import javax.inject.Inject
+import scala.concurrent.Future
 
-  private val dummyUserDetails = UserDetails(
-    firstName = Some("Test"),
-    lastName = Some("User"),
-    affinityGroup = AffinityGroup.Individual,
-    confidenceLevel = ConfidenceLevel.L200,
-    nino = Some("AA123456A")
-  )
-  override def authorise: ActionBuilder[IdentifierRequest, AnyContent] = new ActionBuilder[IdentifierRequest, AnyContent] {
-    override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
+class FakeStcAuthAction @Inject()(
+                                   userDetails: UserDetails
+                                 ) extends StcAuthAction {
 
-    override protected def executionContext = scala.concurrent.ExecutionContext.Implicits.global
+  override def authorise: ActionBuilder[IdentifierRequest, AnyContent] =
+    new ActionBuilder[IdentifierRequest, AnyContent] {
 
-    override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => scala.concurrent.Future[play.api.mvc.Result]) =
-      block(IdentifierRequest(request, "userId", dummyUserDetails))
-  }
+      override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
+      override protected def executionContext = scala.concurrent.ExecutionContext.global
+
+      override def invokeBlock[A](
+                                   request: Request[A],
+                                   block: IdentifierRequest[A] => Future[Result]
+                                 ): Future[Result] =
+        block(IdentifierRequest(request, "id", userDetails))
+    }
 }
 
 trait SpecBase
@@ -67,7 +69,7 @@ trait SpecBase
   val lastName = "TestLastName"
   val affinityGroup = AffinityGroup.Individual
   val confidenceLevel = ConfidenceLevel.L250
-  val nino = "AB 12 34 56 C"
+  val nino = "AB123456C"
 
   val fakeUserDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
 
@@ -86,7 +88,7 @@ trait SpecBase
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[SessionRepository].to[FakeSessionRepository],
-        bind[StcAuthAction].to[FakeStcAuthAction]
+        bind[StcAuthAction].toInstance(new FakeStcAuthAction(fakeUserDetails))
       )
 
   protected def applicationBuilderWithoutSessionRepository(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
@@ -95,6 +97,6 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[StcAuthAction].to[FakeStcAuthAction]
+        bind[StcAuthAction].toInstance(new FakeStcAuthAction(fakeUserDetails))
       )
 }

@@ -40,11 +40,13 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     val hintValue = "Your details"
 
     val summaryCard1Key = "First name"
-    val summaryCard1Value = "TestFirstName"
     val summaryCard2Key = "Last name"
-    val summaryCard2Value = "TestLastName"
     val summaryCard3Key = "National insurance number"
-    val summaryCard3Value = "AB 12 34 56 C"
+
+    val summaryCard1Value: String = fakeUserDetails.firstName.value
+    val summaryCard2Value: String = fakeUserDetails.lastName.value
+    val summaryCard3Value: String = fakeUserDetails.nino.value
+
   }
 
   "The CheckYourDetailsView" - {
