@@ -51,7 +51,6 @@ class CheckYourDetailsController @Inject()(
       val lastName  = request.userDetails.lastName
       val nino      = request.userDetails.nino
 
-
       val preparedForm =
         request.userAnswers.flatMap(_.get(CheckYourDetailsPage)) match {
           case Some(value) => form.fill(value)
@@ -72,7 +71,6 @@ class CheckYourDetailsController @Inject()(
       val firstName = request.userDetails.firstName
       val lastName  = request.userDetails.lastName
       val nino      = request.userDetails.nino
-
 
       (firstName, lastName, nino) match {
 

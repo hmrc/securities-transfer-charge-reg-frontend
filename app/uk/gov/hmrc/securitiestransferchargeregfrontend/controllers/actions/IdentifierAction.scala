@@ -63,27 +63,24 @@ class AuthenticatedIdentifierAction @Inject()(
 
     authorised().retrieve(retrievals) {
       
-      case internalIdOpt ~ affinityOpt ~ confidence ~ maybeNino ~ maybeName =>
-
-        (internalIdOpt, affinityOpt) match {
-          case (Some(internalId), Some(affinityGroup)) =>
+      case Some(id) ~ Some(affinity) ~ confidence ~ maybeNino ~ maybeName =>
 
             val userDetails = UserDetails.fromRetrieval(
               name            = maybeName,
-              affinityGroup   = affinityGroup,
+              affinityGroup   = affinity,
               confidenceLevel = confidence,
               nino            = maybeNino
             )
 
             logger.info(
-              s"[AuthenticatedIdentifierAction] Authenticated internalId=$internalId, " +
+              s"[AuthenticatedIdentifierAction] Authenticated internalId=$id, " +
                 s"name=${userDetails.firstName.getOrElse("-")} ${userDetails.lastName.getOrElse("-")}"
             )
 
             block(
               IdentifierRequest(
                 request     = request,
-                userId      = internalId,
+                userId      = id,
                 userDetails = userDetails
               )
             )
@@ -99,7 +96,6 @@ class AuthenticatedIdentifierAction @Inject()(
       case _: AuthorisationException =>
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
-  }
 
   override protected def executionContext: ExecutionContext = ec
 }
