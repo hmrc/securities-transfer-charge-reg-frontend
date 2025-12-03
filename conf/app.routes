@@ -22,3 +22,8 @@ GET         /unauthorised                                uk.gov.hmrc.securitiest
 
 GET        /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onSubmit()
+
+GET        /dateOfBirthReg                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
+POST       /dateOfBirthReg                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)
+GET        /changeDateOfBirthReg                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeDateOfBirthReg                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = CheckMode)

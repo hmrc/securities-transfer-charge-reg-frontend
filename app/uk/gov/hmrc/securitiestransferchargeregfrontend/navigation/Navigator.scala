@@ -20,13 +20,15 @@ import javax.inject.{Inject, Singleton}
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{Page, RegForSecuritiesTransferChargePage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage}
 
 @Singleton
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
+    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
     case _ => _ => routes.IndexController.onPageLoad()
+
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {

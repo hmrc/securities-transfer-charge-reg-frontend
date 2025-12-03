@@ -52,3 +52,14 @@ regForSecuritiesTransferCharge.title = Register to tell us about a securities tr
 regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.p1 = Before using this service you will need to register and confirm or provide some personal details.
 regForSecuritiesTransferCharge.p2 = You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account.
+
+dateOfBirthReg.title = What’s your date of birth?
+dateOfBirthReg.pageTitle = Your details
+dateOfBirthReg.heading = What’s your date of birth?
+dateOfBirthReg.hint = For example, 27 3 2007.
+dateOfBirthReg.checkYourAnswersLabel = DateOfBirthReg
+dateOfBirthReg.error.required.all = Enter your date of birth
+dateOfBirthReg.error.required.two = Your date of birth must include a {0} and a {1}
+dateOfBirthReg.error.required = Your date of birth must include a {0}
+dateOfBirthReg.error.invalid = Your date of birth must be a real date
+dateOfBirthReg.change.hidden = DateOfBirthReg
