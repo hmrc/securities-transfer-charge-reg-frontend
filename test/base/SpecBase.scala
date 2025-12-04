@@ -25,23 +25,23 @@ import play.api.Application
 import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
-import play.api.mvc.{ActionBuilder, AnyContent, AnyContentAsEmpty}
+import play.api.mvc.*
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeSessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRequiredAction, DataRequiredActionImpl, DataRetrievalAction, IdentifierAction, StcAuthAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, IdentifierRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
+import scala.concurrent.{ExecutionContext, Future}
+
 class FakeStcAuthAction extends StcAuthAction {
-  override def authorise: ActionBuilder[IdentifierRequest, AnyContent] = new ActionBuilder[IdentifierRequest, AnyContent] {
-    override def parser = Helpers.stubBodyParser(AnyContentAsEmpty)
 
-    override protected def executionContext = scala.concurrent.ExecutionContext.Implicits.global
+  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
 
-    override def invokeBlock[A](request: play.api.mvc.Request[A], block: IdentifierRequest[A] => scala.concurrent.Future[play.api.mvc.Result]) =
-      block(IdentifierRequest(request, "userId"))
-  }
+  override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = block(Fixtures.fakeStcAuthRequest(request))
+
+  override protected def executionContext: ExecutionContext = ExecutionContext.global
 }
 
 trait SpecBase

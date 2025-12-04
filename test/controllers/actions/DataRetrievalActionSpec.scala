@@ -16,24 +16,28 @@
 
 package controllers.actions
 
-import base.SpecBase
+import base.{Fixtures, SpecBase}
 import org.mockito.Mockito.*
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalActionImpl
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, OptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, OptionalDataRequest, StcAuthRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
+import scala.language.implicitConversions
 
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
   class Harness(sessionRepository: SessionRepository) extends DataRetrievalActionImpl(sessionRepository) {
-    def callTransform[A](request: IdentifierRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
+    def callTransform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
   }
-
+  
   "Data Retrieval Action" - {
 
     "when there is no data in the cache" - {
@@ -44,7 +48,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get("id")) thenReturn Future(None)
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(IdentifierRequest(FakeRequest(), "id")).futureValue
+        val result = action.callTransform(Fixtures.fakeStcAuthRequest[AnyContent]()).futureValue
 
         result.userAnswers must not be defined
       }
@@ -58,7 +62,7 @@ class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
         when(sessionRepository.get("id")) thenReturn Future(Some(UserAnswers("id")))
         val action = new Harness(sessionRepository)
 
-        val result = action.callTransform(new IdentifierRequest(FakeRequest(), "id")).futureValue
+        val result = action.callTransform(Fixtures.fakeStcAuthRequest[AnyContent]()).futureValue
 
         result.userAnswers mustBe defined
       }

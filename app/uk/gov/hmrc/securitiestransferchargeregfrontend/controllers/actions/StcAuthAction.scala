@@ -17,18 +17,44 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
-import play.api.mvc.{ActionBuilder, AnyContent}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import play.api.Logging
+import play.api.mvc.*
+import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
+import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
+import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
-trait StcAuthAction {
-  def authorise: ActionBuilder[IdentifierRequest, AnyContent]
+import scala.concurrent.{ExecutionContext, Future}
+
+trait StcAuthAction extends ActionBuilder[StcAuthRequest, AnyContent]
+
+class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnector,
+                                        config: FrontendAppConfig,
+                                        val parser: BodyParsers.Default )
+                                      ( implicit val executionContext: ExecutionContext)
+                                        extends StcAuthAction with AuthorisedFunctions with Logging {
+
+  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName
+
+  // Enrich the request with auth details or redirect to login/unauthorised
+  override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = {
+    implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+
+    authorised().retrieve(retrievals) {
+      case Some(internalId) ~ enrolments ~ Some(affinityGroup) ~ confidenceLevel ~ nino ~ itmpName =>
+        block(StcAuthRequest(request, internalId, enrolments, affinityGroup, confidenceLevel, nino, itmpName))
+      case _ => Future.failed(UnauthorizedException("Unable to retrieve internalId or affinityGroup from auth"))
+    } recover {
+      case _: NoActiveSession =>
+        Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+      case _: AuthorisationException =>
+        Redirect(routes.UnauthorisedController.onPageLoad())
+    }
+  }
 }
 
-class StcAuthActionImpl @Inject()(
-                                  identifierAction: IdentifierAction,
-                                  enrolmentCheck: EnrolmentCheck
-                                ) extends StcAuthAction {
-
-  def authorise: ActionBuilder[IdentifierRequest, AnyContent] = identifierAction andThen enrolmentCheck
-
-}

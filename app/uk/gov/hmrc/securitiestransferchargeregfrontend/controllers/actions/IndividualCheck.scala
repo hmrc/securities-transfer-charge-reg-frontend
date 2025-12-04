@@ -19,9 +19,8 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 import com.google.inject.ImplementedBy
 import play.api.Logging
 import play.api.mvc.*
-import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
+import uk.gov.hmrc.auth.core.{AuthConnector, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
@@ -32,36 +31,32 @@ import scala.concurrent.{ExecutionContext, Future}
   An ActionFilter that is used to protect endpoints in this service.
   It protects the invariant that users are both authenticated and NOT already enrolled.
   If the user is already enrolled, they are redirected to the service proper.
-  If the user is not authenticated, they are redirected to log in.
-  Otherwise, they are allowed to proceed.
+  If the user is not authenticated, they are redirected to login.
+  Otherwise they are allowed to proceed.
 */
 
-@ImplementedBy(classOf[EnrolmentCheckImpl])
-trait EnrolmentCheck extends ActionFilter[StcAuthRequest]
+@ImplementedBy(classOf[IndividualCheckImpl])
+trait IndividualCheck extends ActionFilter[StcAuthRequest]
 
-class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
-                               appConfig: FrontendAppConfig,
-                               redirects: Redirects,
-                               registrationClient: RegistrationClient,
-                               val authConnector: AuthConnector )(implicit ec: ExecutionContext)
-  extends EnrolmentCheck with Logging {
+class IndividualCheckImpl @Inject()(val parser: BodyParsers.Default,
+                                   redirects: Redirects,
+                                   val authConnector: AuthConnector )(implicit ec: ExecutionContext)
+  extends IndividualCheck with Logging {
 
   import redirects.*
 
-  private[controllers] val enrolledForSTC: Enrolments => Boolean = es => {
-   val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
-    stcEnrolment.exists(_.isActivated)
-  }
-
-  private[controllers] def hasCurrentSubscription = registrationClient.hasCurrentSubscription
-
   override protected def executionContext: ExecutionContext = ec
 
+  private[controllers] val checkConfidence: ConfidenceLevel => Boolean = _ >= ConfidenceLevel.L250
+  private[controllers] val checkName: ItmpName => Boolean = n => n.givenName.isDefined && n.familyName.isDefined
+
   override protected def filter[A](request: StcAuthRequest[A]): Future[Option[Result]] = {
-    if (enrolledForSTC(request.enrolments) && hasCurrentSubscription) {
-      redirectToServiceF.map(Option.apply)
-    } else {
+    if (checkConfidence(request.confidenceLevel) &&
+        request.maybeName.exists(checkName) &&
+        request.maybeNino.isDefined) {
       Future.successful(None)
+    } else {
+      redirectToRegisterF.map(Option.apply)
     }
   }
 }

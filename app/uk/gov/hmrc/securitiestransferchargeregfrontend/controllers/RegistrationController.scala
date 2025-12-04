@@ -17,18 +17,17 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.Logging
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.auth.core.AffinityGroup.*
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
-import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
-import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
 import javax.inject.{Inject, Singleton}
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 /*
  * This controller handles the registration routing logic based on the user's Affinity Group.
@@ -36,11 +35,10 @@ import scala.concurrent.{ExecutionContext, Future}
 @Singleton
 class RegistrationController @Inject()(
                                         mcc: MessagesControllerComponents,
-                                        appConfig: FrontendAppConfig,
                                         redirects: Redirects,
                                         val authConnector: AuthConnector,
-                                        auth: StcAuthAction,
-                                      ) (implicit ec: ExecutionContext) extends  FrontendController(mcc) with AuthorisedFunctions with Logging {
+                                        auth: Auth,
+                                      ) extends  FrontendController(mcc) with AuthorisedFunctions with Logging {
 
   import redirects.*
   private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
@@ -56,20 +54,23 @@ class RegistrationController @Inject()(
    * and then sends them on the appropriate GRS journey.
    * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
    */
-  val routingLogic: Action[AnyContent] = auth.authorise.async { implicit request =>
-    authorised().retrieve(retrievals) {
-        case Some(Individual) ~ cl ~ Some(nino) ~ Some(name) if checkConfidence(cl) && checkName(name)
-                                            => redirectToRegisterIndividualF
-        case Some(Individual) ~ _ ~ _ ~ _     => redirectToIVUpliftF
-        case Some(Organisation) ~ _ ~ _  ~ _  => redirectToRegisterOrganisationF
-        case Some(Agent) ~ _ ~ _ ~ _          => redirectToAsaF
-        case _                                => Future.failed(new UnauthorizedException("Unable to retrieve Affinity Group"))
-    } recover {
-      case _: AuthorisationException        => redirectToLogin
-      case e: Throwable =>
-        logger.error("RegistrationController.routingLogic - unexpected error retrieving authorisation", e)
-        // Other exceptions will percolate up and be handled by the default error handler
-        throw e
+  val routingLogic: Action[AnyContent] = (auth.authorisedAndNotEnrolled).async { implicit request =>
+    request.affinityGroup match {
+      case Individual   => routeIndividuals(request.confidenceLevel, request.maybeNino, request.maybeName)
+      case Organisation => redirectToRegisterOrganisationF
+      case Agent        => redirectToAsaF
+    }
+  }
+
+  def routeIndividuals(
+    confidenceLevel: ConfidenceLevel,
+    maybeNino: Option[String],
+    maybeName: Option[ItmpName]
+  )(implicit request: StcAuthRequest[AnyContent]): Future[Result] = {
+    if (checkConfidence(confidenceLevel) && maybeNino.isDefined && maybeName.exists(checkName)) {
+      redirectToRegisterIndividualF
+    } else {
+      redirectToIVUpliftF
     }
   }
 }
