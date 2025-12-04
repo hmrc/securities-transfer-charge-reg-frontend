@@ -16,12 +16,15 @@
 
 package base
 
+import org.mockito.Mockito.when
+import org.scalatestplus.mockito.MockitoSugar.mock
+import play.api.libs.json.Reads
 import play.api.mvc.*
 import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
-import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, AuthorisedFunctions, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.auth.core.authorise.*
-import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
+import uk.gov.hmrc.auth.core.retrieve.{ItmpName, OptionalRetrieval, Retrieval, ~}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest}
@@ -105,5 +108,18 @@ object Fixtures {
       block(adapted)
     }
   }
+
+//  val mockAuthorisedFunctions: AuthorisedFunctions = mock[AuthorisedFunctions]
+//  import mockAuthorisedFunctions.*
+//
+//  def mockAuthorisedFunction(internalId: String, enrolments: Enrolments, affinityGroup: Option[AffinityGroup],
+//                             confidenceLevel: ConfidenceLevel, nino: Option[String], itmpName: Option[ItmpName]): AuthorisedFunction = {
+//    val theMock = mock[AuthorisedFunction]
+//    val mockInternalIdRetrieval = mock[AuthorisedFunctionWithResult[Option[String]]]
+//    when(mockInternalIdRetrieval.retrieve()).thenReturn(Future.successful(Some(internalId)))
+//    when(theMock.retrieve(OptionalRetrieval("internalId", Reads.StringReads))).thenReturn(AuthorisedFunction(AuthorisedFunctionWithResult[]()))
+//  }
+//
+//  when(mockAuthorisedFunctions.authorised()).thenReturn(mockAuthorisedFunction)
 
 }

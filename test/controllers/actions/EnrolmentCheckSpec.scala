@@ -18,7 +18,7 @@ package controllers.actions
 
 import base.{Fixtures, SpecBase}
 import org.scalatest.concurrent.IntegrationPatience
-import play.api.mvc.{AnyContent, BodyParsers}
+import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
@@ -27,6 +27,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+
+import scala.concurrent.Future
 
 class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
 
@@ -40,12 +42,11 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
   class Harness(parser: BodyParsers.Default,
                 appConfig: FrontendAppConfig,
                 redirects: Redirects,
-                registrationClient: RegistrationClient,
-                authConnector: Fixtures.FakeAuthConnectorSuccess)
+                registrationClient: RegistrationClient)
                (implicit ec: scala.concurrent.ExecutionContext)
-    extends EnrolmentCheckImpl(parser, appConfig, redirects, registrationClient, authConnector)
+    extends EnrolmentCheckImpl(parser, appConfig, redirects, registrationClient)
   {
-    def callFilter[A](req: StcAuthRequest[A]) = filter(req)
+    def callFilter[A](req: StcAuthRequest[A]): Future[Option[Result]] = filter(req)
   }
 
   "EnrolmentCheck" - {
@@ -65,17 +66,17 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
         val stcReq = Fixtures.fakeStcAuthRequest[AnyContent](request = FakeRequest(), enrolmentsOverride = enrolments)
 
         val registrationClient = new FakeRegistrationClient(true)
-        val authConnector = new Fixtures.FakeAuthConnectorSuccess(())
 
-        val harness = new Harness(parser, appConfig, redirects, registrationClient, authConnector)
+        val harness = new Harness(parser, appConfig, redirects, registrationClient)
 
         val maybeResult = harness.callFilter(stcReq)
 
-        val futureResult = maybeResult map {
+        val unpackResult: Option[Result] => Result = {
           case Some(result) => result
-        } recover{
-          fail("Should not be none")
+          case None         => fail("Should not be none")
         }
+        
+        val futureResult = maybeResult map(unpackResult)
         
         status(futureResult) mustBe SEE_OTHER
         redirectLocation(futureResult) mustBe Some(appConfig.stcServiceUrl)
@@ -96,9 +97,8 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
         val stcReq = Fixtures.fakeStcAuthRequest[AnyContent](request = FakeRequest(), enrolmentsOverride = enrolments)
 
         val registrationClient = new FakeRegistrationClient(false)
-        val authConnector = new Fixtures.FakeAuthConnectorSuccess(())
 
-        val harness = new Harness(parser, appConfig, redirects, registrationClient, authConnector)
+        val harness = new Harness(parser, appConfig, redirects, registrationClient)
 
         val result = harness.callFilter(stcReq).futureValue
 

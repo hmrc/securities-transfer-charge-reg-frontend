@@ -40,10 +40,10 @@ import scala.concurrent.{ExecutionContext, Future}
 trait EnrolmentCheck extends ActionFilter[StcAuthRequest]
 
 class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
-                               appConfig: FrontendAppConfig,
-                               redirects: Redirects,
-                               registrationClient: RegistrationClient,
-                               val authConnector: AuthConnector )(implicit ec: ExecutionContext)
+                                   appConfig: FrontendAppConfig,
+                                   redirects: Redirects,
+                                   registrationClient: RegistrationClient)
+                                  (implicit ec: ExecutionContext)
   extends EnrolmentCheck with Logging {
 
   import redirects.*
