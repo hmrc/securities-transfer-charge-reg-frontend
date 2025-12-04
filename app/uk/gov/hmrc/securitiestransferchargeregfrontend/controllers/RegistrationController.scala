@@ -36,9 +36,8 @@ import scala.concurrent.Future
 class RegistrationController @Inject()(
                                         mcc: MessagesControllerComponents,
                                         redirects: Redirects,
-                                        val authConnector: AuthConnector,
                                         auth: Auth,
-                                      ) extends  FrontendController(mcc) with AuthorisedFunctions with Logging {
+                                      ) extends  FrontendController(mcc) with Logging {
 
   import redirects.*
   private[controllers] val retrievals = Retrievals.affinityGroup and Retrievals.confidenceLevel and Retrievals.nino and Retrievals.itmpName
@@ -54,7 +53,7 @@ class RegistrationController @Inject()(
    * and then sends them on the appropriate GRS journey.
    * Agents are redirected to the Agent Services Account (ASA) home page as they do not need to register.
    */
-  val routingLogic: Action[AnyContent] = (auth.authorisedAndNotEnrolled).async { implicit request =>
+  val routingLogic: Action[AnyContent] = auth.authorisedAndNotEnrolled.async { implicit request =>
     request.affinityGroup match {
       case Individual   => routeIndividuals(request.confidenceLevel, request.maybeNino, request.maybeName)
       case Organisation => redirectToRegisterOrganisationF
@@ -62,7 +61,7 @@ class RegistrationController @Inject()(
     }
   }
 
-  def routeIndividuals(
+  private[controllers] def routeIndividuals(
     confidenceLevel: ConfidenceLevel,
     maybeNino: Option[String],
     maybeName: Option[ItmpName]

@@ -16,16 +16,18 @@
 
 package controllers
 
-import base.Fixtures.FakeAuthConnector
+import base.Fixtures.FakeStcAuthAction
 import base.SpecBase
+import play.api.inject
 import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
-import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
 import scala.concurrent.ExecutionContext
 
@@ -33,17 +35,24 @@ class RegistrationControllerSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  def buildRetrieval(affinityGroup: AffinityGroup, confidenceLevel: ConfidenceLevel, nino: Option[String], itmpName: Option[ItmpName])
-    : Option[AffinityGroup] ~ ConfidenceLevel ~ Option[String] ~ Option[ItmpName] = {
-    new ~(
-      new ~(
-        new ~(Some(affinityGroup), confidenceLevel), nino), itmpName)
-  }
 
   "RegistrationController" - {
 
     "should redirect organisation users to organisation registration" in {
-      val application = applicationBuilder()
+
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+        =new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Organisation,
+        ConfidenceLevel.L50,
+        None,
+        None
+      )
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
         .configure().build()
 
       running(application) {
@@ -52,11 +61,7 @@ class RegistrationControllerSpec extends SpecBase {
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
-        val retrievalValue = buildRetrieval(Organisation, ConfidenceLevel.L50, None, None)
-
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
+        val controller = new RegistrationController(mcc, redirects, auth)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -66,7 +71,20 @@ class RegistrationControllerSpec extends SpecBase {
     }
 
     "should redirect agents to ASA" in {
-      val application = applicationBuilder()
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+      = new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Agent,
+        ConfidenceLevel.L50,
+        None,
+        None
+      )
+
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
         .configure().build()
 
       running(application) {
@@ -75,10 +93,7 @@ class RegistrationControllerSpec extends SpecBase {
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
-        val retrievalValue = buildRetrieval(Agent, ConfidenceLevel.L50, None, None)
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
+        val controller = new RegistrationController(mcc, redirects, auth)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -88,7 +103,20 @@ class RegistrationControllerSpec extends SpecBase {
     }
 
     "should redirect individuals with insufficient confidence to IV uplift" in {
-      val application = applicationBuilder()
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+      = new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Individual,
+        ConfidenceLevel.L50,
+        None,
+        None
+      )
+
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
         .configure().build()
 
       running(application) {
@@ -97,10 +125,7 @@ class RegistrationControllerSpec extends SpecBase {
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
-        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L50, None, None)
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
+        val controller = new RegistrationController(mcc, redirects, auth)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -109,8 +134,21 @@ class RegistrationControllerSpec extends SpecBase {
       }
     }
 
-    "should redirect individuals with sufficient confidence but no NINO IV uplift" in {
-      val application = applicationBuilder()
+    "should redirect individuals with sufficient confidence but no Name to IV uplift" in {
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+      = new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Individual,
+        ConfidenceLevel.L250,
+        Some("NZ153756A"),
+        None
+      )
+
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
         .configure().build()
 
       running(application) {
@@ -119,10 +157,7 @@ class RegistrationControllerSpec extends SpecBase {
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
-        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, None, Some(ItmpName(Some("First"), None, Some("Last"))))
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
+        val controller = new RegistrationController(mcc, redirects, auth)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
@@ -131,30 +166,23 @@ class RegistrationControllerSpec extends SpecBase {
       }
     }
 
-    "should redirect individuals with sufficient confidence but no name to IV Uplift" in {
-      val application = applicationBuilder()
-        .configure().build()
 
-      running(application) {
-        val mcc = application.injector.instanceOf[MessagesControllerComponents]
-        val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
-        val redirects = application.injector.instanceOf[Redirects]
-        val auth = application.injector.instanceOf[Auth]
-
-        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), None)
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
-
-        val result = controller.routingLogic.apply(FakeRequest())
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.ivUpliftUrl)
-      }
-    }
 
     "should redirect individuals with sufficient confidence and other data to individual registration" in {
-      val application = applicationBuilder()
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+      = new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Individual,
+        ConfidenceLevel.L250,
+        Some("NZ153756A"),
+        Some(ItmpName(Some("First"), None, Some("Last")))
+      )
+
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
         .configure().build()
 
       running(application) {
@@ -163,10 +191,7 @@ class RegistrationControllerSpec extends SpecBase {
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
-        val retrievalValue = buildRetrieval(Individual, ConfidenceLevel.L250, Some("NZ153756A"), Some(ItmpName(Some("First"), None, Some("Last"))))
-        val authConnectorForController = new FakeAuthConnector(retrievalValue)
-
-        val controller = new RegistrationController(mcc, redirects, authConnectorForController, auth)
+        val controller = new RegistrationController(mcc, redirects, auth)
 
         val result = controller.routingLogic.apply(FakeRequest())
 
