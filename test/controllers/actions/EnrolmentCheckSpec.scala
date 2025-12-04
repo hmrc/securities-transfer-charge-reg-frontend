@@ -16,16 +16,13 @@
 
 package controllers.actions
 
-import base.SpecBase
+import base.TestFixtures.FakeSuccessAuthConnector
+import base.{SpecBase, TestFixtures}
 import play.api.mvc.BodyParsers.Default
 import play.api.mvc.{AnyContent, Request, Results}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
@@ -36,18 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class EnrolmentCheckSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
-
-  class FakeSuccessAuthConnector[A](value: A) extends AuthConnector {
-    val serviceUrl: String = ""
-    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
-      Future.successful(value.asInstanceOf[T])
-  }
-
-  class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
-    val serviceUrl: String = ""
-    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
-      Future.failed(exceptionToReturn)
-  }
 
   "EnrolmentCheck" - {
 
@@ -65,9 +50,7 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val authConnector = new FakeSuccessAuthConnector[Enrolments](enrolments)
 
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
-        }
+        val registrationClient = TestFixtures.registrationClient
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
@@ -92,10 +75,8 @@ class EnrolmentCheckSpec extends SpecBase {
         val enrolments = Enrolments(Set.empty)
         val authConnector = new FakeSuccessAuthConnector[Enrolments](enrolments)
 
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
-        }
-
+        val registrationClient = TestFixtures.registrationClient
+        
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 
         val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
@@ -117,9 +98,8 @@ class EnrolmentCheckSpec extends SpecBase {
 
         val authConnector = new FakeFailingAuthConnector(new MissingBearerToken)
 
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
-        }
+        val registrationClient = TestFixtures.registrationClient
+
 
         val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
 

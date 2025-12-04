@@ -24,6 +24,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedF
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
@@ -57,7 +58,9 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
     stcEnrolment.exists(_.isActivated)
   }
 
-  private[controllers] def hasCurrentSubscription = registrationClient.hasCurrentSubscription
+  // TODO: We need a way to get the safe-id for the current user
+  private[controllers] def hasCurrentSubscription: Boolean
+    = registrationClient.hasCurrentSubscription("safe-id").exists(_ == SubscriptionActive)
 
   override protected def executionContext: ExecutionContext = ec
 
