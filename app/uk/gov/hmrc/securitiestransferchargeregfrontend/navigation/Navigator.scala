@@ -26,7 +26,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{DateOfBirthRegPage
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
+    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad() ///
     case _ => _ => routes.IndexController.onPageLoad()
 
   }

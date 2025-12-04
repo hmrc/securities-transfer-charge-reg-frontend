@@ -46,7 +46,7 @@ class DateOfBirthRegController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) { ////////// ADD THE andThen requireData
     implicit request =>
-      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId)) ///////////// Created a dumm data
+      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId)) ///////////// Created a dummy data ----------- REMOVE THIS LINE
 
       val form = formProvider()
 
@@ -70,7 +70,7 @@ class DateOfBirthRegController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(userAnswers.set(DateOfBirthRegPage, value)) ////// ADD request BEFORE userAnswers
+            updatedAnswers <- Future.fromTry(userAnswers.set(DateOfBirthRegPage, value)) ////// ADD request. BEFORE userAnswers
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
       )

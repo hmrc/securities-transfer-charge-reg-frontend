@@ -19,7 +19,6 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-
 import java.time.LocalDate
 import javax.inject.Inject
 
