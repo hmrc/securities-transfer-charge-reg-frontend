@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{SessionRepository, SessionRepositoryImpl}
 
@@ -33,7 +34,11 @@ class Module extends AbstractModule {
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
 
     bind(classOf[Clock]).toInstance(Clock.systemDefaultZone.withZone(ZoneOffset.UTC))
+
     bind(classOf[StcAuthAction]).to(classOf[AuthenticatedStcAction])
+
+    bind(classOf[RegistrationClient]).to(classOf[RegistrationClientImpl]).asEagerSingleton()
+
     bind(classOf[SessionRepository]).to(classOf[SessionRepositoryImpl])
     bind(classOf[EnrolmentCheck]).to(classOf[EnrolmentCheckImpl])
     bind(classOf[IndividualCheck]).to(classOf[IndividualCheckImpl])

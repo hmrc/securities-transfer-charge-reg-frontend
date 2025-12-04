@@ -22,7 +22,10 @@ import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
@@ -34,8 +37,15 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
 
   import Fixtures.ec
   
-  class FakeRegistrationClient(has: Boolean) extends RegistrationClient {
-    override def hasCurrentSubscription: Boolean = has
+  class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
+    override def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult =
+      if (succeeds) Right(SubscriptionActive) else Left(SubscriptionClientError("Failed"))
+
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
+
+    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
+
+    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
   }
 
   // Expose the protected filter method for testing
