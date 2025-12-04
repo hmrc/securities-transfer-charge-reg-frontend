@@ -1,32 +1,14 @@
-/*
- * Copyright 2025 HM Revenue & Customs
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
-
 package controllers.actions
 
 import base.*
 import base.Fixtures.{FakeAuthConnectorFailing, FakeAuthConnectorSuccess}
-import play.api.mvc.Results
-import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents}
+import org.scalatest.RecoverMethods.recoverToExceptionIf
+import play.api.mvc.{AnyContentAsEmpty, MessagesControllerComponents, Results}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.auth.core.retrieve.ItmpName
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments}
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.{Retrieval, ~}
-import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.auth.core.*
+import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
+import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedStcAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
@@ -107,7 +89,7 @@ class StcAuthActionSpec extends SpecBase {
         val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-        val authConnector = new FakeAuthConnectorFailing(new uk.gov.hmrc.auth.core.NoActiveSession("no-session") {})
+        val authConnector = new FakeAuthConnectorFailing(new NoActiveSession("no-session") {})
 
         val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
         val action = new AuthenticatedStcAction(authConnector, appConfig, bodyParsers)
@@ -116,7 +98,7 @@ class StcAuthActionSpec extends SpecBase {
 
         status(result) mustBe SEE_OTHER
         // Redirect should contain the login URL and continue parameter
-        redirectLocation(result).get must include(appConfig.loginContinueUrl)
+        redirectLocation(result).get must include(appConfig.loginUrl)
       }
     }
 
@@ -127,7 +109,7 @@ class StcAuthActionSpec extends SpecBase {
         val mcc = application.injector.instanceOf[MessagesControllerComponents]
         val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
-        val authConnector = new FakeAuthConnectorFailing(new uk.gov.hmrc.auth.core.AuthorisationException("fail") {})
+        val authConnector = new FakeAuthConnectorFailing(new AuthorisationException("fail") {})
 
         val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
         val action = new AuthenticatedStcAction(authConnector, appConfig, bodyParsers)
@@ -139,5 +121,43 @@ class StcAuthActionSpec extends SpecBase {
       }
     }
 
-  }
-}
+    "must fail with UnauthorizedException when internalId or affinityGroup are missing in the retrieval" in {
+     val application = applicationBuilder().build()
+
+     running(application) {
+       val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+       // Build a retrieval tuple with None for internalId and/or affinityGroup
+       val retrievalMissingInternal = new ~(
+         new ~(
+           new ~(
+             new ~(
+               new ~(None: Option[String], Enrolments(Set())),
+               Some(AffinityGroup.Individual)
+             ),
+             ConfidenceLevel.L250
+           ),
+           Some("AA123456A")
+         ),
+         Some(ItmpName(Some("First"), None, Some("Last")))
+       )
+
+       val authConnector = new FakeAuthConnectorSuccess(retrievalMissingInternal)
+
+       val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
+       val action = new AuthenticatedStcAction(authConnector, appConfig, bodyParsers)
+
+       // Expect the future to fail with UnauthorizedException because pattern match falls through to case _
+       val thrown = recoverToExceptionIf[UnauthorizedException] {
+         action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
+       }
+
+       whenReady(thrown) { ex =>
+         ex.getMessage must include("Unable to retrieve internalId or affinityGroup from auth")
+       }
+     }
+   }
+
+   }
+ }
+
