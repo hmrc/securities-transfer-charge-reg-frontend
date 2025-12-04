@@ -27,6 +27,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
 
+  val stcEnrolmentKey = "HMRC-STC-ORG"
+
   private val contactHost = configuration.get[String]("contact-frontend.host")
   private val contactFormServiceIdentifier = "securities-transfer-charge-reg-frontend"
 
@@ -36,6 +38,14 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val loginUrl: String         = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
+
+  val unauthorisedUrl: String = configuration.get[String]("microservice.redirects.unauthorised-url")
+  val registerUrl: String = configuration.get[String]("microservice.redirects.register-url")
+  val registerIndividualUrl: String = configuration.get[String]("microservice.redirects.register-individual-url")
+  val asaUrl: String = configuration.get[String]("microservice.redirects.asa-url")
+  val registerOrganisationUrl: String = configuration.get[String]("microservice.redirects.register-organisation-url")
+  val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
+  val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
 
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/securities-transfer-charge-reg-frontend"

@@ -16,9 +16,5 @@
 
 package generators
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models._
-import org.scalacheck.Arbitrary.arbitrary
-import org.scalacheck.{Arbitrary, Gen}
-
 trait ModelGenerators {
 }
