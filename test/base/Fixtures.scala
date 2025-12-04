@@ -51,7 +51,7 @@ object Fixtures {
    * but you can pass a different Request[A] to change the body type or headers.
    */
   def fakeStcAuthRequest[A](
-    request: Request[A] = FakeRequest(),
+    request: Request[A],
     userId: String = user,
     enrolmentsOverride: Enrolments = enrolments,
     affinityGroupOverride: AffinityGroup = affinityGroup,
