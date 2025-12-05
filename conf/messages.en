@@ -55,6 +55,7 @@ regForSecuritiesTransferCharge.p2 = You will only have to do this the first time
 
 checkYourDetails.title = Check your details
 checkYourDetails.heading = Check your details
+checkYourDetails.hint = Your details
 checkYourDetails.checkYourAnswersLabel = Are these details correct?
 checkYourDetails.areTheseDetailsCorrect = Are these details correct?
 checkYourDetails.error.required = Select yes if these details are correct
