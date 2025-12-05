@@ -18,13 +18,12 @@ package controllers.actions
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest, UserDetails}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class FakeDataRetrievalAction(
-                               dataToReturn: Option[UserAnswers],
-                               userDetails: UserDetails
+                               dataToReturn: Option[UserAnswers]
                              ) extends DataRetrievalAction {
 
   override protected def transform[A](
@@ -32,9 +31,8 @@ class FakeDataRetrievalAction(
                                      ): Future[OptionalDataRequest[A]] =
     Future.successful(
       OptionalDataRequest(
-        request     = request.request,
+        request     = request,
         userId      = request.userId,
-        userDetails = userDetails,
         userAnswers = dataToReturn
       )
     )

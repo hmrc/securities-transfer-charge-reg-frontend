@@ -43,9 +43,9 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     val summaryCard2Key = "Last name"
     val summaryCard3Key = "National insurance number"
 
-    val summaryCard1Value: String = fakeUserDetails.firstName.value
-    val summaryCard2Value: String = fakeUserDetails.lastName.value
-    val summaryCard3Value: String = fakeUserDetails.nino.value
+    val summaryCard1Value: String = firstName
+    val summaryCard2Value: String = lastName
+    val summaryCard3Value: String = nino
 
   }
 

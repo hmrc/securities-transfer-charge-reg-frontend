@@ -17,10 +17,10 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
@@ -51,43 +51,39 @@ class CheckYourDetailsController @Inject()(
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
 
-      val userDetails = request.userDetails
+      val firstName = request.request.maybeName.flatMap(_.givenName).get
+      val lastName = request.request.maybeName.flatMap(_.familyName).get
+      val nino = request.request.maybeNino.get
 
-      (userDetails.firstName, userDetails.lastName, userDetails.nino) match {
-        case (Some(fn), Some(ln), Some(nino)) =>
-          Ok(view(preparedForm, fn, ln, nino, mode))
+      Ok(view(preparedForm, firstName, lastName, nino, mode))
 
-        case _ =>
-          Redirect(routes.UnauthorisedController.onPageLoad())
-      }
     }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (auth.authorisedIndividualAndNotEnrolled andThen getData).async { implicit request =>
-      val userDetails = request.userDetails
 
-      (userDetails.firstName, userDetails.lastName, userDetails.nino) match {
-        case (Some(fn), Some(ln), Some(nino)) =>
-          form.bindFromRequest().fold(
-            formWithErrors =>
-              Future.successful(
-                BadRequest(view(formWithErrors, fn, ln, nino, mode))
-              ),
-            value => {
-              val updatedAnswers =
-                request.userAnswers
-                  .getOrElse(UserAnswers(request.userId))
-                  .set(CheckYourDetailsPage, value)
-                  .get
+      val firstName = request.request.maybeName.flatMap(_.givenName).get
+      val lastName = request.request.maybeName.flatMap(_.familyName).get
+      val nino = request.request.maybeNino.get
 
-              sessionRepository.set(updatedAnswers).map { _ =>
-                Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
-              }
-            }
-          )
 
-        case _ =>
-          Future.successful(Redirect(routes.UnauthorisedController.onPageLoad()))
-      }
+      form.bindFromRequest().fold(
+        formWithErrors =>
+          Future.successful(
+            BadRequest(view(formWithErrors, firstName, lastName, nino, mode))
+          ),
+        value => {
+          val updatedAnswers =
+            request.userAnswers
+              .getOrElse(UserAnswers(request.userId))
+              .set(CheckYourDetailsPage, value)
+              .get
+
+          sessionRepository.set(updatedAnswers).map { _ =>
+            Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
+          }
+        }
+      )
     }
 }
