@@ -23,6 +23,7 @@ import play.api.data.Form
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.today
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.all.*
 
@@ -39,10 +40,16 @@ class DateFluencySpec extends AnyFreeSpec with Matchers with Mappings with Optio
     val form : Form[LocalDate] =
       Form(
         "value" -> localDate(
-          invalidKey = "fieldName.error.invalid",
-          allRequiredKey = "fieldName.error.required.all",
-          twoRequiredKey = "fieldName.error.required.two",
-          requiredKey = "fieldName.error.required"
+          invalidKey     = "dateOfBirthReg.error.invalid",
+          allRequiredKey = "dateOfBirthReg.error.required.all",
+          twoRequiredKey = "dateOfBirthReg.error.required.two",
+          requiredKey    = "dateOfBirthReg.error.required",
+          futureDateKey = "dateOfBirthReg.error.futureDate",
+          pastDateKey = "dateOfBirthReg.error.pastDate",
+          under18DateKey = "dateOfBirthReg.error.under18",
+          maxDate = today,
+          minDate = LocalDate.now().minusYears(150),
+          todayMinus18Years = LocalDate.now().minusYears(18)
         )
       )
 

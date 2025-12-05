@@ -17,6 +17,9 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 
+import play.api.data.Forms.{mapping, text, tuple}
+import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
+import play.api.data.{Form, FormError, Mapping}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -28,8 +31,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthReg
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 import javax.inject.Inject
+import scala.util.{Failure, Success, Try}
 
 
 class DateOfBirthRegController @Inject()(
