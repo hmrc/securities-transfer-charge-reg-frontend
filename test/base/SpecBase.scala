@@ -28,6 +28,7 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeSessionRepository
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
@@ -54,6 +55,11 @@ trait SpecBase
 
   val userAnswersId: String = "id"
   val sessionId = "sessionId1234"
+  val firstName = "First"
+  val lastName = "Last"
+  val nino = "AA123456A"
+  val affinityGroup = AffinityGroup.Individual
+  val confidenceLevel = ConfidenceLevel.L250
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 

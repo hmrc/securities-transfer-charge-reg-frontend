@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{Page, RegForSecuritiesTransferChargePage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 class NavigatorSpec extends SpecBase {
@@ -35,11 +35,9 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
       }
-
-      pending
-      "must go from the RegForSecuritiesTransferChargePage to AreYourDetailsCorrectPage" in {
-        case object RegForSecuritiesTransferChargePage extends Page
-        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe ???
+      
+      "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
+        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe routes.CheckYourDetailsController.onPageLoad(NormalMode)
       }
     }
 

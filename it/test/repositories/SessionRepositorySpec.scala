@@ -16,34 +16,46 @@
 
 package repositories
 
+import org.apache.pekko.Done
 import org.mockito.Mockito.when
+import org.mongodb.scala.*
+import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.Filters
 import org.scalactic.source.Position
-import org.scalatest.OptionValues
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{BeforeAndAfterEach, OptionValues}
 import org.scalatestplus.mockito.MockitoSugar
 import org.slf4j.MDC
-import uk.gov.hmrc.mdc.MdcExecutionContext
 import play.api.libs.json.Json
-import uk.gov.hmrc.mongo.test.DefaultPlayMongoRepositorySupport
+import uk.gov.hmrc.mdc.MdcExecutionContext
+import uk.gov.hmrc.mongo.test.MongoSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepositoryImpl
 
-import java.time.{Clock, Instant, ZoneId}
 import java.time.temporal.ChronoUnit
-import scala.concurrent.{ExecutionContext, ExecutionContextExecutorService, Future}
+import java.time.{Clock, Instant, ZoneId}
+import scala.concurrent.{ExecutionContext, Future}
 
 class SessionRepositorySpec
   extends AnyFreeSpec
     with Matchers
-    with DefaultPlayMongoRepositorySupport[UserAnswers]
+    with MongoSupport
     with ScalaFutures
     with IntegrationPatience
     with OptionValues
-    with MockitoSugar {
+    with MockitoSugar
+    with BeforeAndAfterEach {
+
+  override def beforeEach(): Unit = {
+    super.beforeEach()
+    repository.collection
+      .deleteMany(org.mongodb.scala.model.Filters.exists("_id"))
+      .toFuture()
+      .futureValue
+  }
 
   private val instant = Instant.now.truncatedTo(ChronoUnit.MILLIS)
   private val stubClock: Clock = Clock.fixed(instant, ZoneId.systemDefault)
@@ -55,11 +67,25 @@ class SessionRepositorySpec
 
   implicit val productionLikeTestMdcExecutionContext: ExecutionContext = MdcExecutionContext()
 
-  protected override val repository: SessionRepository = new SessionRepository(
-    mongoComponent = mongoComponent,
-    appConfig      = mockAppConfig,
-    clock          = stubClock
-  )
+  private def insert(ua: UserAnswers): Future[Done] =
+    repository.collection
+      .insertOne(ua)
+      .toFuture()
+      .map(_ => Done)
+
+  private def find(filter: Bson): Future[Seq[UserAnswers]] =
+    repository.collection
+      .find(filter)
+      .toFuture()
+
+
+  lazy val repository =
+    new SessionRepositoryImpl(
+      mongoComponent = mongoComponent,
+      appConfig = mockAppConfig,
+      clock = stubClock
+    )
+
 
   ".set" - {
 
@@ -157,6 +183,6 @@ class SessionRepositorySpec
 
       (f.map { _ =>
         Option(MDC.get("test"))
-      }.futureValue) mustEqual Some("foo")
+      }.futureValue) mustBe Some("foo")
     }
 }

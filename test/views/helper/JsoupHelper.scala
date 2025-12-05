@@ -64,6 +64,7 @@ trait JsoupHelper {
   case class Details(summary: String, body: String)
   case class DateField(legend: String, hint: Option[String] = None)
   case class SummaryRow(label: String, answer: String, actions: Seq[Link])
+  case class SummaryCardRow(label: String, answer: String)
   case class RadioGroup(legend: String, options: List[String], hint: Option[String] = None)
 
   implicit class SelectorDoc(doc: Document) {
@@ -107,6 +108,17 @@ trait JsoupHelper {
         }
 
         Some(SummaryRow(key, value, actions))
+      }
+    }
+
+    def summaryCardRow(n: Int): Option[SummaryCardRow] = {
+      val row = doc.select(summaryListRow).toList.lift(n - 1)
+
+      row.flatMap { r =>
+        val key = r.select(summaryListKey).text()
+        val value = r.select(summaryListValue).text()
+
+        Some(SummaryCardRow(key, value))
       }
     }
 
