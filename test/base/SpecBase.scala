@@ -28,9 +28,10 @@ import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeSessionRepository
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest, UserDetails}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -54,6 +55,13 @@ trait SpecBase
 
   val userAnswersId: String = "id"
   val sessionId = "sessionId1234"
+  val firstName = "TestFirstName"
+  val lastName = "TestLastName"
+  val affinityGroup = AffinityGroup.Individual
+  val confidenceLevel = ConfidenceLevel.L250
+  val nino = "AB123456C"
+
+  val fakeUserDetails: UserDetails = UserDetails(Some(firstName), Some(lastName), affinityGroup, confidenceLevel, Some(nino))
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
@@ -68,7 +76,7 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, fakeUserDetails)),
         bind[SessionRepository].to[FakeSessionRepository],
         bind[StcAuthAction].to[FakeStcAuthAction]
       )
@@ -78,7 +86,7 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, fakeUserDetails)),
         bind[SessionRepository].to[FakeSessionRepository],
       )
 
@@ -87,7 +95,7 @@ trait SpecBase
       .overrides(
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
-        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers, fakeUserDetails)),
         bind[StcAuthAction].to[FakeStcAuthAction]
       )
 }
