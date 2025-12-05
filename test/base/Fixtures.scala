@@ -106,17 +106,4 @@ object Fixtures {
     }
   }
 
-//  val mockAuthorisedFunctions: AuthorisedFunctions = mock[AuthorisedFunctions]
-//  import mockAuthorisedFunctions.*
-//
-//  def mockAuthorisedFunction(internalId: String, enrolments: Enrolments, affinityGroup: Option[AffinityGroup],
-//                             confidenceLevel: ConfidenceLevel, nino: Option[String], itmpName: Option[ItmpName]): AuthorisedFunction = {
-//    val theMock = mock[AuthorisedFunction]
-//    val mockInternalIdRetrieval = mock[AuthorisedFunctionWithResult[Option[String]]]
-//    when(mockInternalIdRetrieval.retrieve()).thenReturn(Future.successful(Some(internalId)))
-//    when(theMock.retrieve(OptionalRetrieval("internalId", Reads.StringReads))).thenReturn(AuthorisedFunction(AuthorisedFunctionWithResult[]()))
-//  }
-//
-//  when(mockAuthorisedFunctions.authorised()).thenReturn(mockAuthorisedFunction)
-
 }
