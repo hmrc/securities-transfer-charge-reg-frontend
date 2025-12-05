@@ -16,12 +16,15 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
+import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
@@ -39,9 +42,10 @@ class CheckYourDetailsController @Inject()(
                                             getData: DataRetrievalAction,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourDetailsView
+                                            view: CheckYourDetailsView,
+                                            config: FrontendAppConfig
                                           )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport {
+  extends FrontendBaseController with I18nSupport with Logging {
 
   private val form: Form[Boolean] = formProvider()
 
@@ -51,39 +55,49 @@ class CheckYourDetailsController @Inject()(
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
 
-      val firstName = request.request.maybeName.flatMap(_.givenName).get
-      val lastName = request.request.maybeName.flatMap(_.familyName).get
-      val nino = request.request.maybeNino.get
+      extractData(request.request)
+        .map {
+          case (fn, ln, nino) => Ok(view(preparedForm, fn, ln, nino, mode))
+        }.getOrElse(noAuthDetails)
+      }
+    
 
-      Ok(view(preparedForm, firstName, lastName, nino, mode))
 
-    }
-
-
-  def onSubmit(mode: Mode): Action[AnyContent] =
+  def onSubmit(mode: Mode): Action[AnyContent] = {
     (auth.authorisedIndividualAndNotEnrolled andThen getData).async { implicit request =>
 
-      val firstName = request.request.maybeName.flatMap(_.givenName).get
-      val lastName = request.request.maybeName.flatMap(_.familyName).get
-      val nino = request.request.maybeNino.get
+      extractData(request.request).map { case (fn, ln, nino) =>
+        form.bindFromRequest().fold(
+          formWithErrors =>
+            Future.successful(BadRequest(view(formWithErrors, fn, ln, nino, mode))),
+          value => {
+            val updatedAnswers =
+              request.userAnswers
+                .getOrElse(UserAnswers(request.userId))
+                .set(CheckYourDetailsPage, value)
+                .get
 
-
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(
-            BadRequest(view(formWithErrors, firstName, lastName, nino, mode))
-          ),
-        value => {
-          val updatedAnswers =
-            request.userAnswers
-              .getOrElse(UserAnswers(request.userId))
-              .set(CheckYourDetailsPage, value)
-              .get
-
-          sessionRepository.set(updatedAnswers).map { _ =>
-            Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
-          }
-        }
-      )
+            sessionRepository.set(updatedAnswers).map { _ =>
+              Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
+            }
+          })
+      }.getOrElse(Future.successful(noAuthDetails))
     }
+  }
+  
+  private def noAuthDetails: Result = {
+    logger.warn("CheckYourDetailsController onPageLoad: missing user details in auth request")
+    Redirect(config.ivUpliftUrl)
+  }
+  
+  private def extractData[A](request: StcAuthRequest[A]): Option[(String, String, String)] = {
+    for {
+      firstName <- request.maybeName.flatMap(_.givenName)
+      lastName <- request.maybeName.flatMap(_.familyName)
+      nino <- request.maybeNino
+    } yield {
+      (firstName, lastName, nino)
+    }
+  }
+  
 }
