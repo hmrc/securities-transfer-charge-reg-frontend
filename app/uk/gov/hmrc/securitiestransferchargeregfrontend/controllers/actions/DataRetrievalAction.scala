@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import play.api.mvc.ActionTransformer
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest, UserDetails}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
@@ -29,8 +29,21 @@ class DataRetrievalActionImpl @Inject()(
 
   override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = {
 
-    sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request.request, request.userId, _)
+    val userDetails = UserDetails(
+      firstName = request.maybeName.flatMap(_.givenName),
+      lastName = request.maybeName.flatMap(_.familyName),
+      affinityGroup = request.affinityGroup,
+      confidenceLevel = request.confidenceLevel,
+      nino = request.maybeNino
+    )
+
+    sessionRepository.get(request.userId).map { answers =>
+      OptionalDataRequest(
+        request = request.request,
+        userId = request.userId,
+        userDetails = userDetails,
+        userAnswers = answers
+      )
     }
   }
 }
