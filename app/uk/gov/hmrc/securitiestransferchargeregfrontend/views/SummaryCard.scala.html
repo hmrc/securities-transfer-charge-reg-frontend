@@ -14,19 +14,19 @@
  * limitations under the License.
  *@
 
-@(firstName: String, lastName: String, nino: String)
+@(firstName: String, lastName: String, nino: String)(implicit request: Request[_], messages: Messages)
 
 <div class="govuk-summary-card">
     <div class="govuk-summary-card__title-wrapper">
         <h2 class="govuk-summary-card__title">
-            Your account details
+            @messages("summaryCard.yourAccountDetails")
         </h2>
     </div>
     <div class="govuk-summary-card__content">
         <dl class="govuk-summary-list">
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    First name
+                    @messages("summaryCard.firstName")
                 </dt>
                 <dd class="govuk-summary-list__value">
                     @firstName
@@ -34,7 +34,7 @@
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    Last name
+                    @messages("summaryCard.lastName")
                 </dt>
                 <dd class="govuk-summary-list__value">
                     @lastName
@@ -42,7 +42,7 @@
             </div>
             <div class="govuk-summary-list__row">
                 <dt class="govuk-summary-list__key">
-                    National insurance number
+                    @messages("summaryCard.nationalInsuranceNumber")
                 </dt>
                 <dd class="govuk-summary-list__value">
                     @nino
