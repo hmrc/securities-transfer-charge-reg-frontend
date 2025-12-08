@@ -29,6 +29,20 @@ class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad() ///
+    case RegForSecuritiesTransferChargePage => _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
+
+    case CheckYourDetailsPage =>
+      userAnswers =>
+        userAnswers.get(CheckYourDetailsPage) match {
+          case Some(true)  =>
+            ???
+
+          case Some(false) =>
+            ???
+
+          case None =>
+            routes.JourneyRecoveryController.onPageLoad()
+        }
     case _ => _ => routes.IndexController.onPageLoad()
 
   }

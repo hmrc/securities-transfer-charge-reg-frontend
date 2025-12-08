@@ -14,11 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+sealed trait RegistrationServiceError
 
-case class OptionalDataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
-
-case class DataRequest[A] (request: Request[A], userId: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+case class SubscriptionClientError(message: String) extends RegistrationServiceError
+case class SubscriptionServerError(message: String) extends RegistrationServiceError

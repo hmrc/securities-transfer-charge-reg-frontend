@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-
-case class OptionalDataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
-
-case class DataRequest[A] (request: Request[A], userId: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+case class OrganisationSubscriptionDetails(
+  addressLine1: String,
+  addressLine2: Option[String] = None,
+  addressLine3: Option[String] = None,
+  postCode: String,
+  country: String,
+  telephoneNumber: String,
+  mobileNumber: Option[String] = None,
+  email: String
+)

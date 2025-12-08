@@ -66,3 +66,16 @@ dateOfBirthReg.error.futureDate = Date of birth must be before {0}
 dateOfBirthReg.error.pastDate = Date of birth must be after {0}
 dateOfBirthReg.error.under18 = You need to be 18 years old or older to use this service
 dateOfBirthReg.change.hidden = Change your date of birth
+
+checkYourDetails.title = Check your details
+checkYourDetails.heading = Check your details
+checkYourDetails.hint = Your details
+checkYourDetails.checkYourAnswersLabel = Are these details correct?
+checkYourDetails.areTheseDetailsCorrect = Are these details correct?
+checkYourDetails.error.required = Select yes if these details are correct
+checkYourDetails.change.hidden = CheckYourDetails
+
+summaryCard.yourAccountDetails = Your account details
+summaryCard.firstName = First name
+summaryCard.lastName = Last name
+summaryCard.nationalInsuranceNumber = National insurance number

@@ -16,120 +16,105 @@
 
 package controllers.actions
 
-import base.SpecBase
-import play.api.mvc.BodyParsers.Default
-import play.api.mvc.{AnyContent, Request, Results}
+import base.{Fixtures, SpecBase}
+import org.scalatest.concurrent.IntegrationPatience
+import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.authorise.Predicate
-import uk.gov.hmrc.auth.core.retrieve.Retrieval
-import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
+import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.IdentifierRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
-class EnrolmentCheckSpec extends SpecBase {
+class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
+  import Fixtures.ec
+  
+  class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
+    override def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult =
+      if (succeeds) Right(SubscriptionActive) else Left(SubscriptionClientError("Failed"))
 
-  class FakeSuccessAuthConnector[A](value: A) extends AuthConnector {
-    val serviceUrl: String = ""
-    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
-      Future.successful(value.asInstanceOf[T])
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
+
+    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
+
+    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
   }
 
-  class FakeFailingAuthConnector(exceptionToReturn: Throwable) extends AuthConnector {
-    val serviceUrl: String = ""
-    override def authorise[T](predicate: Predicate, retrieval: Retrieval[T])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[T] =
-      Future.failed(exceptionToReturn)
+  // Expose the protected filter method for testing
+  class Harness(parser: BodyParsers.Default,
+                appConfig: FrontendAppConfig,
+                redirects: Redirects,
+                registrationClient: RegistrationClient)
+               (implicit ec: scala.concurrent.ExecutionContext)
+    extends EnrolmentCheckImpl(parser, appConfig, redirects, registrationClient)
+  {
+    def callFilter[A](req: StcAuthRequest[A]): Future[Option[Result]] = filter(req)
   }
 
   "EnrolmentCheck" - {
 
-    "redirect to service when user is enrolled and has current subscription" in {
-      val application = applicationBuilder().configure().build()
+    "must redirect to the service when the user is enrolled and has a current subscription" in {
+      val application = applicationBuilder().build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[Default]
-        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
-        val redirects   = application.injector.instanceOf[Redirects]
+        val parser = application.injector.instanceOf[BodyParsers.Default]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val redirects = application.injector.instanceOf[Redirects]
 
-        // create an enrolment that matches the configured key
+        // build an activated enrolment for the configured key
         val enrolment = Enrolment(appConfig.stcEnrolmentKey, Seq(EnrolmentIdentifier("id", "1")), "Activated")
         val enrolments = Enrolments(Set(enrolment))
 
-        val authConnector = new FakeSuccessAuthConnector[Enrolments](enrolments)
+        val stcReq = Fixtures.fakeStcAuthRequest[AnyContent](request = FakeRequest(), enrolmentsOverride = enrolments)
 
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
+        val registrationClient = new FakeRegistrationClient(true)
+
+        val harness = new Harness(parser, appConfig, redirects, registrationClient)
+
+        val maybeResult = harness.callFilter(stcReq)
+
+        val unpackResult: Option[Result] => Result = {
+          case Some(result) => result
+          case None         => fail("Should not be none")
         }
-
-        val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
-
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
-        val result = action.invokeBlock(request, (_: Request[Any]) => Future.successful(Results.Ok))
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.stcServiceUrl)
+        
+        val futureResult = maybeResult map(unpackResult)
+        
+        status(futureResult) mustBe SEE_OTHER
+        redirectLocation(futureResult) mustBe Some(appConfig.stcServiceUrl)
       }
     }
 
-    "pass through when user is not enrolled" in {
-      val application = applicationBuilder()
-        .configure()
-        .build()
+    "must allow the request to proceed when the user is not enrolled or there is no subscription" in {
+      val application = applicationBuilder().build()
 
       running(application) {
-        val bodyParsers = application.injector.instanceOf[Default]
-        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
-        val redirects   = application.injector.instanceOf[Redirects]
+        val parser = application.injector.instanceOf[BodyParsers.Default]
+        val appConfig = application.injector.instanceOf[FrontendAppConfig]
+        val redirects = application.injector.instanceOf[Redirects]
 
-        val enrolments = Enrolments(Set.empty)
-        val authConnector = new FakeSuccessAuthConnector[Enrolments](enrolments)
+        // empty enrolments
+        val enrolments = Enrolments(Set())
 
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
-        }
+        val stcReq = Fixtures.fakeStcAuthRequest[AnyContent](request = FakeRequest(), enrolmentsOverride = enrolments)
 
-        val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
+        val registrationClient = new FakeRegistrationClient(false)
 
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
-        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
+        val harness = new Harness(parser, appConfig, redirects, registrationClient)
 
-        status(result) mustBe OK
-      }
-    }
+        val result = harness.callFilter(stcReq).futureValue
 
-    "redirect to login on other failures" in {
-      val application = applicationBuilder()
-        .configure()
-        .build()
-
-      running(application) {
-        val bodyParsers = application.injector.instanceOf[Default]
-        val appConfig   = application.injector.instanceOf[FrontendAppConfig]
-        val redirects   = application.injector.instanceOf[Redirects]
-
-        val authConnector = new FakeFailingAuthConnector(new MissingBearerToken)
-
-        val registrationClient = new RegistrationClient {
-          override def hasCurrentSubscription: Boolean = true
-        }
-
-        val action = new EnrolmentCheckImpl(bodyParsers, appConfig, redirects, registrationClient, authConnector)(ec)
-
-        val request = IdentifierRequest[AnyContent](FakeRequest(), "bobbins")
-        val result = action.invokeBlock(request, (_: play.api.mvc.Request[Any]) => Future.successful(Results.Ok))
-        val expected = appConfig.unauthorisedUrl
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(expected)
+        result must not be defined
       }
     }
   }
 }
+

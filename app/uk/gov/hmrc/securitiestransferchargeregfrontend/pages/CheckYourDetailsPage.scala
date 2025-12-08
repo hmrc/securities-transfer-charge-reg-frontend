@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import play.api.libs.json.JsPath
 
-case class OptionalDataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+case object CheckYourDetailsPage extends QuestionPage[Boolean] {
 
-case class DataRequest[A] (request: Request[A], userId: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "checkYourDetails"
+}

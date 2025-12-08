@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+enum SubscriptionResponse:
+  case SubscriptionSuccessful
 
-case class OptionalDataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+enum SubscriptionStatus:
+  case SubscriptionNotFound
+  case SubscriptionExpired
+  case SubscriptionActive
 
-case class DataRequest[A] (request: Request[A], userId: String, userAnswers: UserAnswers) extends WrappedRequest[A](request)
+type SubscriptionResult = Either[RegistrationServiceError, SubscriptionResponse]
+type SubscriptionStatusResult = Either[RegistrationServiceError, SubscriptionStatus]

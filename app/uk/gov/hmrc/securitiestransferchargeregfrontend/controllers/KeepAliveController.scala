@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRetrievalAction, IdentifierAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, DataRetrievalAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
@@ -26,12 +26,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class KeepAliveController @Inject()(
                                      val controllerComponents: MessagesControllerComponents,
-                                     identify: IdentifierAction,
+                                     auth: Auth,
                                      getData: DataRetrievalAction,
                                      sessionRepository: SessionRepository
                                    )(implicit ec: ExecutionContext) extends FrontendBaseController {
 
-  def keepAlive(): Action[AnyContent] = (identify andThen getData).async {
+  def keepAlive(): Action[AnyContent] = (auth.authorised andThen getData).async {
     implicit request =>
       request.userAnswers
         .map {
