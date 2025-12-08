@@ -30,7 +30,6 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
 
-
   private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
   private val formProvider = new DateOfBirthRegFormProvider()
   private val form = formProvider()
@@ -39,36 +38,34 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
     viewInstance(form, NormalMode)(fakeRequest, messages).body
   )
 
-  object ExpectedIndividual {
-    val title = "Register to tell us about a securities transfer"
-    val heading = "Register to tell us about a securities transfer"
-    val continue = "Continue"
+  object ExpectedDateOfBirthReg {
+    val title = "What’s your date of birth?"
+    val pageTitle = "Your details"
+    val heading = "What’s your date of birth?"
+    val hint = "For example, 27 3 2007."
 
-    val para1Value = "Before using this service you will need to register and confirm or provide some personal details."
-    val para2Value = "You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account."
+    val continue = "Continue"
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
-    "the user is an Individual" - {
-      val individualPage = view()
+  "The DateOfBirthRegView" - {
+    "the user is seeing the date of birth page to register" - {
+      val dateOfBirthRegPage = view()
 
       "have the correct title" in {
-        individualPage.title must include(ExpectedIndividual.title)
+        dateOfBirthRegPage.title must include(ExpectedDateOfBirthReg.title)
       }
 
       "have the correct heading" in {
-        individualPage.select("h1").text() mustBe ExpectedIndividual.heading
+        dateOfBirthRegPage.select("h1").text() mustBe ExpectedDateOfBirthReg.heading
       }
 
-      "display the correct paragraph content" in {
-
-        individualPage.para(1) mustBe Some(ExpectedIndividual.para1Value)
-        individualPage.para(2) mustBe Some(ExpectedIndividual.para2Value)
+      "have the correct hint" in {
+        dateOfBirthRegPage.select("#value-hint").text() mustBe ExpectedDateOfBirthReg.hint
       }
 
       "have a continue button with the correct text" in {
-        val button = individualPage.select(".govuk-button")
-        button.text() mustBe ExpectedIndividual.continue
+        val button = dateOfBirthRegPage.select(".govuk-button")
+        button.text() mustBe ExpectedDateOfBirthReg.continue
       }
     }
   }

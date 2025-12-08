@@ -1,0 +1,10 @@
+sm2 --start
+sm2 --start AUTH
+sm2 --start AUTH_LOGIN_STUB
+sm2 --start AUTH_LOGIN_API
+sm2 --restart
+sm2 --restart AUTH_LOGIN_API
+sm2 —logs AUTH_LOGIN_API
+sm2 —logs AUTH
+sm2 --start USER_DETAILS
+sm2 --start IDENTITY_VERIFICATION
