@@ -56,9 +56,9 @@ class DateOfBirthRegController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async { ////////// ADD THE andThen requireData
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
     implicit request =>
-      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId)) /////// REMOVE THIS LINE
+      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId))
 
       val form = formProvider()
 

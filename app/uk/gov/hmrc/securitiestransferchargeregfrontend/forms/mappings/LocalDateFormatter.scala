@@ -19,9 +19,8 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.i18n.Messages
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.MonthFormatter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.formatDateToString
-
 
 import java.time.{LocalDate, Month}
 import scala.util.{Failure, Success, Try}
@@ -34,9 +33,6 @@ private[mappings] class LocalDateFormatter(
                                             futureDateKey: String,
                                             pastDateKey: String,
                                             under18DateKey: String,
-                                            maxDate: LocalDate,
-                                            minDate: LocalDate,
-                                            todayMinus18Years: LocalDate,
                                             args: Seq[String] = Seq.empty
                                           )(implicit messages: Messages) extends Formatter[LocalDate] with Formatters {
 
@@ -101,7 +97,12 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  private def noMissingField(key: String, data: Map[String, String]) =
+  private def noMissingField(key: String, data: Map[String, String]) = {
+    val today = DateHelper.today
+    val todayMinus18Years = today.minusYears(18)
+    val minDate = today.minusYears(150)
+    val maxDate = today
+
     formatDate(key, data).left
       .map(_.map(
         e => e.copy(key = key, args = e.args ++ args)
@@ -115,6 +116,7 @@ private[mappings] class LocalDateFormatter(
           Left(List(FormError(key, under18DateKey, args)))
         case validDate => Right(validDate)
       }
+  }
 
   override def unbind(key: String, value: LocalDate): Map[String, String] =
     Map(

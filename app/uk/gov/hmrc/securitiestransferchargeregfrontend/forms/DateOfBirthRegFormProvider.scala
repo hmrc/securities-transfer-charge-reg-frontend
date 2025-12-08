@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
 import play.api.data.Form
 import play.api.i18n.Messages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.today
+
 import java.time.LocalDate
 import javax.inject.Inject
 
@@ -34,10 +34,6 @@ class DateOfBirthRegFormProvider @Inject() extends Mappings {
         requiredKey    = "dateOfBirthReg.error.required",
         futureDateKey = "dateOfBirthReg.error.futureDate",
         pastDateKey = "dateOfBirthReg.error.pastDate",
-        under18DateKey = "dateOfBirthReg.error.under18",
-        maxDate = today,
-        minDate = LocalDate.now().minusYears(150),
-        todayMinus18Years = LocalDate.now().minusYears(18)
+        under18DateKey = "dateOfBirthReg.error.under18")
       )
-    )
 }

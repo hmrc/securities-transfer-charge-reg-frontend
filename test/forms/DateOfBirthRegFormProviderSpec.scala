@@ -16,11 +16,12 @@
 
 package forms
 
-import java.time.{LocalDate, ZoneOffset}
 import forms.behaviours.DateBehaviours
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
+
+import java.time.{LocalDate, ZoneOffset}
 
 class DateOfBirthRegFormProviderSpec extends DateBehaviours {
 
@@ -30,8 +31,8 @@ class DateOfBirthRegFormProviderSpec extends DateBehaviours {
   ".value" - {
 
     val validData = datesBetween(
-      min = LocalDate.of(2000, 1, 1),
-      max = LocalDate.now(ZoneOffset.UTC)
+      min = LocalDate.now(ZoneOffset.UTC).minusYears(100),
+      max = LocalDate.now(ZoneOffset.UTC).minusYears(18)
     )
 
     behave like dateField(form, "value", validData)

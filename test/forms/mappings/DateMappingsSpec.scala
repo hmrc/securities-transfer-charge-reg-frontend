@@ -16,7 +16,6 @@
 
 package forms.mappings
 
-import java.time.LocalDate
 import generators.Generators
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
@@ -27,7 +26,8 @@ import play.api.data.{Form, FormError}
 import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.today
+
+import java.time.LocalDate
 
 private class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues
   with Mappings {
@@ -42,10 +42,7 @@ private class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheck
       requiredKey    = "dateOfBirthReg.error.required",
       futureDateKey = "dateOfBirthReg.error.futureDate",
       pastDateKey = "dateOfBirthReg.error.pastDate",
-      under18DateKey = "dateOfBirthReg.error.under18",
-      maxDate = today,
-      minDate = LocalDate.now().minusYears(150),
-      todayMinus18Years = LocalDate.now().minusYears(18)
+      under18DateKey = "dateOfBirthReg.error.under18"
     )
   )
 

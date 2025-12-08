@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
-import play.api.mvc.{Request, WrappedRequest}
+import play.api.mvc.WrappedRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 
 case class OptionalDataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
