@@ -17,40 +17,34 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 
-import play.api.data.Forms.{mapping, text, tuple}
-import play.api.data.validation.{Constraint, Invalid, Valid, ValidationError}
-import play.api.data.{Form, FormError, Mapping}
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthRegView
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
 import javax.inject.Inject
-import scala.util.{Failure, Success, Try}
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class DateOfBirthRegController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
-                                        identify: IdentifierAction,
+                                        auth: Auth,
                                         getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
                                         formProvider: DateOfBirthRegFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: DateOfBirthRegView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) { ////////// ADD THE andThen requireData
+  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData) { ////////// ADD THE andThen requireData
     implicit request =>
       val form = formProvider()
 
@@ -62,7 +56,7 @@ class DateOfBirthRegController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (identify andThen getData).async { ////////// ADD THE andThen requireData
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async { ////////// ADD THE andThen requireData
     implicit request =>
       val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId)) /////// REMOVE THIS LINE
 

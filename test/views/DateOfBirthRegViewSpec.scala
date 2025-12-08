@@ -19,7 +19,7 @@ package views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthRegView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{CheckYourDetailsView, DateOfBirthRegView}
 import base.SpecBase
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
@@ -30,10 +30,12 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
 
-  private val viewInstance         = app.injector.instanceOf[DateOfBirthRegView]
+
+  private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
+  private val formProvider = new DateOfBirthRegFormProvider()
+  private val form = formProvider()
 
   def view(): Document = Jsoup.parse(
-    val form: Form[LocalDate] = DateOfBirthRegFormProvider()
     viewInstance(form, NormalMode)(fakeRequest, messages).body
   )
 
