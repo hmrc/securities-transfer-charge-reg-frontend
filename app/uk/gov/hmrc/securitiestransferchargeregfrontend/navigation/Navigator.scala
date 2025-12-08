@@ -27,14 +27,13 @@ import javax.inject.{Inject, Singleton}
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad() ///
     case RegForSecuritiesTransferChargePage => _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
+    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
 
     case CheckYourDetailsPage =>
       userAnswers =>
         userAnswers.get(CheckYourDetailsPage) match {
-          case Some(true)  =>
-            ???
+          case Some(true)  => routes.DateOfBirthRegController.onPageLoad(NormalMode)
 
           case Some(false) =>
             ???
@@ -42,6 +41,7 @@ class Navigator @Inject()() {
           case None =>
             routes.JourneyRecoveryController.onPageLoad()
         }
+      
     case _ => _ => routes.IndexController.onPageLoad()
 
   }
