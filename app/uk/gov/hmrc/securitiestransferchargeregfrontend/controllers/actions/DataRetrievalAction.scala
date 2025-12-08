@@ -28,9 +28,13 @@ class DataRetrievalActionImpl @Inject()(
                                        )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = {
-
-    sessionRepository.get(request.userId).map {
-      OptionalDataRequest(request, request.userId, _)
+    
+    sessionRepository.get(request.userId).map { answers =>
+      OptionalDataRequest(
+        request = request,
+        userId = request.userId,
+        userAnswers = answers
+      )
     }
   }
 }
