@@ -52,8 +52,6 @@ class DateOfBirthRegController @Inject()(
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (identify andThen getData) { ////////// ADD THE andThen requireData
     implicit request =>
-      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId)) ///////////// Created a dummy data ----------- REMOVE THIS LINE
-
       val form = formProvider()
 
       val preparedForm =
