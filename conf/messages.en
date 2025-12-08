@@ -52,3 +52,16 @@ regForSecuritiesTransferCharge.title = Register to tell us about a securities tr
 regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.p1 = Before using this service you will need to register and confirm or provide some personal details.
 regForSecuritiesTransferCharge.p2 = You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account.
+
+checkYourDetails.title = Check your details
+checkYourDetails.heading = Check your details
+checkYourDetails.hint = Your details
+checkYourDetails.checkYourAnswersLabel = Are these details correct?
+checkYourDetails.areTheseDetailsCorrect = Are these details correct?
+checkYourDetails.error.required = Select yes if these details are correct
+checkYourDetails.change.hidden = CheckYourDetails
+
+summaryCard.yourAccountDetails = Your account details
+summaryCard.firstName = First name
+summaryCard.lastName = Last name
+summaryCard.nationalInsuranceNumber = National insurance number
