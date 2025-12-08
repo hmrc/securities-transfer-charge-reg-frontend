@@ -35,4 +35,6 @@ class DataRetrievalActionImpl @Inject()(
   }
 }
 
-trait DataRetrievalAction extends ActionTransformer[StcAuthRequest, OptionalDataRequest]
+trait DataRetrievalAction extends ActionTransformer[StcAuthRequest, OptionalDataRequest] {
+  val sessionRepository: SessionRepository
+}

@@ -48,6 +48,7 @@ class SessionRepositoryImpl @Inject()(
                                    clock: Clock
                                  )(implicit ec: ExecutionContext)
   extends PlayMongoRepository[UserAnswers](
+    replaceIndexes = true,
     collectionName = "user-answers",
     mongoComponent = mongoComponent,
     domainFormat   = UserAnswers.format,
@@ -56,7 +57,7 @@ class SessionRepositoryImpl @Inject()(
         Indexes.ascending("lastUpdated"),
         IndexOptions()
           .name("lastUpdatedIdx")
-          .expireAfter(appConfig.cacheTtl, TimeUnit.SECONDS)
+          .expireAfter(appConfig.cacheTtl, TimeUnit.SECONDS),
       )
     )
   ) with SessionRepository {
