@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
+import connectors.AlfAddressConnector
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.libs.json.{JsValue, Json, Reads, Writes}
@@ -26,7 +27,7 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, DataRetrievalAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 
@@ -39,7 +40,8 @@ class AddressController @Inject()( auth: Auth,
                                    val controllerComponents: MessagesControllerComponents,
                                    ws: WSClient,
                                    config: FrontendAppConfig,
-                                   getData: DataRetrievalAction
+                                   getData: DataRetrievalAction,
+                                   alf: AlfAddressConnector
                                  ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private val redirectToErrorPage: Result = Redirect("route/to/error/page")
@@ -51,7 +53,7 @@ class AddressController @Inject()( auth: Auth,
    */
   def onPageLoad: Action[AnyContent] = auth.authorisedAndNotEnrolled.async {
     implicit request =>
-      initAlfJourneyRequest()
+      alf.initAlfJourneyRequest()
         .map(journeySuccess.orElse(journeyFailure)(_))
   }
 
@@ -62,14 +64,7 @@ class AddressController @Inject()( auth: Auth,
   def onReturn(key: String): Action[AnyContent] = (auth.authorisedAndNotEnrolled andThen getData).async {
     implicit request =>
       logger.warn("BACK IN SERVICE")
-      alfRetrieveAddress(key).map(retrievalSuccess.orElse(retrievalFailure)(_))
-  }
-
-  private def initAlfJourneyRequest() = {
-    ws
-      .url(config.alfUrl)
-      .addHttpHeaders("Content-Type" -> "application/json")
-      .post(payload)
+      alf.alfRetrieveAddress(key).map(retrievalSuccess.orElse(retrievalFailure)(_))
   }
 
   private def journeySuccess: ResponseHandler = {
@@ -88,13 +83,6 @@ class AddressController @Inject()( auth: Auth,
   }
   
   private def journeyFailure = failure("Address lookup initiation failed")
-
-  private def alfRetrieveAddress(key: String) = {
-    val retrieveAddress = s"${config.alfRetrieveUrl}?id=$key"
-    ws
-      .url(retrieveAddress)
-      .get()
-  }
   
   private def retrievalSuccess[A](implicit request: OptionalDataRequest[A]): ResponseHandler = {
     case resp => resp.json.validate[AlfConfirmedAddress].map {
@@ -119,64 +107,6 @@ class AddressController @Inject()( auth: Auth,
         Redirect(navigator.nextPage(AddressPage(), NormalMode, updatedAnswers))
     }
   }
-
-  case class AlfConfirmedAddress( auditRef: String,
-                                  id: Option[String],
-                                  address: AlfAddress)
-
-  object AlfConfirmedAddress:
-    given Reads[AlfConfirmedAddress] = Json.reads[AlfConfirmedAddress]
-    given Writes[AlfConfirmedAddress] = Json.writes[AlfConfirmedAddress]
-
-  case class AlfAddress(lines: List[String],
-                        postcode: String,
-                        country: Country)
   
-  object AlfAddress:
-    given Reads[AlfAddress] = Json.reads[AlfAddress]
-    given Writes[AlfAddress] = Json.writes[AlfAddress]
-    
-  case class Country( code: String,
-                      name: String)
-  object Country:
-    given Reads[Country] = Json.reads[Country]
-    given Writes[Country] = Json.writes[Country]
-
-
-  private val payload: JsValue = {
-    // Implementation to create the payload
-    Json.parse("""{
-  "version" : 2,
-  "options" : {
-    "continueUrl" : "http://localhost:9000/register-securities-transfer-charge/address/return",
-    "useNewGovUkServiceNavigation" : false
-  },
-  "labels" : {
-    "en" : {
-      "appLevelLabels" : {
-        "navTitle" : "Address Lookup Example"
-      },
-      "selectPageLabels" : { },
-      "lookupPageLabels" : { },
-      "editPageLabels" : { },
-      "confirmPageLabels" : { },
-      "countryPickerLabels" : { },
-      "international" : { },
-      "otherLabels" : { }
-    },
-    "cy" : {
-      "appLevelLabels" : {
-        "navTitle" : "Address Lookup Example (Welsh)"
-      },
-      "selectPageLabels" : { },
-      "lookupPageLabels" : { },
-      "editPageLabels" : { },
-      "confirmPageLabels" : { },
-      "countryPickerLabels" : { },
-      "international" : { },
-      "otherLabels" : { }
-    }
-  }
-}""")
-  }
+  
 }
