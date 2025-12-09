@@ -22,7 +22,7 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
@@ -39,27 +39,26 @@ class DateOfBirthRegController @Inject()(
                                         navigator: Navigator,
                                         auth: Auth,
                                         getData: DataRetrievalAction,
+                                        requireData: DataRequiredAction,
                                         formProvider: DateOfBirthRegFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: DateOfBirthRegView
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData) { ////////// ADD THE andThen requireData
+  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
     implicit request =>
       val form = formProvider()
 
       val preparedForm =
-        request.userAnswers.flatMap(_.get(DateOfBirthRegPage)) match {
+        request.userAnswers.get(DateOfBirthRegPage) match {
           case None => form
           case Some(value) => form.fill(value)
         }
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData).async {
     implicit request =>
-      val userAnswers = request.userAnswers.getOrElse(new UserAnswers(request.userId))
-
       val form = formProvider()
 
       form.bindFromRequest().fold(
@@ -68,7 +67,7 @@ class DateOfBirthRegController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(userAnswers.set(DateOfBirthRegPage, value)) ////// ADD request. BEFORE userAnswers
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, value))
             _              <- sessionRepository.set(updatedAnswers)
           } yield Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
       )
