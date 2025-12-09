@@ -83,11 +83,7 @@ private[mappings] class LocalDateFormatter(
       .map(field => messages(s"date.error.$field"))
 
     fields.count(_._2.isDefined) match {
-      //case 4 =>
       case 3 => noMissingField(key, cleanedData)
-//        formatDate(key, data).left.map {
-//          _.map(_.copy(key = key, args = args))
-//        }
       case 2 =>
         Left(List(FormError(key, requiredKey, missingFields ++ args)))
       case 1 =>
