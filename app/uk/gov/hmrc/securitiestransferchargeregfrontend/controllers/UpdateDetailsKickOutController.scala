@@ -17,22 +17,24 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
 
-class UpdateDobKickOutController @Inject()(
+import javax.inject.Inject
+
+class UpdateDetailsKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       identify: IdentifierAction,
+                                       auth: Auth,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: UpdateDobKickOutView
+                                       view: UpdateDetailsKickOutView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = ( andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
     implicit request =>
       Ok(view())
   }
