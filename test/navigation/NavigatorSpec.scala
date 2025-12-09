@@ -19,7 +19,7 @@ package navigation
 import base.SpecBase
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{Page, RegForSecuritiesTransferChargePage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, Page, RegForSecuritiesTransferChargePage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 class NavigatorSpec extends SpecBase {
@@ -38,6 +38,12 @@ class NavigatorSpec extends SpecBase {
       
       "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
         navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe routes.CheckYourDetailsController.onPageLoad(NormalMode)
+      }
+
+      "must go from the CheckYourDetailsPage to UpdateDetailsKickOutPage when user answers No" in {
+        val answers = emptyUserAnswers
+          .set(CheckYourDetailsPage, false).success.value
+        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe routes.UpdateDetailsKickOutController.onPageLoad()
       }
     }
 
