@@ -36,7 +36,7 @@ class Navigator @Inject()() {
           case Some(true)  => routes.DateOfBirthRegController.onPageLoad(NormalMode)
 
           case Some(false) =>
-            ???
+            routes.UpdateDetailsKickOutController.onPageLoad()
 
           case None =>
             routes.JourneyRecoveryController.onPageLoad()
