@@ -25,6 +25,11 @@ POST       /register                                     uk.gov.hmrc.securitiest
 
 GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()
 
+GET        /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
+POST       /date-of-birth                             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)
+GET        /date-of-birth/change                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = CheckMode)
+POST       /date-of-birth/change                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = CheckMode)
+
 GET        /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onPageLoad(mode: Mode = NormalMode)
 POST       /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = NormalMode)
 GET        /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onPageLoad(mode: Mode = CheckMode)

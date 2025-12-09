@@ -19,6 +19,8 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings
 import play.api.data.FormError
 import play.api.data.format.Formatter
 import play.api.i18n.Messages
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.formatDateToString
 
 import java.time.{LocalDate, Month}
 import scala.util.{Failure, Success, Try}
@@ -28,6 +30,9 @@ private[mappings] class LocalDateFormatter(
                                             allRequiredKey: String,
                                             twoRequiredKey: String,
                                             requiredKey: String,
+                                            futureDateKey: String,
+                                            pastDateKey: String,
+                                            under18DateKey: String,
                                             args: Seq[String] = Seq.empty
                                           )(implicit messages: Messages) extends Formatter[LocalDate] with Formatters {
 
@@ -61,11 +66,15 @@ private[mappings] class LocalDateFormatter(
   }
 
   override def bind(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
+    val cleanedData = data.map {
+      case (k, v) => k -> v.replaceAll("[\\s-]", "")
+    }
 
-    val fields = fieldKeys.map {
-      field =>
-        field -> data.get(s"$key.$field").filter(_.nonEmpty)
-    }.toMap
+    val fields = fieldKeys
+      .map(
+        field => field -> cleanedData.get(s"$key.$field").filter(_.nonEmpty)
+      )
+      .toMap
 
     lazy val missingFields = fields
       .withFilter(_._2.isEmpty)
@@ -74,10 +83,7 @@ private[mappings] class LocalDateFormatter(
       .map(field => messages(s"date.error.$field"))
 
     fields.count(_._2.isDefined) match {
-      case 3 =>
-        formatDate(key, data).left.map {
-          _.map(_.copy(key = key, args = args))
-        }
+      case 3 => noMissingField(key, cleanedData)
       case 2 =>
         Left(List(FormError(key, requiredKey, missingFields ++ args)))
       case 1 =>
@@ -85,6 +91,27 @@ private[mappings] class LocalDateFormatter(
       case _ =>
         Left(List(FormError(key, allRequiredKey, args)))
     }
+  }
+
+  private def noMissingField(key: String, data: Map[String, String]) = {
+    val today = DateHelper.today
+    val todayMinus18Years = today.minusYears(18)
+    val minDate = today.minusYears(150)
+    val maxDate = today
+
+    formatDate(key, data).left
+      .map(_.map(
+        e => e.copy(key = key, args = e.args ++ args)
+      ))
+      .flatMap {
+        case validDate if validDate.isAfter(maxDate) =>
+          Left(List(FormError(key, futureDateKey, List(formatDateToString(maxDate)) ++ args)))
+        case validDate if validDate.isBefore(minDate) =>
+          Left(List(FormError(key, pastDateKey, List(formatDateToString(minDate)) ++ args)))
+        case validDate if validDate.isAfter(todayMinus18Years) =>
+          Left(List(FormError(key, under18DateKey, args)))
+        case validDate => Right(validDate)
+      }
   }
 
   override def unbind(key: String, value: LocalDate): Map[String, String] =
