@@ -21,10 +21,12 @@ import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickOutView
 
 class UpdateDobKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
+                                       auth: Auth,
                                        identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
@@ -32,7 +34,7 @@ class UpdateDobKickOutController @Inject()(
                                        view: UpdateDobKickOutView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = ( andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData ) { //andThen requireData
     implicit request =>
       Ok(view())
   }
