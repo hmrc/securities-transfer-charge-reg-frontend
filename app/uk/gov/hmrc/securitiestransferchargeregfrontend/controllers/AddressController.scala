@@ -19,34 +19,29 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import connectors.AlfAddressConnector
 import play.api.Logging
 import play.api.i18n.I18nSupport
-import play.api.libs.json.{JsValue, Json, Reads, Writes}
-import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
-import play.api.libs.ws.{WSClient, WSRequest}
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, DataRetrievalAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 
 
 class AddressController @Inject()( auth: Auth,
                                    navigator: Navigator,
                                    val controllerComponents: MessagesControllerComponents,
-                                   ws: WSClient,
-                                   config: FrontendAppConfig,
                                    getData: DataRetrievalAction,
-                                   alf: AlfAddressConnector
+                                   alf: AlfAddressConnector,
+                                   sessionRepository: SessionRepository
                                  ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
   private val redirectToErrorPage: Result = Redirect("route/to/error/page")
-  private type ResponseHandler = PartialFunction[WSRequest#Self#Response, Result]
-  
+
   /*
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
@@ -54,7 +49,6 @@ class AddressController @Inject()( auth: Auth,
   def onPageLoad: Action[AnyContent] = auth.authorisedAndNotEnrolled.async {
     implicit request =>
       alf.initAlfJourneyRequest()
-        .map(journeySuccess.orElse(journeyFailure)(_))
   }
 
   /*
@@ -63,50 +57,34 @@ class AddressController @Inject()( auth: Auth,
    */
   def onReturn(key: String): Action[AnyContent] = (auth.authorisedAndNotEnrolled andThen getData).async {
     implicit request =>
-      logger.warn("BACK IN SERVICE")
-      alf.alfRetrieveAddress(key).map(retrievalSuccess.orElse(retrievalFailure)(_))
+      logger.info("Address lookup frontend has returned control to STC service")
+      for {
+        maybeAddress  <- alf.alfRetrieveAddress(key)
+        maybeAnswers  <- updateUserAnswers(request).orElse(noAddress)(maybeAddress)
+      } yield maybeAnswers.map { answers =>
+          Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
+      }.getOrElse(redirectToErrorPage)
   }
 
-  private def journeySuccess: ResponseHandler = {
-    case resp if resp.status == ACCEPTED =>
-      val maybeAddressLookupJourney = resp.header("Location")
-      maybeAddressLookupJourney.map(Redirect(_)).getOrElse {
-        failure("Address lookup initiation did not return a Location header")(resp)
-      }
-  }
+  private type AddressHandler = PartialFunction[Option[AlfConfirmedAddress], Future[Option[UserAnswers]]]
   
-  
-  private def failure(msg: String): ResponseHandler = {
-    case resp =>
-      logger.warn(msg + s" - status ${resp.status}")
-      redirectToErrorPage
-  }
-  
-  private def journeyFailure = failure("Address lookup initiation failed")
-  
-  private def retrievalSuccess[A](implicit request: OptionalDataRequest[A]): ResponseHandler = {
-    case resp => resp.json.validate[AlfConfirmedAddress].map {
-      address => updateUserAnswers(address)
-      // Go to the next page? Or show the address?
-      Ok
-    }.getOrElse {
-      redirectToErrorPage
-    }
-  }
-      
-  private def retrievalFailure = failure("Could not retrieve the address entered by the user")
-  
-  private def updateUserAnswers[A](value: AlfConfirmedAddress)(implicit request: OptionalDataRequest[A]): Unit = {
-     logger.warn("Got address: " + value.toString)
+  private def updateUserAnswers[A](implicit request: OptionalDataRequest[A]): AddressHandler = {
+    case Some(address) =>
+      logger.info("ALF returned address: " + address.toString)
       val updatedAnswers = request.userAnswers
         .getOrElse(UserAnswers(request.userId))
-        .set(AddressPage[AlfConfirmedAddress](), value)
+        .set(AddressPage[AlfConfirmedAddress](), address)
         .get
 
-      getData.sessionRepository.set(updatedAnswers).map { _ =>
-        Redirect(navigator.nextPage(AddressPage(), NormalMode, updatedAnswers))
-    }
+      sessionRepository.set(updatedAnswers).collect {
+        case true => Some(updatedAnswers)
+      }
   }
-  
-  
+
+  private def noAddress: AddressHandler = {
+    case None =>
+      logger.warn("Failed to retrieve address from ALF journey.")
+      Future.successful(None)
+  }
+
 }
