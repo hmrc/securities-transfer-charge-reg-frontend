@@ -29,3 +29,4 @@ GET        /check-your-details                           uk.gov.hmrc.securitiest
 POST       /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = NormalMode)
 GET        /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onPageLoad(mode: Mode = CheckMode)
 POST       /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = CheckMode)
+
