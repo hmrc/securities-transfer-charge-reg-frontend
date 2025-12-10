@@ -1,0 +1,43 @@
+{
+  "version": 2,
+  "options": {
+    "continueUrl": "http://localhost:9000/register-securities-transfer-charge/address/return",
+    "useNewGovUkServiceNavigation": false
+  },
+  "labels": {
+    "en": {
+      "appLevelLabels": {
+        "navTitle": "Address Lookup for Securities Transfer Charge"
+      },
+      "selectPageLabels": {
+        "title": "Select your address",
+        "heading": "Select your address"
+      },
+      "lookupPageLabels": {},
+      "editPageLabels": {},
+      "confirmPageLabels": {
+        "title": "Confirm your address",
+        "heading": "Confirm your address"
+      },
+      "countryPickerLabels": {
+        "title": "Your details",
+        "heading": "Your address",
+        "countryLabel": "Which country do you live in?"
+      },
+      "international": {},
+      "otherLabels": {}
+    },
+    "cy": {
+      "appLevelLabels": {
+        "navTitle": "Address Lookup Example (Welsh)"
+      },
+      "selectPageLabels": {},
+      "lookupPageLabels": {},
+      "editPageLabels": {},
+      "confirmPageLabels": {},
+      "countryPickerLabels": {},
+      "international": {},
+      "otherLabels": {}
+    }
+  }
+}

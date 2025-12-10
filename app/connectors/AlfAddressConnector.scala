@@ -24,14 +24,15 @@ import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.AlfConfirmedAddress
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-
 @Singleton
 class AlfAddressConnector @Inject() ( ws: WSClient,
-                                      config: FrontendAppConfig)
+                                      config: FrontendAppConfig,
+                                      resourceLoader: ResourceLoader)
                                     ( implicit ec: ExecutionContext) extends Logging {
 
   private type ResponseHandler = PartialFunction[WSRequest#Self#Response, Result]
@@ -56,19 +57,19 @@ class AlfAddressConnector @Inject() ( ws: WSClient,
       }
   }
   
-  private def failure(msg: String): ResponseHandler = {
+  private val failure: String => ResponseHandler = msg => {
     case resp =>
       logger.warn(msg + s" - status ${resp.status}")
       redirectToErrorPage
   }
 
-  private def journeyFailure = failure("Address lookup initiation failed")
+  private val journeyFailure = failure("Address lookup initiation failed")
   
   def alfRetrieveAddress(key: String): Future[Option[AlfConfirmedAddress]] = {
     callAlfRetrieve(key).map(retrievalSuccess)
   }
   
-  def callAlfRetrieve(key: String): Future[WSResponse] = {
+  private def callAlfRetrieve(key: String): Future[WSResponse] = {
     val retrieveAddress = s"${config.alfRetrieveUrl}?id=$key"
     ws
       .url(retrieveAddress)
@@ -81,41 +82,9 @@ class AlfAddressConnector @Inject() ( ws: WSClient,
 
   
   private val payload: JsValue = {
-    // Implementation to create the payload
-    Json.parse("""{
-      "version" : 2,
-      "options" : {
-        "continueUrl" : "http://localhost:9000/register-securities-transfer-charge/address/return",
-        "useNewGovUkServiceNavigation" : false
-      },
-      "labels" : {
-        "en" : {
-          "appLevelLabels" : {
-            "navTitle" : "Address Lookup Example"
-          },
-          "selectPageLabels" : { },
-          "lookupPageLabels" : { },
-          "editPageLabels" : { },
-          "confirmPageLabels" : { },
-          "countryPickerLabels" : { },
-          "international" : { },
-          "otherLabels" : { }
-        },
-        "cy" : {
-          "appLevelLabels" : {
-            "navTitle" : "Address Lookup Example (Welsh)"
-          },
-          "selectPageLabels" : { },
-          "lookupPageLabels" : { },
-          "editPageLabels" : { },
-          "confirmPageLabels" : { },
-          "countryPickerLabels" : { },
-          "international" : { },
-          "otherLabels" : { }
-        }
-      }
-    }""")
-  } 
+    val configuration = resourceLoader.loadString("alf.json")
+    Json.parse(configuration)
+  }
 }
 
 
