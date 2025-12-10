@@ -69,19 +69,18 @@ class DateOfBirthRegController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, value))
+            _               <- sessionRepository.set(updatedAnswers)
+            maybeData        = extractData(request.request)
           } yield {
-            for {
-              data <- extractData(request.request)
-            } yield {
+            maybeData.map { data =>
               val details = IndividualRegistrationDetails(data._1, None, data._2, value.toString, data._3)
               registrationClient.register(details)
               Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
             }
           }.getOrElse {
-            // Deal with a failure to extract the data or update the answers.
-            throw new RuntimeException(("Error"))
-          })
+            throw new RuntimeException("Error")
+          }
+      )
     }
   }
