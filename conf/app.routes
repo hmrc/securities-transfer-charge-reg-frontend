@@ -36,3 +36,8 @@ GET        /check-your-details/change                    uk.gov.hmrc.securitiest
 POST       /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = CheckMode)
 
 GET        /update-your-details                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDetailsKickOutController.onPageLoad()
+
+GET        /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
