@@ -36,3 +36,8 @@ GET        /check-your-details/change                    uk.gov.hmrc.securitiest
 POST       /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = CheckMode)
 
 GET        /update-your-details                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDetailsKickOutController.onPageLoad()
+
+GET        /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = CheckMode)
