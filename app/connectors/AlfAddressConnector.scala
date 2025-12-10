@@ -35,13 +35,17 @@ class AlfAddressConnector @Inject() ( ws: WSClient,
                                       resourceLoader: ResourceLoader)
                                     ( implicit ec: ExecutionContext) extends Logging {
 
-  private type ResponseHandler = PartialFunction[WSRequest#Self#Response, Result]
-  private val redirectToErrorPage: Result = Redirect("route/to/error/page")
+  private type ResponseHandler = PartialFunction[WSResponse, Result]
+  private[connectors] final class AlfException(msg: String) extends RuntimeException(msg)
 
   def initAlfJourneyRequest(): Future[Result] = {
     callAlfInit().map(journeySuccess.orElse(journeyFailure)(_))
   }
 
+  def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = {
+    callAlfRetrieve(key).map(retrievalSuccess)
+  }
+  
   private def callAlfInit(): Future[WSResponse] = {
     ws
       .url(config.alfUrl)
@@ -53,21 +57,16 @@ class AlfAddressConnector @Inject() ( ws: WSClient,
     case resp if resp.status == ACCEPTED =>
       val maybeAddressLookupJourney = resp.header("Location")
       maybeAddressLookupJourney.map(Redirect(_)).getOrElse {
-        failure("Address lookup initiation did not return a Location header")(resp)
+        failure(s"Address lookup initiation did not return a Location header - ${resp.status}")
       }
   }
   
-  private val failure: String => ResponseHandler = msg => {
-    case resp =>
-      logger.warn(msg + s" - status ${resp.status}")
-      redirectToErrorPage
+  private val failure: String => Nothing = { fullMessage =>
+    logger.error(fullMessage)
+    throw new AlfException(fullMessage)
   }
 
   private val journeyFailure = failure("Address lookup initiation failed")
-  
-  def alfRetrieveAddress(key: String): Future[Option[AlfConfirmedAddress]] = {
-    callAlfRetrieve(key).map(retrievalSuccess)
-  }
   
   private def callAlfRetrieve(key: String): Future[WSResponse] = {
     val retrieveAddress = s"${config.alfRetrieveUrl}?id=$key"
@@ -76,8 +75,10 @@ class AlfAddressConnector @Inject() ( ws: WSClient,
       .get()
   }
 
-  private def retrievalSuccess[A](resp: WSResponse): Option[AlfConfirmedAddress] = {
-    resp.json.validate[AlfConfirmedAddress].asOpt
+  private def retrievalSuccess[A](resp: WSResponse): AlfConfirmedAddress = {
+    resp.json.validate[AlfConfirmedAddress].getOrElse {
+      failure("Could not retrieve tha address from ALF")
+    }
   }
 
   

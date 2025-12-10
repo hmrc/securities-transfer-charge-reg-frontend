@@ -40,8 +40,6 @@ class AddressController @Inject()( auth: Auth,
                                    sessionRepository: SessionRepository
                                  ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
-  private val redirectToErrorPage: Result = Redirect("route/to/error/page")
-
   /*
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
@@ -59,17 +57,17 @@ class AddressController @Inject()( auth: Auth,
     implicit request =>
       logger.info("Address lookup frontend has returned control to STC service")
       for {
-        maybeAddress  <- alf.alfRetrieveAddress(key)
-        maybeAnswers  <- updateUserAnswers(request).orElse(noAddress)(maybeAddress)
-      } yield maybeAnswers.map { answers =>
+        address <- alf.alfRetrieveAddress(key)
+        answers <- updateUserAnswers(request)(address)
+      } yield {
           Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
-      }.getOrElse(redirectToErrorPage)
+      }
   }
 
-  private type AddressHandler = PartialFunction[Option[AlfConfirmedAddress], Future[Option[UserAnswers]]]
+  private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
   private def updateUserAnswers[A](implicit request: OptionalDataRequest[A]): AddressHandler = {
-    case Some(address) =>
+    address =>
       logger.info("ALF returned address: " + address.toString)
       val updatedAnswers = request.userAnswers
         .getOrElse(UserAnswers(request.userId))
@@ -77,14 +75,8 @@ class AddressController @Inject()( auth: Auth,
         .get
 
       sessionRepository.set(updatedAnswers).collect {
-        case true => Some(updatedAnswers)
+        case true => updatedAnswers
       }
-  }
-
-  private def noAddress: AddressHandler = {
-    case None =>
-      logger.warn("Failed to retrieve address from ALF journey.")
-      Future.successful(None)
   }
 
 }

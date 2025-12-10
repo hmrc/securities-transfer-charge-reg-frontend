@@ -17,15 +17,18 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.utils
 
 import play.api.Environment
+
+import java.util.MissingResourceException
 import javax.inject.{Inject, Singleton}
 import scala.io.Source
 
 @Singleton
 class ResourceLoader @Inject()(env: Environment) {
+  private val className = getClass[ResourceLoader].toString
   def loadString(path: String): String = {
-    val is = env.resourceAsStream(path).getOrElse(
-      throw new IllegalArgumentException(s"Resource not found: $path")
-    )
+    val is = env.resourceAsStream(path).getOrElse {
+      throw new MissingResourceException(s"Resource not found: $path", className, path)
+    }
     try Source.fromInputStream(is, "UTF-8").mkString
     finally is.close()
   }
