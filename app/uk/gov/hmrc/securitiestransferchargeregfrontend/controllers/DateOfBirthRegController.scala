@@ -20,9 +20,10 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualRegistrationDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
@@ -42,7 +43,8 @@ class DateOfBirthRegController @Inject()(
                                         requireData: DataRequiredAction,
                                         formProvider: DateOfBirthRegFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
-                                        view: DateOfBirthRegView
+                                        view: DateOfBirthRegView,
+                                        registrationClient: RegistrationClient
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
@@ -68,8 +70,18 @@ class DateOfBirthRegController @Inject()(
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
-      )
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield {
+            for {
+              data <- extractData(request.request)
+            } yield {
+              val details = IndividualRegistrationDetails(data._1, None, data._2, value.toString, data._3)
+              registrationClient.register(details)
+              Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
+            }
+          }.getOrElse {
+            // Deal with a failure to extract the data or update the answers.
+            throw new RuntimeException(("Error"))
+          })
+    }
   }
-}
