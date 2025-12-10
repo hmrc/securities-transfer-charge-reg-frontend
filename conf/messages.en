@@ -53,6 +53,20 @@ regForSecuritiesTransferCharge.heading = Register to tell us about a securities 
 regForSecuritiesTransferCharge.p1 = Before using this service you will need to register and confirm or provide some personal details.
 regForSecuritiesTransferCharge.p2 = You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account.
 
+dateOfBirthReg.title = What’s your date of birth?
+dateOfBirthReg.pageTitle = Your details
+dateOfBirthReg.heading = What’s your date of birth?
+dateOfBirthReg.hint = For example, 27 3 2007.
+dateOfBirthReg.checkYourAnswersLabel = Your date of birth
+dateOfBirthReg.error.required.all = Enter your date of birth
+dateOfBirthReg.error.required.two = Date of birth must include a {0} and a {1}
+dateOfBirthReg.error.required = Date of birth must include a {0}
+dateOfBirthReg.error.invalid = Date of birth must be a real date
+dateOfBirthReg.error.futureDate = Date of birth must be before {0}
+dateOfBirthReg.error.pastDate = Date of birth must be after {0}
+dateOfBirthReg.error.under18 = You need to be 18 years old or older to use this service
+dateOfBirthReg.change.hidden = Change your date of birth
+
 checkYourDetails.title = Check your details
 checkYourDetails.heading = Check your details
 checkYourDetails.hint = Your details
@@ -69,3 +83,7 @@ summaryCard.nationalInsuranceNumber = National insurance number
 updateDetailsKickOut.title = You must update the details on your government gateway account
 updateDetailsKickOut.heading = You must update the details on your government gateway account
 updateDetailsKickOut.p1 = Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+updateDobKickOut.title = Your information does not match our records
+updateDobKickOut.heading = Your information does not match our records
+updateDobKickOut.p1 = Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.

@@ -63,7 +63,8 @@ trait SpecBase
 
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
-  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent] = DataRequest[AnyContent](fakeRequest, "userId", userAnswers)
+  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent]
+    = DataRequest[AnyContent](Fixtures.fakeStcAuthRequest(FakeRequest()), "userId", userAnswers)
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

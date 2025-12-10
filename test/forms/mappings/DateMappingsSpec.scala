@@ -16,7 +16,6 @@
 
 package forms.mappings
 
-import java.time.LocalDate
 import generators.Generators
 import org.scalacheck.Gen
 import org.scalatest.OptionValues
@@ -28,17 +27,22 @@ import play.api.i18n.Messages
 import play.api.test.Helpers.stubMessages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
-class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues
+import java.time.LocalDate
+
+private class DateMappingsSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with Generators with OptionValues
   with Mappings {
 
   private implicit val messages: Messages = stubMessages()
 
   val form = Form(
     "value" -> localDate(
-      requiredKey    = "error.required",
-      allRequiredKey = "error.required.all",
-      twoRequiredKey = "error.required.two",
-      invalidKey     = "error.invalid"
+      invalidKey     = "dateOfBirthReg.error.invalid",
+      allRequiredKey = "dateOfBirthReg.error.required.all",
+      twoRequiredKey = "dateOfBirthReg.error.required.two",
+      requiredKey    = "dateOfBirthReg.error.required",
+      futureDateKey = "dateOfBirthReg.error.futureDate",
+      pastDateKey = "dateOfBirthReg.error.pastDate",
+      under18DateKey = "dateOfBirthReg.error.under18"
     )
   )
 

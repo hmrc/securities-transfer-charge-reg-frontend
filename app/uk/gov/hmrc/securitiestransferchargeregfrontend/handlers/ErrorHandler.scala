@@ -22,7 +22,6 @@ import play.api.mvc.RequestHeader
 import play.twirl.api.Html
 import uk.gov.hmrc.play.bootstrap.frontend.http.FrontendErrorHandler
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.ErrorTemplate
-
 import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
