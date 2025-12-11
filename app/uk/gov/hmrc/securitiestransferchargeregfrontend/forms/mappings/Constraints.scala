@@ -23,6 +23,12 @@ import java.time.LocalDate
 
 trait Constraints {
 
+  private val emailRestrictiveRegex: String = "^(?:[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-zA-Z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"" +
+    "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21\\x23-\\x5b\\x5d-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])*\")" +
+    "@(?:(?:[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?\\.)+[a-zA-Z0-9](?:[a-zA-Z0-9-]*[a-zA-Z0-9])?|" +
+    "\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-zA-Z0-9-]*[a-zA-Z0-9]:" +
+    "(?:[\\x01-\\x08\\x0b\\x0c\\x0e-\\x1f\\x21-\\x5a\\x53-\\x7f]|\\\\[\\x01-\\x09\\x0b\\x0c\\x0e-\\x7f])+)\\])$"
+
   protected def firstError[A](constraints: Constraint[A]*): Constraint[A] =
     Constraint {
       input =>
@@ -121,6 +127,15 @@ trait Constraints {
         }
     }
 
+  protected def returnOnFirstFailure[T](constraints: Constraint[T]*): Constraint[T] =
+    Constraint {
+      field =>
+        constraints
+          .map(_.apply(field))
+          .filterNot(_ == Valid)
+          .headOption.getOrElse(Valid)
+    }
+
   protected def maximumCurrency(maximum: BigDecimal, errorKey: String)(implicit ev: Ordering[BigDecimal]): Constraint[BigDecimal] =
     Constraint {
       input =>
@@ -130,4 +145,7 @@ trait Constraints {
           Invalid(errorKey, CurrencyFormatter.currencyFormat(maximum))
         }
     }
+
+  protected def emailAddressRestrictive(errorKey: String): Constraint[String] = regexp(emailRestrictiveRegex, errorKey)
+
 }
