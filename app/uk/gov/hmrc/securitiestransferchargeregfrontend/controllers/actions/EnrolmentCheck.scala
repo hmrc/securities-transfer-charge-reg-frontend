@@ -50,21 +50,23 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
   import redirects.*
 
   private[controllers] val enrolledForSTC: Enrolments => Boolean = es => {
-   val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
+    val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
     stcEnrolment.exists(_.isActivated)
   }
 
   // TODO: We need a way to get the safe-id for the current user
-  private[controllers] def hasCurrentSubscription: Boolean
-    = registrationClient.hasCurrentSubscription("safe-id").exists(_ == SubscriptionActive)
+  private[controllers] def hasCurrentSubscription: Future[Boolean]
+  = registrationClient.hasCurrentSubscription("safe-id").map(_ == SubscriptionActive)
 
   override protected def executionContext: ExecutionContext = ec
 
   override protected def filter[A](request: StcAuthRequest[A]): Future[Option[Result]] = {
-    if (enrolledForSTC(request.enrolments) && hasCurrentSubscription) {
-      redirectToServiceF.map(Option.apply)
-    } else {
-      Future.successful(None)
+    hasCurrentSubscription.map { success =>
+      if (enrolledForSTC(request.enrolments) && success) {
+        Some(redirectToService)
+      } else {
+        None
+      }
     }
   }
 }

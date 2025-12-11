@@ -20,10 +20,12 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualRegistrationDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
@@ -32,7 +34,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthReg
 import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-
+import scala.util.{Success, Failure}
 
 class DateOfBirthRegController @Inject()(
                                         override val messagesApi: MessagesApi,
@@ -68,19 +70,38 @@ class DateOfBirthRegController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, value))
-            _               <- sessionRepository.set(updatedAnswers)
-            maybeData        = extractData(request.request)
-          } yield {
-            maybeData.map { data =>
-              val details = IndividualRegistrationDetails(data._1, None, data._2, value.toString, data._3)
-              registrationClient.register(details)
-              Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers))
+          extractData(request.request).map { data =>
+            for {
+              updated <- updateUserAnswers(value)
+              registered <- registerUser(IndividualRegistrationDetails(data._1, None, data._2, value.toString, data._3))
+            } yield {
+              if (registered) {
+                // Success - redirect to the next page.
+                Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
+              } else {
+                // Failed to register - redirect to error page.
+                ???
+              }
             }
           }.getOrElse {
-            throw new RuntimeException("Error")
+            // Failed to extract data - this should not happen - redirect to error page
+            throw new RuntimeException("Unexpected empty option")
           }
       )
+  }
+
+  def updateUserAnswers[A](dob: LocalDate)(implicit request: DataRequest[A]): Future[UserAnswers] = {
+    request.userAnswers.set(DateOfBirthRegPage, dob) match {
+      case Success(updated) => sessionRepository.set(updated).collect {
+        case true => updated
+      }
+      case Failure(exception) => throw exception
     }
+  }
+
+  def registerUser(details: IndividualRegistrationDetails): Future[Boolean] = {
+    registrationClient.register(details).map {
+      _ == Right(RegistrationSuccessful)
+    }
+  }
   }
