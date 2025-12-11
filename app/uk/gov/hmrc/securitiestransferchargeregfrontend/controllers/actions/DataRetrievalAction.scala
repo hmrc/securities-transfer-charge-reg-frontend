@@ -23,12 +23,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepos
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataRetrievalActionImpl @Inject()(
-                                         val sessionRepository: SessionRepository
-                                       )(implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
+class DataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
+                                       (implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
 
   override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = {
-
+    
     sessionRepository.get(request.userId).map { answers =>
       OptionalDataRequest(
         request = request,
@@ -40,3 +39,4 @@ class DataRetrievalActionImpl @Inject()(
 }
 
 trait DataRetrievalAction extends ActionTransformer[StcAuthRequest, OptionalDataRequest]
+

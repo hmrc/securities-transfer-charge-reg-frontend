@@ -18,13 +18,16 @@ package views
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
+import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourDetailsView
 
 class CheckYourDetailsViewSpec extends ViewBaseSpec {
 
-  private val viewInstance         = app.injector.instanceOf[CheckYourDetailsView]
+  override def fakeApplication(): Application = applicationBuilder().build()
+
+  private val viewInstance         = fakeApplication().injector.instanceOf[CheckYourDetailsView]
   private val formProvider = new CheckYourDetailsFormProvider()
   private val form = formProvider()
 

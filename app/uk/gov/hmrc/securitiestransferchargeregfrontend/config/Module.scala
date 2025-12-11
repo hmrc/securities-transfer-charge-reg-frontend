@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
+import connectors.{AlfAddressConnector, AlfAddressConnectorImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{SessionRepository, SessionRepositoryImpl}
@@ -42,5 +43,6 @@ class Module extends AbstractModule {
     bind(classOf[SessionRepository]).to(classOf[SessionRepositoryImpl])
     bind(classOf[EnrolmentCheck]).to(classOf[EnrolmentCheckImpl])
     bind(classOf[IndividualCheck]).to(classOf[IndividualCheckImpl])
+    bind(classOf[AlfAddressConnector]).to(classOf[AlfAddressConnectorImpl]).asEagerSingleton()
   }
 }
