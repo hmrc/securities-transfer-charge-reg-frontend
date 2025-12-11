@@ -16,6 +16,7 @@
 
 package base
 
+import connectors.AlfAddressConnector
 import play.api.mvc.*
 import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
@@ -24,6 +25,7 @@ import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -106,4 +108,18 @@ object Fixtures {
     }
   }
 
+  import play.api.mvc.Results.Ok
+  
+  class FakeAlfConnector extends AlfAddressConnector {
+    val fakeAlfAddress = AlfAddress(
+      List("1 high street", "bobbins on sea"), "ZZ1 1ZZ", Country("GB", "United Kingdom")
+    )
+    val fakeAlfConfirmedAddress = AlfConfirmedAddress(
+      "foo", Some("bar"), fakeAlfAddress
+    )
+
+    override def initAlfJourneyRequest(): Future[Result] = Future.successful(Ok)
+
+    override def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = Future.successful(fakeAlfConfirmedAddress)
+  }
 }
