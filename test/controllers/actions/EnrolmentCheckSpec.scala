@@ -38,14 +38,17 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
   import Fixtures.ec
   
   class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
-    override def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult =
-      if (succeeds) Right(SubscriptionActive) else Left(SubscriptionClientError("Failed"))
+    override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
+      if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
 
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
+     = Future.successful(Right(RegistrationSuccessful))
 
-    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
+    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
+      = Future.successful(Right(SubscriptionSuccessful))
 
-    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
+    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
+      = Future.successful(Right(SubscriptionSuccessful))
   }
 
   // Expose the protected filter method for testing

@@ -56,17 +56,17 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   // TODO: We need a way to get the safe-id for the current user
   private[controllers] def hasCurrentSubscription: Future[Boolean]
-  = registrationClient.hasCurrentSubscription("safe-id").map(_ == SubscriptionActive)
+    = registrationClient.hasCurrentSubscription("safe-id").map(_ == Right(SubscriptionActive))
 
   override protected def executionContext: ExecutionContext = ec
 
   override protected def filter[A](request: StcAuthRequest[A]): Future[Option[Result]] = {
     hasCurrentSubscription.map { success =>
-      if (enrolledForSTC(request.enrolments) && success) {
-        Some(redirectToService)
-      } else {
-        None
-      }
+    if (enrolledForSTC(request.enrolments) && success) {
+      Some(redirectToService)
+    } else {
+      None
     }
+  }
   }
 }
