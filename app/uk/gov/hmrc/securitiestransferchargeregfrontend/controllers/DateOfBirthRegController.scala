@@ -34,7 +34,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthReg
 import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Success, Failure}
+import scala.util.{Failure, Success}
 
 class DateOfBirthRegController @Inject()(
                                         override val messagesApi: MessagesApi,
@@ -79,12 +79,13 @@ class DateOfBirthRegController @Inject()(
                 // Success - redirect to the next page.
                 Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
               } else {
-                // Failed to register - redirect to error page.
-                ???
+                // Failed to register - redirect to service error page.
+                Redirect(routes.UpdateDobKickOutController.onPageLoad())
               }
             }
           }.getOrElse {
-            // Failed to extract data - this should not happen - redirect to error page
+            // Failed to extract data - this should not happen - redirect to global error page
+            // This will go away when we merge the no-option branch!
             throw new RuntimeException("Unexpected empty option")
           }
       )
