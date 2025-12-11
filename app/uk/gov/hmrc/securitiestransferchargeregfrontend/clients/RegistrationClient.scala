@@ -22,16 +22,17 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionRespo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 
 import javax.inject.Inject
+import scala.concurrent.Future
 
 trait RegistrationClient:
-  def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult
-  def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult
-  def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult
-  def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult
+  def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult]
+  def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
+  def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
+  def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
 
-class RegistrationClientImpl @Inject() /*(appConf: FrontendAppConfig, http: HttpClientV2)(implicit ec: ExecutionContext) */extends RegistrationClient with Logging {
-  override def hasCurrentSubscription(etmpSafeId: String): SubscriptionStatusResult = Right(SubscriptionActive)
-  override def register(individualRegistrationDetails: IndividualRegistrationDetails): RegistrationResult = Right(RegistrationSuccessful)
-  override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
-  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): SubscriptionResult = Right(SubscriptionSuccessful)
+class RegistrationClientImpl @Inject() extends RegistrationClient with Logging {
+  override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] = Future.successful(Right(SubscriptionActive))
+  override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] = Future.successful(Right(RegistrationSuccessful))
+  override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
+  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
 }

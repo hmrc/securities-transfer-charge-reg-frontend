@@ -24,7 +24,6 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
@@ -88,16 +87,6 @@ class CheckYourDetailsController @Inject()(
   private def noAuthDetails: Result = {
     logger.warn("CheckYourDetailsController onPageLoad: missing user details in auth request")
     Redirect(config.ivUpliftUrl)
-  }
-  
-  private def extractData[A](request: StcAuthRequest[A]): Option[(String, String, String)] = {
-    for {
-      firstName <- request.maybeName.flatMap(_.givenName)
-      lastName <- request.maybeName.flatMap(_.familyName)
-      nino <- request.maybeNino
-    } yield {
-      (firstName, lastName, nino)
-    }
   }
   
 }
