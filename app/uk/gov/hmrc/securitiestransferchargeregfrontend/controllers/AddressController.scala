@@ -44,7 +44,7 @@ class AddressController @Inject()( auth: Auth,
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def onPageLoad: Action[AnyContent] = auth.authorisedAndNotEnrolled.async {
+  def onPageLoad: Action[AnyContent] = auth.authorisedIndividualAndNotEnrolled.async {
     implicit request =>
       alf.initAlfJourneyRequest()
   }
@@ -53,7 +53,7 @@ class AddressController @Inject()( auth: Auth,
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def onReturn(key: String): Action[AnyContent] = (auth.authorisedAndNotEnrolled andThen getData).async {
+  def onReturn(key: String): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
     implicit request =>
       logger.info("Address lookup frontend has returned control to STC service")
       for {
