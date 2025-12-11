@@ -39,3 +39,5 @@ GET        /update-your-details                          uk.gov.hmrc.securitiest
 
 GET        /update-your-dob                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDobKickOutController.onPageLoad()
 
+
+GET        /registration-complete                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationCompleteController.onPageLoad()
