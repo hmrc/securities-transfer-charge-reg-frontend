@@ -16,38 +16,30 @@
 
 package views
 
+import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{CheckYourDetailsView, DateOfBirthRegView}
-import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickOutView
 
-import java.time.LocalDate
-
-class DateOfBirthRegViewSpec extends ViewBaseSpec {
+class UpdateDobKickOutViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
-
-  private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
-  private val formProvider = new DateOfBirthRegFormProvider()
-  private val form = formProvider()
+  
+  private val viewInstance         = app.injector.instanceOf[UpdateDobKickOutView]
 
   def view(): Document = Jsoup.parse(
-    viewInstance(form, NormalMode)(fakeRequest, messages).body
+    viewInstance()(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {
-    val title = "What’s your date of birth?"
-    val pageTitle = "Your details"
-    val heading = "What’s your date of birth?"
-    val hint = "For example, 27 3 2007."
+    val title = "Your information does not match our records"
+    val heading = "Your information does not match our records"
 
-    val continue = "Continue"
+    val para1Value = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
   }
 
-  "The DateOfBirthRegView" - {
+  "The UpdateDobKickOutView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
@@ -59,13 +51,8 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
-      "have the correct hint" in {
-        individualPage.select("#value-hint").text() mustBe ExpectedIndividual.hint
-      }
-
-      "have a continue button with the correct text" in {
-        val button = individualPage.select(".govuk-button")
-        button.text() mustBe ExpectedIndividual.continue
+      "display the correct paragraph content" in {
+        individualPage.para(1) mustBe Some(ExpectedIndividual.para1Value)
       }
     }
   }

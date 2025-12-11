@@ -37,6 +37,8 @@ POST       /check-your-details/change                    uk.gov.hmrc.securitiest
 
 GET        /update-your-details                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDetailsKickOutController.onPageLoad()
 
+GET        /update-your-dob                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDobKickOutController.onPageLoad()
+
 GET        /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
 POST       /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
 GET        /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
