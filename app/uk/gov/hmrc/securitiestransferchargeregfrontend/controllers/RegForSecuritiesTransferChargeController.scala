@@ -34,12 +34,12 @@ class RegForSecuritiesTransferChargeController @Inject()(
                                        view: RegForSecuritiesTransferChargeView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (auth.authorisedAndNotEnrolled) {
+  def onPageLoad: Action[AnyContent] = auth.authorisedAndNotEnrolled {
     implicit request =>
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = (auth.authorisedAndNotEnrolled) {
+  def onSubmit(): Action[AnyContent] = auth.authorisedAndNotEnrolled {
     implicit request =>
       Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
   }
