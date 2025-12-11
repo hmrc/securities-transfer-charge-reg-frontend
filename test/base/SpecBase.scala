@@ -33,7 +33,7 @@ import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequestWrapper, StcAuthRequest, StcDataRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -63,10 +63,10 @@ trait SpecBase
   val affinityGroup = AffinityGroup.Individual
   val confidenceLevel = ConfidenceLevel.L250
 
-  val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
+  val fakeRequest: FakeRequest[AnyContent] = FakeRequest().withHeaders("sessionId" -> sessionId)
 
-  def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent]
-    = DataRequest[AnyContent](Fixtures.fakeStcAuthRequest(FakeRequest()), "userId", userAnswers)
+  def fakeDataRequest(userAnswers: UserAnswers): StcDataRequest[AnyContent]
+    = DataRequestWrapper[AnyContent, StcAuthRequest[AnyContent]](Fixtures.fakeStcAuthRequest(fakeRequest), "userId", userAnswers)
 
   def emptyUserAnswers : UserAnswers = UserAnswers(userAnswersId)
 

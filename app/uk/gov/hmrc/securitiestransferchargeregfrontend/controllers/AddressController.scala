@@ -22,7 +22,7 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, DataRetrievalAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalStcDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
@@ -66,7 +66,7 @@ class AddressController @Inject()( auth: Auth,
 
   private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
-  private def updateUserAnswers[A](implicit request: OptionalDataRequest[A]): AddressHandler = {
+  private def updateUserAnswers[A](implicit request: OptionalStcDataRequest[A]): AddressHandler = {
     address =>
       logger.info("ALF returned address successfully")
       val updatedAnswers = request.userAnswers

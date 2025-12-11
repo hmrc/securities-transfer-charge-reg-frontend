@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationRespo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualRegistrationDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
@@ -91,7 +91,7 @@ class DateOfBirthRegController @Inject()(
       )
   }
 
-  private def updateUserAnswers[A](dob: LocalDate)(implicit request: DataRequest[A]): Future[UserAnswers] = {
+  private def updateUserAnswers[A](dob: LocalDate)(implicit request: StcDataRequest[A]): Future[UserAnswers] = {
     request.userAnswers.set(DateOfBirthRegPage, dob) match {
       case Success(updated) => sessionRepository.set(updated).collect {
         case true => updated

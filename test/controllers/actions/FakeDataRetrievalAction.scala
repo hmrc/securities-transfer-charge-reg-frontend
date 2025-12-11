@@ -18,7 +18,7 @@ package controllers.actions
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequestWrapper, OptionalStcDataRequest, StcAuthRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -28,9 +28,9 @@ class FakeDataRetrievalAction(
 
   override protected def transform[A](
                                        request: StcAuthRequest[A]
-                                     ): Future[OptionalDataRequest[A]] =
+                                     ): Future[OptionalStcDataRequest[A]] =
     Future.successful(
-      OptionalDataRequest(
+      OptionalDataRequestWrapper(
         request     = request,
         userId      = request.userId,
         userAnswers = dataToReturn

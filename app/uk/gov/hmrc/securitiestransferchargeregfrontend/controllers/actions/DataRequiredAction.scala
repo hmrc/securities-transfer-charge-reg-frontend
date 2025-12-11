@@ -16,25 +16,25 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, OptionalDataRequest}
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
+trait DataRequiredAction extends ActionRefiner[OptionalStcDataRequest, StcDataRequest]
+
 class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends DataRequiredAction {
 
-  override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
+  override protected def refine[A](request: OptionalStcDataRequest[A]): Future[Either[Result, StcDataRequest[A]]] = {
 
     request.userAnswers match {
       case None =>
         Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
       case Some(data) =>
-        Future.successful(Right(DataRequest(request.request, request.userId, data)))
+        Future.successful(Right(DataRequestWrapper(request.request, request.userId, data)))
     }
   }
 }
-
-trait DataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]

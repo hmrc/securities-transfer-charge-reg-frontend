@@ -23,7 +23,7 @@ import play.api.mvc.AnyContent
 import play.api.test.FakeRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalActionImpl
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalStcDataRequest, StcAuthRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -33,7 +33,7 @@ import scala.language.implicitConversions
 class DataRetrievalActionSpec extends SpecBase with MockitoSugar {
 
   class Harness(sessionRepository: SessionRepository) extends DataRetrievalActionImpl(sessionRepository) {
-    def callTransform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = transform(request)
+    def callTransform[A](request: StcAuthRequest[A]): Future[OptionalStcDataRequest[A]] = transform(request)
   }
   
   "Data Retrieval Action" - {

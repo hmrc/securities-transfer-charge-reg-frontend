@@ -21,12 +21,12 @@ import org.scalatest.BeforeAndAfterAll
 import org.scalatestplus.play.guice.GuiceOneAppPerSuite
 import play.api.i18n.Messages
 import play.api.mvc.AnyContent
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcDataRequest}
 import views.helper.JsoupHelper
 
 trait ViewBaseSpec extends BeforeAndAfterAll with GuiceOneAppPerSuite with JsoupHelper with SpecBase {
 
-  implicit val request: DataRequest[AnyContent] = fakeDataRequest(emptyUserAnswers)
+  implicit val request: StcDataRequest[AnyContent] = fakeDataRequest(emptyUserAnswers)
 
   implicit def messages: Messages = messages(app)
   
