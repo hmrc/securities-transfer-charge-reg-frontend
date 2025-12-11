@@ -26,7 +26,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.AlfConfirmedAddress
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
-import javax.inject.{Inject, Singleton}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
@@ -82,7 +82,7 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
 
   private def retrievalSuccess[A](resp: WSResponse): AlfConfirmedAddress = {
     resp.json.validate[AlfConfirmedAddress].getOrElse {
-      failure("Could not retrieve tha address from ALF")
+      failure("Could not retrieve the address from ALF")
     }
   }
 

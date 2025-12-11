@@ -68,7 +68,7 @@ class AddressController @Inject()( auth: Auth,
   
   private def updateUserAnswers[A](implicit request: OptionalDataRequest[A]): AddressHandler = {
     address =>
-      logger.info("ALF returned address: " + address.toString)
+      logger.info("ALF returned address successfully")
       val updatedAnswers = request.userAnswers
         .getOrElse(UserAnswers(request.userId))
         .set(AddressPage[AlfConfirmedAddress](), address)

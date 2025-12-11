@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-// scala
 package controllers
 
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{AddressController, routes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 
 class AddressControllerSpec extends SpecBase with MockitoSugar {
-
-  private val onwardRoute = Call("GET", "/foo")
 
   "AddressController" - {
 
@@ -34,8 +30,6 @@ class AddressControllerSpec extends SpecBase with MockitoSugar {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .build()
-
-      val controller = application.injector.instanceOf[AddressController]
 
       running(application) {
         val request = FakeRequest(GET, routes.AddressController.onPageLoad().url)
@@ -48,9 +42,6 @@ class AddressControllerSpec extends SpecBase with MockitoSugar {
     "onReturn should retrieve address from Alf, store it and redirect to the next page" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
         .build()
-
-      val controller = application.injector.instanceOf[AddressController]
-
 
       running(application) {
         val request = FakeRequest(GET, routes.AddressController.onReturn("key").url)

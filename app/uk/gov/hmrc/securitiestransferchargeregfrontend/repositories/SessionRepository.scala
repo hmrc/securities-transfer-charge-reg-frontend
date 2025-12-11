@@ -48,7 +48,6 @@ class SessionRepositoryImpl @Inject()(
                                    clock: Clock
                                  )(implicit ec: ExecutionContext)
   extends PlayMongoRepository[UserAnswers](
-    replaceIndexes = true,
     collectionName = "user-answers",
     mongoComponent = mongoComponent,
     domainFormat   = UserAnswers.format,
