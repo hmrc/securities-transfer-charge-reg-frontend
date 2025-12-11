@@ -29,11 +29,16 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-@Singleton
-class AlfAddressConnector @Inject() ( ws: WSClient,
+
+trait AlfAddressConnector {
+  def initAlfJourneyRequest(): Future[Result]
+  def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress]
+}
+
+class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
                                       config: FrontendAppConfig,
                                       resourceLoader: ResourceLoader)
-                                    ( implicit ec: ExecutionContext) extends Logging {
+                                    ( implicit ec: ExecutionContext) extends AlfAddressConnector with Logging {
 
   private type ResponseHandler = PartialFunction[WSResponse, Result]
   private[connectors] final class AlfException(msg: String) extends RuntimeException(msg)

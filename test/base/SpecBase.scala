@@ -16,6 +16,8 @@
 
 package base
 
+import base.Fixtures.FakeAlfConnector
+import connectors.AlfAddressConnector
 import controllers.actions.*
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -77,7 +79,8 @@ trait SpecBase
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[SessionRepository].to[FakeSessionRepository],
-        bind[StcAuthAction].to[FakeStcAuthAction]
+        bind[StcAuthAction].to[FakeStcAuthAction],
+        bind[AlfAddressConnector].to[FakeAlfConnector]
       )
 
   protected def applicationBuilderNoAuth(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
@@ -87,6 +90,7 @@ trait SpecBase
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[SessionRepository].to[FakeSessionRepository],
+        bind[AlfAddressConnector].to[FakeAlfConnector]
       )
 
   protected def applicationBuilderWithoutSessionRepository(userAnswers: Option[UserAnswers] = None): GuiceApplicationBuilder =
@@ -95,6 +99,8 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[StcAuthAction].to[FakeStcAuthAction]
+        bind[StcAuthAction].to[FakeStcAuthAction],
+        bind[AlfAddressConnector].to[FakeAlfConnector]
+
       )
 }
