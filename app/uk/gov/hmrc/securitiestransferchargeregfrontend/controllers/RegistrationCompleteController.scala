@@ -16,31 +16,26 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import play.api.i18n.I18nSupport
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
+import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.RegForSecuritiesTransferChargePage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegistrationCompleteView
 
 import javax.inject.Inject
 
-class RegForSecuritiesTransferChargeController @Inject()(
+class RegistrationCompleteController @Inject()(
+                                       override val messagesApi: MessagesApi,
                                        auth: Auth,
-                                       navigator: Navigator,
+                                       getData: DataRetrievalAction,
+                                       requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: RegForSecuritiesTransferChargeView
+                                       view: RegistrationCompleteView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = auth.authorisedAndNotEnrolled {
+  def onPageLoad: Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
     implicit request =>
       Ok(view())
-  }
-
-  def onSubmit(): Action[AnyContent] = auth.authorisedAndNotEnrolled {
-    implicit request =>
-      Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
   }
 }

@@ -39,6 +39,13 @@ GET        /update-your-details                          uk.gov.hmrc.securitiest
 
 GET        /update-your-dob                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDobKickOutController.onPageLoad()
 
+GET        /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = CheckMode)
+
+GET        /registration-complete                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationCompleteController.onPageLoad()
+
 GET        /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
 POST       /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
 GET        /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
