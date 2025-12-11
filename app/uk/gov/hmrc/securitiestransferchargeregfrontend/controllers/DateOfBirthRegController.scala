@@ -91,7 +91,7 @@ class DateOfBirthRegController @Inject()(
       )
   }
 
-  def updateUserAnswers[A](dob: LocalDate)(implicit request: DataRequest[A]): Future[UserAnswers] = {
+  private def updateUserAnswers[A](dob: LocalDate)(implicit request: DataRequest[A]): Future[UserAnswers] = {
     request.userAnswers.set(DateOfBirthRegPage, dob) match {
       case Success(updated) => sessionRepository.set(updated).collect {
         case true => updated
@@ -100,7 +100,7 @@ class DateOfBirthRegController @Inject()(
     }
   }
 
-  def registerUser(details: IndividualRegistrationDetails): Future[Boolean] = {
+  private def registerUser(details: IndividualRegistrationDetails): Future[Boolean] = {
     registrationClient.register(details).map {
       _ == Right(RegistrationSuccessful)
     }
