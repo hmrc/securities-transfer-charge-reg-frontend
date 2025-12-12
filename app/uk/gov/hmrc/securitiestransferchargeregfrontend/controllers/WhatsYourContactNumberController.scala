@@ -38,7 +38,6 @@ class WhatsYourContactNumberController @Inject()(
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
                                         auth: Auth,
-                                        identify: IdentifierAction,
                                         getData: DataRetrievalAction,
                                         requireData: DataRequiredAction,
                                         formProvider: WhatsYourContactNumberFormProvider,

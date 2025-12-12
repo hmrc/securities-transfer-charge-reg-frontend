@@ -46,7 +46,7 @@ POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiest
 
 GET        /registration-complete                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationCompleteController.onPageLoad()
 
-GET        /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /whatsYourContactNumber                        controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeWhatsYourContactNumber                  controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /whatsYourContactNumber                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /whatsYourContactNumber                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /changeWhatsYourContactNumber                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeWhatsYourContactNumber                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)

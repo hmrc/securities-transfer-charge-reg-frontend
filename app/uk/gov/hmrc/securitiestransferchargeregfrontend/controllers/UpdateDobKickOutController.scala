@@ -27,7 +27,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickO
 class UpdateDobKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        auth: Auth,
-                                       identify: IdentifierAction,
                                        getData: DataRetrievalAction,
                                        requireData: DataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,

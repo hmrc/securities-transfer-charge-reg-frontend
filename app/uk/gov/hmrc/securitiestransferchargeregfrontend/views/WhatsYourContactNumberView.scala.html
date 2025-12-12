@@ -15,6 +15,10 @@
  *@
 
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.InputWidth._
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LabelSize.Large
+
 
 @this(
     layout: templates.Layout,
@@ -24,7 +28,6 @@
     govukButton: GovukButton
 )
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("whatsYourContactNumber.title"))) {
@@ -38,7 +41,7 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("whatsYourContactNumber.heading")).asPageHeading()
+                label = LabelViewModel(messages("whatsYourContactNumber.heading")).asPageHeading(Large)
             )
             .withWidth(Full)
         )
