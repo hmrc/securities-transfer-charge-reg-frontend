@@ -96,7 +96,6 @@ whatsYourEmailAddress.error.invalid = Enter an email address with a name, @ symb
 whatsYourEmailAddress.error.length = Your email must be 50 characters or fewer
 whatsYourEmailAddress.change.hidden = What’s your email address?
 
-
 registrationComplete.title = Registration complete
 registrationComplete.heading = Registration complete
 registrationComplete.p1 = Now you can use the online service to
