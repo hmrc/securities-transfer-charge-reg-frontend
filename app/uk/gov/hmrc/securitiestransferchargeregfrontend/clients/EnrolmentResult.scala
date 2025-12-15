@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-enum RegistrationResponse:
-  case RegistrationSuccessful
-  case RegistrationFailed
-  
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+enum EnrolmentResponse:
+  case EnrolmentSuccessful
+  case EnrolmentFailed
+
+type EnrolmentResult = Either[RegistrationServiceError, EnrolmentResponse]

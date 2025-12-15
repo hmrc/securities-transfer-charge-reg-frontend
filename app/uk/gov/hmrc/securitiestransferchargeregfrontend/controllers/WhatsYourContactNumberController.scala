@@ -26,8 +26,9 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
@@ -72,11 +73,13 @@ class WhatsYourContactNumberController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
             _              <- sessionRepository.set(updatedAnswers)
+            subscribed     <- subscribe(updatedAnswers)
+            enrolled       <- enrol(request.request.maybeNino)
           } yield Redirect(navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers))
       )
   }
 
-  def subscribeAndEnrol(userAnswers: UserAnswers): Future[Boolean] = {
+  private def subscribe(userAnswers: UserAnswers): Future[Boolean] = {
     buildSubscriptionDetails(userAnswers) map { subscriptionDetails =>
       registrationClient.subscribe(subscriptionDetails).map { status =>
         status.exists(_ == SubscriptionSuccessful)
@@ -107,6 +110,14 @@ class WhatsYourContactNumberController @Inject()(
       Some(lines.head, lines.lift(1), lines.lift(2))
     } else {
       None
+    }
+  }
+  
+  private val enrol: Option[String] => Future[Boolean] = maybeNino => {
+    maybeNino.map { nino =>
+      registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map(_ == EnrolmentSuccessful)
+    }.getOrElse {
+      Future.failed(RuntimeException("Cannot get user's NINO from auth."))
     }
   }
 
