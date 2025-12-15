@@ -71,7 +71,9 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
     throw new AlfException(fullMessage)
   }
 
-  private val journeyFailure = failure("Address lookup initiation failed")
+  private val journeyFailure: ResponseHandler = { _ =>
+    failure("Address lookup initiation failed")
+  }
   
   private def callAlfRetrieve(key: String): Future[WSResponse] = {
     val retrieveAddress = s"${config.alfRetrieveUrl}?id=$key"
