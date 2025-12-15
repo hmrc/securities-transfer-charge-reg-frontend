@@ -101,9 +101,9 @@ registrationComplete.heading = Registration complete
 registrationComplete.p1 = Now you can use the online service to
 registrationComplete.p1.link = tell us about a securities transfer.
 
-whatsYourContactNumber.title = whatsYourContactNumber
-whatsYourContactNumber.heading = whatsYourContactNumber
-whatsYourContactNumber.checkYourAnswersLabel = whatsYourContactNumber
-whatsYourContactNumber.error.required = Enter whatsYourContactNumber
-whatsYourContactNumber.error.length = WhatsYourContactNumber must be 25 characters or less
-whatsYourContactNumber.change.hidden = WhatsYourContactNumber
+whatsYourContactNumber.title = What’s your contact number?
+whatsYourContactNumber.heading = What’s your contact number?
+whatsYourContactNumber.checkYourAnswersLabel = What’s your contact number?
+whatsYourContactNumber.error.required = Enter your contact number
+whatsYourContactNumber.error.length = Your contact number must be 25 characters or less
+whatsYourContactNumber.change.hidden = What’s your contact number?
