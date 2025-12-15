@@ -17,6 +17,7 @@
 package controllers
 
 import base.SpecBase
+import navigation.FakeNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
@@ -29,8 +30,10 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
+
 import scala.concurrent.Future
 
 class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
@@ -40,7 +43,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourContactNumberRoute: Any = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
+  lazy val whatsYourContactNumberRoute: String = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
 
   "WhatsYourContactNumber Controller" - {
 
