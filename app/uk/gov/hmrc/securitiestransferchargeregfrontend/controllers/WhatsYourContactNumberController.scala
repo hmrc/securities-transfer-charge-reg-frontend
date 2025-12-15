@@ -20,29 +20,32 @@ import play.api.data.Form
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 
 import javax.inject.Inject
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourContactNumberController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        auth: Auth,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
-                                        formProvider: WhatsYourContactNumberFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: WhatsYourContactNumberView
+                                                  override val messagesApi: MessagesApi,
+                                                  sessionRepository: SessionRepository,
+                                                  navigator: Navigator,
+                                                  auth: Auth,
+                                                  getData: DataRetrievalAction,
+                                                  requireData: DataRequiredAction,
+                                                  formProvider: WhatsYourContactNumberFormProvider,
+                                                  val controllerComponents: MessagesControllerComponents,
+                                                  registrationClient: RegistrationClient,
+                                                  view: WhatsYourContactNumberView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   val form: Form[String] = formProvider()
@@ -72,4 +75,39 @@ class WhatsYourContactNumberController @Inject()(
           } yield Redirect(navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers))
       )
   }
+
+  def subscribeAndEnrol(userAnswers: UserAnswers): Future[Boolean] = {
+    buildSubscriptionDetails(userAnswers) map { subscriptionDetails =>
+      registrationClient.subscribe(subscriptionDetails).map { status =>
+        status.exists(_ == SubscriptionSuccessful)
+      }
+    }
+  }.getOrElse {
+    Future.successful(false)
+  }
+  
+  private val buildSubscriptionDetails: UserAnswers => Option[IndividualSubscriptionDetails] = { answers => for {
+    alf           <- getAddress(answers)
+    address        = alf.address
+    (l1, l2, l3)  <- extractLines(address)
+    email         <- getEmailAddress(answers)
+    tel           <- getTelephoneNumber(answers)
+    } yield {
+      IndividualSubscriptionDetails(l1, l2, l3, address.postcode, address.country.code, tel, None, email)
+    }
+  }
+
+  private val getAddress: UserAnswers => Option[AlfConfirmedAddress] = _.get[AlfConfirmedAddress](AddressPage())
+  private val getEmailAddress: UserAnswers => Option[String] = _.get[String](WhatsYourEmailAddressPage)
+  private val getTelephoneNumber: UserAnswers => Option[String] = _.get[String](WhatsYourContactNumberPage)
+
+  private val extractLines: AlfAddress => Option[(String, Option[String], Option[String])] = { address =>
+    val lines = address.lines
+    if (lines.nonEmpty) {
+      Some(lines.head, lines.lift(1), lines.lift(2))
+    } else {
+      None
+    }
+  }
+
 }
