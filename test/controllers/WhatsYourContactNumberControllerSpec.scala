@@ -18,23 +18,18 @@ package controllers
 
 import base.SpecBase
 import navigation.FakeNavigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
-
-import scala.concurrent.Future
 
 class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
@@ -83,15 +78,10 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
-      val mockSessionRepository = mock[SessionRepository]
-
-      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
-
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
