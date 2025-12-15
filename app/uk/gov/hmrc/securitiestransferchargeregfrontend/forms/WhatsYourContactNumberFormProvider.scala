@@ -23,9 +23,18 @@ import play.api.data.Form
 
 class WhatsYourContactNumberFormProvider @Inject() extends Mappings {
 
+  private final val phoneRegex = """^[A-Z0-9 )/(\-*#+]*$""".stripMargin
+  private val maxLength = 25
+
+
   def apply(): Form[String] =
     Form(
-      "value" -> text("whatsYourContactNumber.error.required")
-        .verifying(maxLength(25, "whatsYourContactNumber.error.length"))
+      "value" -> validatedText(
+        "whatsYourContactNumber.error.required",
+        "whatsYourContactNumber.error.invalid",
+        "whatsYourContactNumber.error.length",
+        phoneRegex,
+        maxLength
+      )
     )
 }

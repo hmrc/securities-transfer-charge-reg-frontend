@@ -49,7 +49,7 @@ POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiest
 
 GET        /registration-complete                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationCompleteController.onPageLoad()
 
-GET        /whatsYourContactNumber                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /whatsYourContactNumber                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /changeWhatsYourContactNumber                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeWhatsYourContactNumber                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
