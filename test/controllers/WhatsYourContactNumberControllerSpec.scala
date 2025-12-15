@@ -17,19 +17,23 @@
 package controllers
 
 import base.SpecBase
-import navigation.FakeNavigator
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.data.Form
-import play.api.inject.bind
-import play.api.mvc.Call
-import play.api.test.FakeRequest
-import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import org.scalatestplus.mockito.MockitoSugar
+import org.mockito.ArgumentMatchers.any
+import play.api.test.FakeRequest
+import navigation.FakeNavigator
+import org.mockito.Mockito.when
+import scala.concurrent.Future
+import play.api.test.Helpers.*
+import play.api.inject.bind
+import play.api.data.Form
+import play.api.mvc.Call
 
 class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
@@ -38,7 +42,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourContactNumberRoute: String = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
+  lazy val whatsYourContactNumberRoute: Any = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
 
   "WhatsYourContactNumber Controller" - {
 
@@ -78,10 +82,15 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
 
+      val mockSessionRepository = mock[SessionRepository]
+
+      when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[SessionRepository].toInstance(mockSessionRepository)
           )
           .build()
 
