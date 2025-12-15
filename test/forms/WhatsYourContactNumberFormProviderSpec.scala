@@ -18,11 +18,15 @@ package forms
 
 import forms.behaviours.StringFieldBehaviours
 import play.api.data.FormError
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
+import org.scalacheck.Gen
+import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 
 class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
-
+  
   val requiredKey = "whatsYourContactNumber.error.required"
   val lengthKey = "whatsYourContactNumber.error.length"
+  val formatKey = "whatsYourContactNumber.error.invalid"
   val maxLength = 25
 
   val form = new WhatsYourContactNumberFormProvider()()
@@ -49,5 +53,23 @@ class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
       fieldName,
       requiredError = FormError(fieldName, requiredKey)
     )
+
+    "not allow invalid contact number" in {
+
+      val invalids = Seq(
+        "fooexample.com",
+        "@example.com",
+        "foo@example"
+      )
+
+      forAll(Gen.oneOf(invalids)) { invalid =>
+        val result = form.bind(Map(fieldName -> invalid)).apply(fieldName)
+
+        result.errors.size mustBe 1
+        result.errors.head.key mustBe fieldName
+        result.errors.head.message mustBe formatKey
+
+      }
+    }
   }
 }

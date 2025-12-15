@@ -18,6 +18,7 @@ package controllers
 
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.data.Form
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
@@ -32,9 +33,9 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new WhatsYourEmailAddressFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
-  lazy val whatsYourEmailAddressRoute = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
+  lazy val whatsYourEmailAddressRoute: String = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
 
   "WhatsYourEmailAddress Controller" - {
 

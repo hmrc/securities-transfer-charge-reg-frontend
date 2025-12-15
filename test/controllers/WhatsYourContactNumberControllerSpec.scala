@@ -17,20 +17,20 @@
 package controllers
 
 import base.SpecBase
-import forms.WhatsYourContactNumberFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import navigation.{FakeNavigator, Navigator}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import pages.WhatsYourContactNumberPage
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import repositories.SessionRepository
-import views.html.WhatsYourContactNumberView
-
+import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
 import scala.concurrent.Future
 
 class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
@@ -38,9 +38,9 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   val formProvider = new WhatsYourContactNumberFormProvider()
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
-  lazy val whatsYourContactNumberRoute = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
+  lazy val whatsYourContactNumberRoute: Any = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
 
   "WhatsYourContactNumber Controller" - {
 

@@ -96,11 +96,6 @@ whatsYourEmailAddress.error.invalid = Enter an email address with a name, @ symb
 whatsYourEmailAddress.error.length = Your email must be 50 characters or fewer
 whatsYourEmailAddress.change.hidden = What’s your email address?
 
-registrationComplete.title = Registration complete
-registrationComplete.heading = Registration complete
-registrationComplete.p1 = Now you can use the online service to
-registrationComplete.p1.link = tell us about a securities transfer.
-
 whatsYourContactNumber.title = What’s your contact number?
 whatsYourContactNumber.heading = What’s your contact number?
 whatsYourContactNumber.hint = For international numbers, include the country code.
@@ -109,3 +104,9 @@ whatsYourContactNumber.error.required = Enter your contact number
 whatsYourContactNumber.error.invalid = Enter a contact number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 whatsYourContactNumber.error.length = Your contact number must be 25 characters or less
 whatsYourContactNumber.change.hidden = What’s your contact number?
+
+registrationComplete.title = Registration complete
+registrationComplete.heading = Registration complete
+registrationComplete.p1 = Now you can use the online service to
+registrationComplete.p1.link = tell us about a securities transfer.
+
