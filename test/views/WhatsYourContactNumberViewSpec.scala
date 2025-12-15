@@ -19,16 +19,16 @@ package views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourEmailAddressFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{UpdateDetailsKickOutView, WhatsYourEmailAddressView}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{UpdateDetailsKickOutView, WhatsYourContactNumberView}
 
 class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
   
-  private val viewInstance         = app.injector.instanceOf[WhatsYourEmailAddressView]
-  private val formProvider = new WhatsYourEmailAddressFormProvider()
+  private val viewInstance         = app.injector.instanceOf[WhatsYourContactNumberView]
+  private val formProvider = new WhatsYourContactNumberFormProvider()
   private val form = formProvider()
 
   def view(): Document = Jsoup.parse(
@@ -36,8 +36,8 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
   )
 
   object ExpectedIndividual {
-    val title = "What’s your email address?"
-    val heading = "What’s your email address?"
+    val title = "What’s your contact number?"
+    val heading = "What’s your contact number?"
 
     val hint = "Your details"
 
@@ -56,7 +56,6 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
       }
 
       "display the correct hint content" in {
-
         individualPage.hintText mustBe Some(ExpectedIndividual.hint)
       }
     }
