@@ -101,3 +101,9 @@ registrationComplete.title = Registration complete
 registrationComplete.heading = Registration complete
 registrationComplete.p1 = Now you can use the online service to
 registrationComplete.p1.link = tell us about a securities transfer.
+
+contactNumber.title = What’s your contact number?
+contactNumber.heading = What’s your contact number?
+contactNumber.error.required = Enter contactNumber
+contactNumber.error.length = ContactNumber must be 100 characters or less
+contactNumber.change.hidden = ContactNumber

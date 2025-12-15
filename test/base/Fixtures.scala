@@ -16,7 +16,6 @@
 
 package base
 
-import connectors.AlfAddressConnector
 import play.api.mvc.*
 import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
@@ -24,6 +23,7 @@ import uk.gov.hmrc.auth.core.authorise.*
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
 import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest}

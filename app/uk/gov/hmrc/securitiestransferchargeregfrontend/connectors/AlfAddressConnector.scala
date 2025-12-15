@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package connectors
+package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
 import play.api.Logging
 import play.api.http.Status.ACCEPTED
