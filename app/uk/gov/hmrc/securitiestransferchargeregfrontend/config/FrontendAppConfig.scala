@@ -47,6 +47,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
 
+  val alfUrl: String = configuration.get[String]("urls.alf-url")
+  val alfRetrieveUrl: String = configuration.get[String]("urls.alf-retrieve-url")
+  
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/securities-transfer-charge-reg-frontend"
 

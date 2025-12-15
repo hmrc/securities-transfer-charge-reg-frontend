@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import javax.inject.Inject
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickOutView
+
+import javax.inject.Inject
 
 class UpdateDobKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
