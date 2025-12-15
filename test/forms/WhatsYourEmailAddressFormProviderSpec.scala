@@ -33,8 +33,8 @@ class WhatsYourEmailAddressFormProviderSpec
   val lengthKey   = "whatsYourEmailAddress.error.length"
   val formatKey   = "whatsYourEmailAddress.error.invalid"
 
-  val maxLength = EmailMapping.maxEmailLength
-  val validData = Gen.const("foo@example.com")
+  val maxLength: Int = EmailMapping.maxEmailLength
+  val validData: Gen[String] = Gen.const("foo@example.com")
 
   val form = new WhatsYourEmailAddressFormProvider()()
 
