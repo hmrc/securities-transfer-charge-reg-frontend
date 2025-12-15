@@ -103,7 +103,9 @@ registrationComplete.p1.link = tell us about a securities transfer.
 
 whatsYourContactNumber.title = What’s your contact number?
 whatsYourContactNumber.heading = What’s your contact number?
+whatsYourContactNumber.hint = For international numbers, include the country code.
 whatsYourContactNumber.checkYourAnswersLabel = What’s your contact number?
 whatsYourContactNumber.error.required = Enter your contact number
+whatsYourContactNumber.error.invalid =  The telephone number must only include numbers 0 to 9 and a plus sign, like 01632 960 001, 07700 900 982 or +44 808 157 0192
 whatsYourContactNumber.error.length = Your contact number must be 25 characters or less
 whatsYourContactNumber.change.hidden = What’s your contact number?
