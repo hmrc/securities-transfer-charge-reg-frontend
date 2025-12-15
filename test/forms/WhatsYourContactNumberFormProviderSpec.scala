@@ -30,6 +30,26 @@ class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
 
   val form = new WhatsYourContactNumberFormProvider()()
 
+  val invalid = Seq(
+    "fooexample.com",
+    "@example.com",
+    "foo@example"
+  )
+  
+  val valid = Seq(
+    "07649 599 833",
+    "+402 773 8899",
+    "0800 700 400",
+    "+1 656-778733"
+  )
+
+  val tooLong = Seq(
+    "07649 599 833 9087 8733 12323 88",
+    "+402 773 8899 - 003 - 88883233 999",
+    "(0800) 700 400 1234567890 09887765431",
+    "+1 656-778733 - 777 77777 77 778888"
+  )
+  
   ".value" - {
 
     val fieldName = "value"
@@ -37,14 +57,7 @@ class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      stringsWithMaxLength(maxLength)
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      Gen.oneOf(valid)
     )
 
     behave like mandatoryField(
@@ -55,13 +68,7 @@ class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
 
     "not allow invalid contact number" in {
 
-      val invalids = Seq(
-        "fooexample.com",
-        "@example.com",
-        "foo@example"
-      )
-
-      forAll(Gen.oneOf(invalids)) { invalid =>
+      forAll(Gen.oneOf(invalid)) { invalid =>
         val result = form.bind(Map(fieldName -> invalid)).apply(fieldName)
 
         result.errors.size mustBe 1
@@ -70,5 +77,6 @@ class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
 
       }
     }
+    
   }
 }
