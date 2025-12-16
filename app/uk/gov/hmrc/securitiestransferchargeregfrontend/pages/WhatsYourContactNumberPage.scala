@@ -14,10 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
 
-enum RegistrationResponse:
-  case RegistrationSuccessful
-  case RegistrationFailed
-  
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+import play.api.libs.json.JsPath
+
+case object WhatsYourContactNumberPage extends QuestionPage[String] {
+
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "whatsYourContactNumber"
+}

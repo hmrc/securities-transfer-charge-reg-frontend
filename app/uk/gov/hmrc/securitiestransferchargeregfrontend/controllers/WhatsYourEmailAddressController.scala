@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
+import play.api.data.Form
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourEmailAddressView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
@@ -43,7 +44,7 @@ class WhatsYourEmailAddressController @Inject()(
                                         view: WhatsYourEmailAddressView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  val form = formProvider()
+  val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) { implicit request =>

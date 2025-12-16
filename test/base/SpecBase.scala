@@ -28,7 +28,7 @@ import play.api.i18n.{Messages, MessagesApi}
 import play.api.inject.bind
 import play.api.inject.guice.GuiceApplicationBuilder
 import play.api.mvc.*
-import play.api.test.{FakeRequest, Helpers}
+import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -36,11 +36,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeStcAuthAction extends StcAuthAction {
+class FakeStcAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends StcAuthAction {
 
-  override def parser: BodyParser[AnyContent] = Helpers.stubBodyParser(AnyContentAsEmpty)
+  override def parser: BodyParser[AnyContent] = bodyParsers.default
 
   override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = block(Fixtures.fakeStcAuthRequest(request))
 

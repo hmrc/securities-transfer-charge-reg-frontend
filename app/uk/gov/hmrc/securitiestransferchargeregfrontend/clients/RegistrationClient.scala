@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 import play.api.Logging
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
@@ -29,10 +30,13 @@ trait RegistrationClient:
   def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
+  def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
 
 class RegistrationClientImpl @Inject() extends RegistrationClient with Logging {
   override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] = Future.successful(Right(SubscriptionActive))
   override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] = Future.successful(Right(RegistrationSuccessful))
   override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
   override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
+  override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult] = Future.successful(Right(EnrolmentSuccessful))
+
 }
