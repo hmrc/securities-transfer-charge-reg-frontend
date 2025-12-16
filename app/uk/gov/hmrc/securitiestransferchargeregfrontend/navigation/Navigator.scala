@@ -19,6 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage}
 
 import javax.inject.{Inject, Singleton}
@@ -46,7 +47,10 @@ class Navigator @Inject()() {
 
     case _: AddressPage[_] =>
       _ => routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
-      
+
+
+    case WhatsYourEmailAddressPage => _ => routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
     case _ => _ => routes.IndexController.onPageLoad()
 
   }

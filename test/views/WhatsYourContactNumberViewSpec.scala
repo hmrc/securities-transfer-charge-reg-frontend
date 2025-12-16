@@ -19,19 +19,16 @@ package views
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{CheckYourDetailsView, DateOfBirthRegView}
-import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{UpdateDetailsKickOutView, WhatsYourContactNumberView}
 
-import java.time.LocalDate
-
-class DateOfBirthRegViewSpec extends ViewBaseSpec {
+class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
-
-  private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
-  private val formProvider = new DateOfBirthRegFormProvider()
+  
+  private val viewInstance         = app.injector.instanceOf[WhatsYourContactNumberView]
+  private val formProvider = new WhatsYourContactNumberFormProvider()
   private val form = formProvider()
 
   def view(): Document = Jsoup.parse(
@@ -39,15 +36,14 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
   )
 
   object ExpectedIndividual {
-    val title = "What’s your date of birth?"
+    val title = "What’s your contact number?"
     val pageTitle = "Your details"
-    val heading = "What’s your date of birth?"
-    val hint = "For example, 27 3 2007."
+    val heading = "What’s your contact number?"
+    val hint = "For international numbers, include the country code."
 
-    val continue = "Continue"
   }
 
-  "The DateOfBirthRegView" - {
+  "The WhatsYourContactNumberView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
@@ -65,11 +61,6 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
       "have the correct hint" in {
         individualPage.select("#value-hint").text() mustBe ExpectedIndividual.hint
-      }
-
-      "have a continue button with the correct text" in {
-        val button = individualPage.select(".govuk-button")
-        button.text() mustBe ExpectedIndividual.continue
       }
     }
   }

@@ -16,28 +16,40 @@
 
 package forms
 
-import base.SpecBase
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen
-import org.scalatestplus.scalacheck.ScalaCheckPropertyChecks
 import play.api.data.FormError
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourEmailAddressFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.EmailMapping
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 
-class WhatsYourEmailAddressFormProviderSpec
-  extends SpecBase
-    with StringFieldBehaviours
-    with ScalaCheckPropertyChecks {
+class WhatsYourContactNumberFormProviderSpec extends StringFieldBehaviours {
+  
+  val requiredKey = "whatsYourContactNumber.error.required"
+  val lengthKey = "whatsYourContactNumber.error.length"
+  val formatKey = "whatsYourContactNumber.error.invalid"
+  val maxLength = 25
 
-  val requiredKey = "whatsYourEmailAddress.error.required"
-  val lengthKey   = "whatsYourEmailAddress.error.length"
-  val formatKey   = "whatsYourEmailAddress.error.invalid"
+  val form = new WhatsYourContactNumberFormProvider()()
 
-  val maxLength: Int = EmailMapping.maxEmailLength
-  val validData: Gen[String] = Gen.const("foo@example.com")
+  val invalid = Seq(
+    "fooexample.com",
+    "@example.com",
+    "foo@example"
+  )
+  
+  val valid = Seq(
+    "07649 599 833",
+    "+402 773 8899",
+    "0800 700 400",
+    "+1 656-778733"
+  )
 
-  val form = new WhatsYourEmailAddressFormProvider()()
-
+  val tooLong = Seq(
+    "07649 599 833 9087 8733 12323 88",
+    "+402 773 8899 - 003 - 88883233 999",
+    "(0800) 700 400 1234567890 09887765431",
+    "+1 656-778733 - 777 77777 77 778888"
+  )
+  
   ".value" - {
 
     val fieldName = "value"
@@ -45,14 +57,7 @@ class WhatsYourEmailAddressFormProviderSpec
     behave like fieldThatBindsValidData(
       form,
       fieldName,
-      validData
-    )
-
-    behave like fieldWithMaxLength(
-      form,
-      fieldName,
-      maxLength = maxLength,
-      lengthError = FormError(fieldName, lengthKey, Seq(maxLength))
+      Gen.oneOf(valid)
     )
 
     behave like mandatoryField(
@@ -61,15 +66,9 @@ class WhatsYourEmailAddressFormProviderSpec
       requiredError = FormError(fieldName, requiredKey)
     )
 
-    "not allow invalid email addresses" in {
+    "not allow invalid contact number" in {
 
-      val invalids = Seq(
-        "fooexample.com",
-        "@example.com",
-        "foo@example"
-      )
-
-      forAll(Gen.oneOf(invalids)) { invalid =>
+      forAll(Gen.oneOf(invalid)) { invalid =>
         val result = form.bind(Map(fieldName -> invalid)).apply(fieldName)
 
         result.errors.size mustBe 1
@@ -78,5 +77,6 @@ class WhatsYourEmailAddressFormProviderSpec
 
       }
     }
+    
   }
 }

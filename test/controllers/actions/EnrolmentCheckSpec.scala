@@ -26,6 +26,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationRespo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
@@ -49,6 +50,9 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
 
     override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
       = Future.successful(Right(SubscriptionSuccessful))
+
+    override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
+      = Future.successful(Right(EnrolmentSuccessful))
   }
 
   // Expose the protected filter method for testing

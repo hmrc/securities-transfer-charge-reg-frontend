@@ -17,38 +17,43 @@
 package controllers
 
 import base.SpecBase
+import navigation.FakeNavigator
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
+import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourEmailAddressFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourEmailAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourEmailAddressView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
 
-class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
+
+
+class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val formProvider = new WhatsYourEmailAddressFormProvider()
+  val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourEmailAddressRoute: String = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
+  lazy val whatsYourContactNumberRoute: String = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
 
-  "WhatsYourEmailAddress Controller" - {
+  "WhatsYourContactNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, whatsYourEmailAddressRoute)
+        val request = FakeRequest(GET, whatsYourContactNumberRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[WhatsYourEmailAddressView]
+        val view = application.injector.instanceOf[WhatsYourContactNumberView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -57,14 +62,14 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(WhatsYourEmailAddressPage, "answer").success.value
+      val userAnswers = UserAnswers(userAnswersId).set(WhatsYourContactNumberPage, "answer").success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, whatsYourEmailAddressRoute)
+        val request = FakeRequest(GET, whatsYourContactNumberRoute)
 
-        val view = application.injector.instanceOf[WhatsYourEmailAddressView]
+        val view = application.injector.instanceOf[WhatsYourContactNumberView]
 
         val result = route(application, request).value
 
@@ -73,25 +78,44 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
+    "must redirect to the next page when valid data is submitted" in {
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, whatsYourContactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual onwardRoute.url
+      }
+    }
+
     "must return a Bad Request and errors when invalid data is submitted" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-
         val request =
-          FakeRequest(POST, whatsYourEmailAddressRoute)
-            .withFormUrlEncodedBody("value" -> "")
+          FakeRequest(POST, whatsYourContactNumberRoute)
+            .withFormUrlEncodedBody(("value", ""))
+
+        val boundForm = form.bind(Map("value" -> ""))
+
+        val view = application.injector.instanceOf[WhatsYourContactNumberView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-
-        val body = contentAsString(result)
-
-        body must include(messages(application)("whatsYourEmailAddress.error.required"))
-        body must include("""aria-describedby=""")
-        body must include("""govuk-error-summary""")
+        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -100,7 +124,7 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
-        val request = FakeRequest(GET, whatsYourEmailAddressRoute)
+        val request = FakeRequest(GET, whatsYourContactNumberRoute)
 
         val result = route(application, request).value
 
@@ -115,7 +139,7 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, whatsYourEmailAddressRoute)
+          FakeRequest(POST, whatsYourContactNumberRoute)
             .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
