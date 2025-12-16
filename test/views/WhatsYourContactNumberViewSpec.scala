@@ -43,7 +43,7 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
+  "The WhatsYourContactNumberView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
