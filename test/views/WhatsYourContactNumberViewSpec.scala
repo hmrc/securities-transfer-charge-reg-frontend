@@ -37,9 +37,9 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
   object ExpectedIndividual {
     val title = "What’s your contact number?"
+    val pageTitle = "Your details"
     val heading = "What’s your contact number?"
-
-    val hint = "Your details"
+    val hint = "For international numbers, include the country code."
 
   }
 
@@ -49,6 +49,10 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
       "have the correct title" in {
         individualPage.title must include(ExpectedIndividual.title)
+      }
+
+      "display the correct page title content" in {
+        individualPage.hintText mustBe Some(ExpectedIndividual.pageTitle)
       }
 
       "have the correct heading" in {

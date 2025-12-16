@@ -55,6 +55,10 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
         individualPage.title must include(ExpectedIndividual.title)
       }
 
+      "display the correct page title content" in {
+        individualPage.hintText mustBe Some(ExpectedIndividual.pageTitle)
+      }
+
       "have the correct heading" in {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
