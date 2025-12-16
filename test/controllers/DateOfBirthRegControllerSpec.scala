@@ -16,12 +16,7 @@
 
 package controllers
 
-import java.time.{LocalDate, ZoneOffset}
-
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -30,12 +25,16 @@ import play.api.i18n.Messages
 import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
+import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthRegView
 
+import java.time.LocalDate
 import scala.concurrent.Future
 
 class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
@@ -47,33 +46,33 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = LocalDate.now(ZoneOffset.UTC)
+  val validAnswer = LocalDate.of(1990, 1, 1)
 
-  lazy val dateOfBirthRegRoute = routes.DateOfBirthRegController.onPageLoad(NormalMode).url
+  lazy val dateOfBirthRegRoute  = routes.DateOfBirthRegController.onPageLoad(NormalMode).url
+  lazy val dateOfBirthPostRoute = routes.DateOfBirthRegController.onSubmit(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
-    FakeRequest(GET, dateOfBirthRegRoute)
+    FakeRequest(GET, dateOfBirthRegRoute).withSession("sessionId" -> userAnswersId)
 
   def postRequest(): FakeRequest[AnyContentAsFormUrlEncoded] =
-    FakeRequest(POST, dateOfBirthRegRoute)
+    FakeRequest(POST, dateOfBirthPostRoute)
       .withFormUrlEncodedBody(
         "value.day"   -> validAnswer.getDayOfMonth.toString,
         "value.month" -> validAnswer.getMonthValue.toString,
         "value.year"  -> validAnswer.getYear.toString
       )
+      .withSession("sessionId" -> userAnswersId)
 
   "DateOfBirthReg Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val result = route(application, getRequest()).value
-
-        val view = application.injector.instanceOf[DateOfBirthRegView]
+        val view   = application.injector.instanceOf[DateOfBirthRegView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(getRequest(), messages(application)).toString
@@ -81,14 +80,12 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(DateOfBirthRegPage, validAnswer).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val view = application.injector.instanceOf[DateOfBirthRegView]
-
+        val view   = application.injector.instanceOf[DateOfBirthRegView]
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
@@ -96,9 +93,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    pending
     "must redirect to the next page when valid data is submitted" in {
-
       val mockSessionRepository = mock[SessionRepository]
 
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
@@ -120,17 +115,16 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       val request =
-        FakeRequest(POST, dateOfBirthRegRoute)
-          .withFormUrlEncodedBody(("value", "invalid value"))
+        FakeRequest(POST, dateOfBirthPostRoute)
+          .withFormUrlEncodedBody("value" -> "invalid value")
+          .withSession("sessionId" -> userAnswersId)
 
       running(application) {
         val boundForm = form.bind(Map("value" -> "invalid value"))
-
-        val view = application.injector.instanceOf[DateOfBirthRegView]
+        val view      = application.injector.instanceOf[DateOfBirthRegView]
 
         val result = route(application, request).value
 
@@ -140,24 +134,20 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val result = route(application, getRequest()).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val result = route(application, postRequest()).value
-
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }

@@ -32,8 +32,8 @@ import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
@@ -64,6 +64,21 @@ trait SpecBase
   val affinityGroup = AffinityGroup.Individual
   val confidenceLevel = ConfidenceLevel.L250
 
+  val fakeAddress = AlfConfirmedAddress(
+    auditRef = "ref",
+    id = Some("id"),
+    address = AlfAddress(
+      lines = List(
+        "1 Test House",
+        "Test Street",
+        "Test City"
+      ),
+      postcode = "ZZ1 1ZZ",
+      country = Country("GB", "United Kingdom")
+    )
+  )
+
+
   val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
 
   def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent]
@@ -79,7 +94,6 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[SessionRepository].to[FakeSessionRepository],
         bind[StcAuthAction].to[FakeStcAuthAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
       )
