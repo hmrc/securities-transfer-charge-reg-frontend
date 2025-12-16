@@ -78,7 +78,6 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
-        bind[SessionRepository].to[FakeSessionRepository],
         bind[StcAuthAction].to[FakeStcAuthAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
       )

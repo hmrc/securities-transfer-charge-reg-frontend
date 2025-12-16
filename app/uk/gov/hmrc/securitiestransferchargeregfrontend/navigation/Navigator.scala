@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage}
 
 import javax.inject.{Inject, Singleton}
 
@@ -28,7 +28,6 @@ class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case RegForSecuritiesTransferChargePage => _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
-    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
 
     case CheckYourDetailsPage =>
       userAnswers =>
@@ -41,6 +40,12 @@ class Navigator @Inject()() {
           case None =>
             routes.JourneyRecoveryController.onPageLoad()
         }
+
+    case DateOfBirthRegPage =>
+      _ => routes.AddressController.onPageLoad()
+
+    case _: AddressPage[_] =>
+      _ => routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
       
     case _ => _ => routes.IndexController.onPageLoad()
 
