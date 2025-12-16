@@ -59,8 +59,8 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
-      "display the correct hint content" in {
-        individualPage.hintText mustBe Some(ExpectedIndividual.hint)
+      "have the correct hint" in {
+        individualPage.select("#value-hint").text() mustBe ExpectedIndividual.hint
       }
     }
   }
