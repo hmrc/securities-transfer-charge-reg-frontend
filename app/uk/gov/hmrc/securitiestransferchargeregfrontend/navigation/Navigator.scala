@@ -19,8 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, CheckYourDetailsPage, DateOfBirthRegPage, Page, RegForSecuritiesTransferChargePage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 
 import javax.inject.{Inject, Singleton}
 
@@ -28,18 +27,15 @@ import javax.inject.{Inject, Singleton}
 class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
-    case RegForSecuritiesTransferChargePage => _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
+    case RegForSecuritiesTransferChargePage =>
+      _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
 
     case CheckYourDetailsPage =>
       userAnswers =>
         userAnswers.get(CheckYourDetailsPage) match {
           case Some(true)  => routes.DateOfBirthRegController.onPageLoad(NormalMode)
-
-          case Some(false) =>
-            routes.UpdateDetailsKickOutController.onPageLoad()
-
-          case None =>
-            routes.JourneyRecoveryController.onPageLoad()
+          case Some(false) => routes.UpdateDetailsKickOutController.onPageLoad()
+          case None        => routes.JourneyRecoveryController.onPageLoad()
         }
 
     case DateOfBirthRegPage =>
@@ -48,21 +44,20 @@ class Navigator @Inject()() {
     case _: AddressPage[_] =>
       _ => routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
 
+    case WhatsYourEmailAddressPage =>
+      _ => routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
 
-    case WhatsYourEmailAddressPage => _ => routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
-    case DateOfBirthRegPage => _ => routes.IndexController.onPageLoad()
-    case _ => _ => routes.IndexController.onPageLoad()
-
+    case _ =>
+      _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = {
     case _ => _ => routes.CheckYourAnswersController.onPageLoad()
   }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call = mode match {
-    case NormalMode =>
-      normalRoutes(page)(userAnswers)
-    case CheckMode =>
-      checkRouteMap(page)(userAnswers)
-  }
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    mode match {
+      case NormalMode => normalRoutes(page)(userAnswers)
+      case CheckMode  => checkRouteMap(page)(userAnswers)
+    }
 }

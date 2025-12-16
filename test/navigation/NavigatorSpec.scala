@@ -17,10 +17,10 @@
 package navigation
 
 import base.SpecBase
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, Page, RegForSecuritiesTransferChargePage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, Page, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 
 class NavigatorSpec extends SpecBase {
 
@@ -45,6 +45,15 @@ class NavigatorSpec extends SpecBase {
           .set(CheckYourDetailsPage, false).success.value
         navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe routes.UpdateDetailsKickOutController.onPageLoad()
       }
+
+      "must go from the WhatsYourEmailAddressPage to WhatsYourContactNumberPage" in {
+        navigator.nextPage(
+          WhatsYourEmailAddressPage,
+          NormalMode,
+          UserAnswers("id")
+        ) mustBe routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+      }
+
     }
 
     "in Check mode" - {

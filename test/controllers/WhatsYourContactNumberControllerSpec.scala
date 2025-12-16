@@ -17,19 +17,26 @@
 package controllers
 
 import base.SpecBase
-import navigation.FakeNavigator
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourContactNumberPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
+
+import java.time.LocalDate
+import scala.concurrent.Future
 
 
 
@@ -78,12 +85,31 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
+          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
+          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful)))
+
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+        .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
+
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+        .thenReturn(Future.successful(Right(SubscriptionActive)))
+
 
       val application =
-        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute))
+            bind[RegistrationClient].toInstance(fakeRegistrationClient)
           )
           .build()
 
@@ -95,9 +121,10 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual onwardRoute.url
+        redirectLocation(result).value mustEqual routes.RegistrationCompleteController.onPageLoad().url
       }
     }
+
 
     "must return a Bad Request and errors when invalid data is submitted" in {
 

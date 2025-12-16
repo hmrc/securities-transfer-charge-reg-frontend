@@ -22,11 +22,7 @@ import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
@@ -35,25 +31,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRe
 import scala.concurrent.Future
 
 class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
-
   import Fixtures.ec
-  
-  class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
-    override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
-      if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
-
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
-     = Future.successful(Right(RegistrationSuccessful))
-
-    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
-      = Future.successful(Right(SubscriptionSuccessful))
-
-    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
-      = Future.successful(Right(SubscriptionSuccessful))
-
-    override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
-      = Future.successful(Right(EnrolmentSuccessful))
-  }
 
   // Expose the protected filter method for testing
   class Harness(parser: BodyParsers.Default,

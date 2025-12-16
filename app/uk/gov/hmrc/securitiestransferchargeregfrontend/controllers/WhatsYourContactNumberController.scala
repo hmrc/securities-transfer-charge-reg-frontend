@@ -17,29 +17,25 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-
-import javax.inject.Inject
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourContactNumberFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourContactNumberController @Inject()(
                                                   override val messagesApi: MessagesApi,
                                                   sessionRepository: SessionRepository,
-                                                  navigator: Navigator,
                                                   auth: Auth,
                                                   getData: DataRetrievalAction,
                                                   requireData: DataRequiredAction,
@@ -75,7 +71,12 @@ class WhatsYourContactNumberController @Inject()(
             _              <- sessionRepository.set(updatedAnswers)
             subscribed     <- subscribe(updatedAnswers)
             enrolled       <- enrol(request.request.maybeNino)
-          } yield Redirect(navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers))
+          } yield {
+            if (subscribed && enrolled)
+              Redirect(routes.RegistrationCompleteController.onPageLoad())
+            else
+              Redirect(routes.UpdateDobKickOutController.onPageLoad())
+          }
       )
   }
 
@@ -112,13 +113,17 @@ class WhatsYourContactNumberController @Inject()(
       None
     }
   }
-  
-  private val enrol: Option[String] => Future[Boolean] = maybeNino => {
-    maybeNino.map { nino =>
-      registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map(_ == EnrolmentSuccessful)
-    }.getOrElse {
-      Future.failed(RuntimeException("Cannot get user's NINO from auth."))
-    }
+
+  private val enrol: Option[String] => Future[Boolean] = {
+    case Some(nino) =>
+      registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map {
+        case Right(EnrolmentSuccessful) => true
+        case Right(other) => false
+        case Left(err) => false
+      }
+
+    case None =>
+      Future.successful(false)
   }
 
 }
