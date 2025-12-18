@@ -1,7 +1,7 @@
 {
   "version": 2,
   "options": {
-    "continueUrl": "http://localhost:9000/register-securities-transfer-charge/address/return",
+    "continueUrl": "${alf.continue-url}",
     "useNewGovUkServiceNavigation": false
   },
   "labels": {

@@ -53,11 +53,11 @@ class AddressController @Inject()( auth: Auth,
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def onReturn(key: String): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
+  def onReturn(id: String): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
     implicit request =>
       logger.info("Address lookup frontend has returned control to STC service")
       for {
-        address <- alf.alfRetrieveAddress(key)
+        address <- alf.alfRetrieveAddress(id)
         answers <- updateUserAnswers(request)(address)
       } yield {
           Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
