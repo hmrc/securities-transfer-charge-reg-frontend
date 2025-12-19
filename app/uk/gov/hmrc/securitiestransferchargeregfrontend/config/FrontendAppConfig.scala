@@ -20,9 +20,10 @@ import com.google.inject.{Inject, Singleton}
 import play.api.Configuration
 import play.api.i18n.Lang
 import play.api.mvc.RequestHeader
+import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 
 @Singleton
-class FrontendAppConfig @Inject() (configuration: Configuration) {
+class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
 
   val host: String    = configuration.get[String]("host")
   val appName: String = configuration.get[String]("appName")
@@ -47,9 +48,18 @@ class FrontendAppConfig @Inject() (configuration: Configuration) {
   val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
 
-  val alfUrl: String = configuration.get[String]("urls.alf-url")
-  val alfRetrieveUrl: String = configuration.get[String]("urls.alf-retrieve-url")
-  
+  private val addressLookupBaseUrl: String =
+    servicesConfig.baseUrl("address-lookup-frontend")
+
+  val alfInitUrl: String =
+    s"$addressLookupBaseUrl/api/init"
+
+  val alfRetrieveUrl: String =
+    s"$addressLookupBaseUrl/api/confirmed"
+
+  val alfContinueUrl: String =
+    s"$host/register-securities-transfer-charge/address/return"
+
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/securities-transfer-charge-reg-frontend"
 

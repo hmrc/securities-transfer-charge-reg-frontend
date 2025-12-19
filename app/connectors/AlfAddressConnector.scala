@@ -18,7 +18,7 @@ package connectors
 
 import play.api.Logging
 import play.api.http.Status.ACCEPTED
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.*
 import play.api.libs.ws.*
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
@@ -50,14 +50,14 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
   def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = {
     callAlfRetrieve(key).map(retrievalSuccess)
   }
-  
+
   private def callAlfInit(): Future[WSResponse] = {
     ws
-      .url(config.alfUrl)
+      .url(config.alfInitUrl)
       .addHttpHeaders("Content-Type" -> "application/json")
       .post(payload)
   }
-  
+
   private def journeySuccess: ResponseHandler = {
     case resp if resp.status == ACCEPTED =>
       val maybeAddressLookupJourney = resp.header("Location")
@@ -88,11 +88,23 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
     }
   }
 
-  
-  private val payload: JsValue = {
-    val configuration = resourceLoader.loadString("alf.json")
-    Json.parse(configuration)
+
+  private def payload: JsValue = {
+    val raw = resourceLoader.loadString("alf.json")
+    val parsed = Json.parse(raw).as[JsObject]
+    
+    val overrideJson = Json.obj(
+      "options" -> Json.obj(
+        "continueUrl" -> config.alfContinueUrl
+      )
+    )
+
+    val finalPayload = parsed.deepMerge(overrideJson)
+
+    finalPayload
   }
+
+
 }
 
 
