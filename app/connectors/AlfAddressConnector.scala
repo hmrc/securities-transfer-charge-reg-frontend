@@ -18,7 +18,7 @@ package connectors
 
 import play.api.Logging
 import play.api.http.Status.ACCEPTED
-import play.api.libs.json._
+import play.api.libs.json.*
 import play.api.libs.ws.*
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect

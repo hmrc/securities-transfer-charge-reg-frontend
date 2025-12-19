@@ -1,7 +1,7 @@
 {
   "version": 2,
   "options": {
-    "continueUrl": "${alf.continue-url}",
+    "continueUrl": "OVERRIDDEN_AT_RUNTIME",
     "useNewGovUkServiceNavigation": false
   },
   "labels": {
