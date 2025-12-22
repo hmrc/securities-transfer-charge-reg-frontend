@@ -14,13 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals
 
-import play.api.libs.json.JsPath
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
-case object WhatsYourContactNumberPage extends QuestionPage[String] {
+import javax.inject.Inject
 
-  override def path: JsPath = JsPath \ toString
+class CheckYourDetailsFormProvider @Inject() extends Mappings {
 
-  override def toString: String = "whatsYourContactNumber"
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("checkYourDetails.error.required")
+    )
 }

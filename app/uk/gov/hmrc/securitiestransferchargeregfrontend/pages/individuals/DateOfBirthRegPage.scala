@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals
 
-import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.EmailMapping
+import play.api.libs.json.JsPath
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-import javax.inject.Inject
+import java.time.LocalDate
 
-class WhatsYourEmailAddressFormProvider @Inject() extends EmailMapping {
+case object DateOfBirthRegPage extends QuestionPage[LocalDate] {
 
-  def apply(): Form[String] = Form(
-    "value" -> emailMapping(
-      "whatsYourEmailAddress.error.required",
-      "whatsYourEmailAddress.error.length",
-      "whatsYourEmailAddress.error.invalid"
-    )
-  )
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "dateOfBirthReg"
 }

@@ -20,7 +20,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{CheckMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.CheckYourDetailsPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYourDetailsPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.summarylist.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.implicits.*
 

@@ -18,7 +18,7 @@ package forms
 
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 
 class CheckYourDetailsFormProviderSpec extends BooleanFieldBehaviours {
 

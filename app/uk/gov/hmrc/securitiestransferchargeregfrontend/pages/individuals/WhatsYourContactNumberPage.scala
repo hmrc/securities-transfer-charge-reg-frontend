@@ -14,11 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals
 
-import scala.language.implicitConversions
+import play.api.libs.json.JsPath
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-case object RegForSecuritiesTransferChargePage extends Page {
+case object WhatsYourContactNumberPage extends QuestionPage[String] {
 
-  override def toString: String = "regForSecuritiesTransferCharge"
+  override def path: JsPath = JsPath \ toString
+
+  override def toString: String = "whatsYourContactNumber"
 }

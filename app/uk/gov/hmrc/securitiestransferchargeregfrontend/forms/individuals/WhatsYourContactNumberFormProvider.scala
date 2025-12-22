@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals
+
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
 import javax.inject.Inject
-
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-import play.api.data.Form
 
 class WhatsYourContactNumberFormProvider @Inject() extends Mappings {
 
