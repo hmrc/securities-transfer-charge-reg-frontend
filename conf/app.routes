@@ -20,36 +20,36 @@ GET         /account/signed-out                          uk.gov.hmrc.securitiest
 
 GET         /unauthorised                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UnauthorisedController.onPageLoad()
 
-GET        /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onPageLoad()
-POST       /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegForSecuritiesTransferChargeController.onSubmit()
+GET        /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegForSecuritiesTransferChargeController.onPageLoad()
+POST       /register                                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegForSecuritiesTransferChargeController.onSubmit()
 
-GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()
+GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationController.routingLogic()
 
 GET        /address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onPageLoad()
 GET        /address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onReturn(id: String)
 
-GET        /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
-POST       /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)
-GET        /date-of-birth/change                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onPageLoad(mode: Mode = CheckMode)
-POST       /date-of-birth/change                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.DateOfBirthRegController.onSubmit(mode: Mode = CheckMode)
+GET        /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
+POST       /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)
+GET        /date-of-birth/change                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onPageLoad(mode: Mode = CheckMode)
+POST       /date-of-birth/change                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onSubmit(mode: Mode = CheckMode)
 
-GET        /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onPageLoad(mode: Mode = NormalMode)
-POST       /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = NormalMode)
-GET        /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onPageLoad(mode: Mode = CheckMode)
-POST       /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.CheckYourDetailsController.onSubmit(mode: Mode = CheckMode)
+GET        /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.CheckYourDetailsController.onPageLoad(mode: Mode = NormalMode)
+POST       /check-your-details                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.CheckYourDetailsController.onSubmit(mode: Mode = NormalMode)
+GET        /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.CheckYourDetailsController.onPageLoad(mode: Mode = CheckMode)
+POST       /check-your-details/change                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.CheckYourDetailsController.onSubmit(mode: Mode = CheckMode)
 
-GET        /update-your-details                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDetailsKickOutController.onPageLoad()
+GET        /update-your-details                          uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.UpdateDetailsKickOutController.onPageLoad()
 
-GET        /update-your-dob                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.UpdateDobKickOutController.onPageLoad()
+GET        /update-your-dob                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.UpdateDobKickOutController.onPageLoad()
 
-GET        /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourEmailAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourEmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourEmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourEmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourEmailAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /registration-complete                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationCompleteController.onPageLoad()
+GET        /registration-complete                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationCompleteController.onPageLoad()
 
-GET        /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
