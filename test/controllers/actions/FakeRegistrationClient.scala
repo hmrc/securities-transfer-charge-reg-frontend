@@ -17,10 +17,11 @@
 package controllers.actions
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationSuccessful, RegistrationFailed}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.services.SubscriptionClientError
 
 import scala.concurrent.Future
 
@@ -28,7 +29,7 @@ import scala.concurrent.Future
     override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
       if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
 
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResponse]
     = Future.successful(Right(RegistrationSuccessful))
 
     override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]

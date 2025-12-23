@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
+import uk.gov.hmrc.securitiestransferchargeregfrontend.services.RegistrationServiceError
+
 enum SubscriptionResponse:
   case SubscriptionSuccessful
   case SubscriptionFailed

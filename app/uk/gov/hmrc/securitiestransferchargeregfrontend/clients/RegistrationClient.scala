@@ -16,25 +16,48 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-import play.api.Logging
+import play.api.http.Status.OK
+import play.api.libs.json.Json
+import play.api.libs.ws.JsonBodyWritables.*
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 import javax.inject.Inject
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 trait RegistrationClient:
   def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult]
-  def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
+  def register(individualRegistrationDetails: IndividualRegistrationDetails)(implicit hc: HeaderCarrier): Future[RegistrationResponse]
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
   def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
 
-class RegistrationClientImpl @Inject() extends RegistrationClient with Logging {
+class RegistrationClientImpl @Inject()(
+                                        http: HttpClientV2,
+                                        config: FrontendAppConfig
+                                      )(implicit ec: ExecutionContext)
+  extends RegistrationClient {
+
   override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] = Future.successful(Right(SubscriptionActive))
-  override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] = Future.successful(Right(RegistrationSuccessful))
+
+  override def register(
+                         details: IndividualRegistrationDetails
+                       )(implicit hc: HeaderCarrier): Future[RegistrationResponse] =
+    http
+      .post(url"${config.registerIndividualBackendUrl}")
+      .withBody(Json.toJson(details))
+      .execute[HttpResponse]
+      .map {
+        case res if res.status == OK =>
+          RegistrationSuccessful
+        case _ =>
+          RegistrationFailed
+      }
+
   override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
   override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful))
   override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult] = Future.successful(Right(EnrolmentSuccessful))

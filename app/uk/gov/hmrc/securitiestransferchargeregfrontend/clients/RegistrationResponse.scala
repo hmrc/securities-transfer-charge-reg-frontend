@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-enum RegistrationResponse:
-  case RegistrationSuccessful
-  case RegistrationFailed
-  
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+sealed trait RegistrationResponse
+
+case object RegistrationSuccessful extends RegistrationResponse
+case object RegistrationFailed extends RegistrationResponse
+
+

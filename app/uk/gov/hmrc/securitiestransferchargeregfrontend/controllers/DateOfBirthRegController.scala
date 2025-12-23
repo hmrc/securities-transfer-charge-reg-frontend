@@ -19,9 +19,10 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualRegistrationDetails, RegistrationClient}
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.IndividualRegistrationDetails
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.DataRequest
@@ -30,6 +31,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthRegView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.services.RegistrationService
+
 
 import java.time.LocalDate
 import javax.inject.Inject
@@ -46,11 +49,16 @@ class DateOfBirthRegController @Inject()(
                                         formProvider: DateOfBirthRegFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: DateOfBirthRegView,
-                                        registrationClient: RegistrationClient
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                        registrationService: RegistrationService
+                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
     implicit request =>
+      implicit val hc: HeaderCarrier =
+        HeaderCarrierConverter.fromRequestAndSession(
+          request,
+          request.session
+        )
       val form = formProvider()
 
       val preparedForm =
@@ -63,6 +71,7 @@ class DateOfBirthRegController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData).async {
     implicit request =>
+
       val form = formProvider()
 
       form.bindFromRequest().fold(
@@ -100,9 +109,10 @@ class DateOfBirthRegController @Inject()(
     }
   }
 
-  private def registerUser(details: IndividualRegistrationDetails): Future[Boolean] = {
-    registrationClient.register(details).map {
-      _ == Right(RegistrationSuccessful)
+  private def registerUser(details: IndividualRegistrationDetails)
+                          (implicit hc: HeaderCarrier): Future[Boolean] =
+    registrationService.registerIndividual(details).map {
+      case Right(_) => true
+      case Left(_) => false
     }
-  }
   }
