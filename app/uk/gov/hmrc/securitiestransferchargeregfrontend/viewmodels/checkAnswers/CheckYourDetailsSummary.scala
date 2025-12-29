@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.checkAnswers
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import play.api.i18n.Messages
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{CheckMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYourDetailsPage
@@ -36,7 +36,7 @@ object CheckYourDetailsSummary  {
           key     = "checkYourDetails.checkYourAnswersLabel",
           value   = ValueViewModel(value),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.CheckYourDetailsController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", individualRoutes.CheckYourDetailsController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("checkYourDetails.change.hidden"))
           )
         )

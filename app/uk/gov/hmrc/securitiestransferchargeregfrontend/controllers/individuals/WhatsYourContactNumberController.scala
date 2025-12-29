@@ -24,6 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
@@ -75,9 +76,9 @@ class WhatsYourContactNumberController @Inject()(
             enrolled       <- enrol(request.request.maybeNino)
           } yield {
             if (subscribed && enrolled)
-              Redirect(routes.RegistrationCompleteController.onPageLoad())
+              Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
             else
-              Redirect(routes.UpdateDobKickOutController.onPageLoad())
+              Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
           }
       )
   }
