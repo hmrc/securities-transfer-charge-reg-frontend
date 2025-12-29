@@ -14,12 +14,13 @@
  * limitations under the License.
  */
 
-package views
+package views.individuals
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
+import views.ViewBaseSpec
 
 class UpdateDetailsKickOutViewSpec extends ViewBaseSpec {
 

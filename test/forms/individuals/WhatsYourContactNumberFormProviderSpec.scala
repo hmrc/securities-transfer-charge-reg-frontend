@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individuals
 
 import forms.behaviours.StringFieldBehaviours
 import org.scalacheck.Gen

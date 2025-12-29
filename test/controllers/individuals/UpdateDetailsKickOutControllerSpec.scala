@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
+import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
 
 class UpdateDetailsKickOutControllerSpec extends SpecBase {
 

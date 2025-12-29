@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.Fixtures.FakeStcAuthAction
 import base.SpecBase
@@ -25,8 +25,8 @@ import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.auth.core.retrieve.ItmpName
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 

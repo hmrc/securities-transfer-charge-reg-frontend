@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import play.api.test.FakeRequest
-import play.api.test.Helpers._
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
+import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegistrationCompleteView
 
-class RegForSecuritiesTransferChargeControllerSpec extends SpecBase {
+class RegistrationCompleteControllerSpec extends SpecBase {
 
-  "RegForSecuritiesTransferCharge Controller" - {
+  "RegistrationComplete Controller" - {
 
     "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.RegForSecuritiesTransferChargeController.onPageLoad().url)
+        val request = FakeRequest(GET, routes.RegistrationCompleteController.onPageLoad().url)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[RegForSecuritiesTransferChargeView]
+        val view = application.injector.instanceOf[RegistrationCompleteView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view()(request, messages(application)).toString

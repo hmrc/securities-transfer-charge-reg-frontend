@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import org.mockito.ArgumentMatchers.any
@@ -32,8 +32,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolm
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
 
 import java.time.LocalDate

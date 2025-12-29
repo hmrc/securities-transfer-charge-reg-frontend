@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views
+package views.individuals
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -22,6 +22,7 @@ import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourDetailsView
+import views.ViewBaseSpec
 
 class CheckYourDetailsViewSpec extends ViewBaseSpec {
 

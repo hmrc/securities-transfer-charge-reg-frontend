@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package forms
+package forms.individuals
 
 import base.SpecBase
 import forms.behaviours.StringFieldBehaviours

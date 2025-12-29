@@ -14,34 +14,41 @@
  * limitations under the License.
  */
 
-package views
+package views.individuals
 
+import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
-import base.SpecBase
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{CheckYourDetailsView, DateOfBirthRegView}
+import views.ViewBaseSpec
 
-class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
+import java.time.LocalDate
+
+class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
-  
-  private val viewInstance         = app.injector.instanceOf[RegForSecuritiesTransferChargeView]
+
+  private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
+  private val formProvider = new DateOfBirthRegFormProvider()
+  private val form = formProvider()
 
   def view(): Document = Jsoup.parse(
-    viewInstance()(fakeRequest, messages).body
+    viewInstance(form, NormalMode)(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {
-    val title = "Register to tell us about a securities transfer"
-    val heading = "Register to tell us about a securities transfer"
-    val continue = "Continue"
+    val title = "What’s your date of birth?"
+    val pageTitle = "Your details"
+    val heading = "What’s your date of birth?"
+    val hint = "For example, 27 3 2007."
 
-    val para1Value = "Before using this service you will need to register and confirm or provide some personal details."
-    val para2Value = "You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account."
+    val continue = "Continue"
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
+  "The DateOfBirthRegView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
@@ -49,14 +56,16 @@ class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
         individualPage.title must include(ExpectedIndividual.title)
       }
 
+      "display the correct page title content" in {
+        individualPage.hintText mustBe Some(ExpectedIndividual.pageTitle)
+      }
+
       "have the correct heading" in {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
-      "display the correct paragraph content" in {
-
-        individualPage.para(1) mustBe Some(ExpectedIndividual.para1Value)
-        individualPage.para(2) mustBe Some(ExpectedIndividual.para2Value)
+      "have the correct hint" in {
+        individualPage.select("#value-hint").text() mustBe ExpectedIndividual.hint
       }
 
       "have a continue button with the correct text" in {

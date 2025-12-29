@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import navigation.FakeNavigator

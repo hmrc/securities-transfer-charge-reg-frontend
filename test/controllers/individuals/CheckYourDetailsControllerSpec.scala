@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYourDetailsPage
@@ -31,7 +31,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new CheckYourDetailsFormProvider()
   private val form = formProvider()
 
-  lazy val checkYourDetailsRoute =
+  lazy val checkYourDetailsRoute: String =
     routes.CheckYourDetailsController.onPageLoad(NormalMode).url
 
   "CheckYourDetailsController" - {
