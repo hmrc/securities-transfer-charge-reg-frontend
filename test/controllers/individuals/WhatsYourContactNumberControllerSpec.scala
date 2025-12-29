@@ -30,6 +30,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionRespo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
@@ -48,7 +49,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourContactNumberRoute: String = routes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
+  lazy val whatsYourContactNumberRoute: String = individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
 
   "WhatsYourContactNumber Controller" - {
 
@@ -122,7 +123,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
-        redirectLocation(result).value mustEqual routes.RegistrationCompleteController.onPageLoad().url
+        redirectLocation(result).value mustEqual individualRoutes.RegistrationCompleteController.onPageLoad().url
       }
     }
 

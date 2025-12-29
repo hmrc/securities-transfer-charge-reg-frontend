@@ -26,6 +26,7 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
@@ -46,10 +47,10 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  val validAnswer = LocalDate.of(1990, 1, 1)
+  val validAnswer: LocalDate = LocalDate.of(1990, 1, 1)
 
-  lazy val dateOfBirthRegRoute  = routes.DateOfBirthRegController.onPageLoad(NormalMode).url
-  lazy val dateOfBirthPostRoute = routes.DateOfBirthRegController.onSubmit(NormalMode).url
+  lazy val dateOfBirthRegRoute: String = individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode).url
+  lazy val dateOfBirthPostRoute: String = individualRoutes.DateOfBirthRegController.onSubmit(NormalMode).url
 
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 

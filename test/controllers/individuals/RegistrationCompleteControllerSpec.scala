@@ -19,7 +19,7 @@ package controllers.individuals
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegistrationCompleteView
 
 class RegistrationCompleteControllerSpec extends SpecBase {

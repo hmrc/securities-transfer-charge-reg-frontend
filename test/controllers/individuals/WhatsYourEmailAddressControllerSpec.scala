@@ -23,6 +23,7 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourEmailAddressPage
@@ -35,7 +36,7 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourEmailAddressFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourEmailAddressRoute: String = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
+  lazy val whatsYourEmailAddressRoute: String = individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
 
   "WhatsYourEmailAddress Controller" - {
 
