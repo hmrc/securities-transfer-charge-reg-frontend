@@ -1,3 +1,6 @@
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+
+
 @this(
     layout: templates.Layout,
     formHelper: FormWithCSRF,
@@ -6,7 +9,6 @@
     govukButton: GovukButton
 )
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("$className;format="decap"$.title"))) {
