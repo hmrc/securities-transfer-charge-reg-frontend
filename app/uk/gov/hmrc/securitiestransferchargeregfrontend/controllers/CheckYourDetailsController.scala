@@ -36,7 +36,7 @@ class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             sessionRepository: SessionRepository,
                                             navigator: Navigator,
-                                            stcValidIndividualAction: StcValidIndividualAction,
+                                            auth: StcValidIndividualAction,
                                             getData: ValidIndividualDataRetrievalAction,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
@@ -47,7 +47,7 @@ class CheckYourDetailsController @Inject()(
   private val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (stcValidIndividualAction andThen getData) { implicit request =>
+    (auth andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
@@ -58,7 +58,7 @@ class CheckYourDetailsController @Inject()(
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = {
-    (stcValidIndividualAction andThen getData).async { implicit request =>
+    (auth andThen getData).async { implicit request =>
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>

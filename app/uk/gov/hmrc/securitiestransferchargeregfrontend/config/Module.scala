@@ -38,7 +38,10 @@ class Module extends AbstractModule {
 
     bind(classOf[StcAuthAction]).to(classOf[AuthenticatedStcAction])
     bind(classOf[StcValidIndividualAction]).to(classOf[StcValidIndividualActionImpl])
-    
+    bind(classOf[ValidIndividualDataRequiredAction]).to(classOf[ValidIndividualDataRequiredActionImpl])
+    bind(classOf[ValidIndividualDataRequiredAction]).to(classOf[ValidIndividualDataRequiredActionImpl])
+
+
     bind(classOf[RegistrationClient]).to(classOf[RegistrationClientImpl]).asEagerSingleton()
 
     bind(classOf[SessionRepository]).to(classOf[SessionRepositoryImpl])

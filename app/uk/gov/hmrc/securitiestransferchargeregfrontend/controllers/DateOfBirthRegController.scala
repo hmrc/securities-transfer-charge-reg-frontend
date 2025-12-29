@@ -72,7 +72,7 @@ class DateOfBirthRegController @Inject()(
         value =>
           val innerRequest = request.request
           for {
-            updated <- updateUserAnswers(value)
+            updated    <- updateUserAnswers(value)
             registered <- registerUser(IndividualRegistrationDetails(innerRequest.firstName, None, innerRequest.lastName, value.toString, innerRequest.nino))
           } yield {
             if (registered) {

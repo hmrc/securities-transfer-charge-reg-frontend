@@ -17,17 +17,16 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.data.Form
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourEmailAddressView
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.WhatsYourEmailAddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourEmailAddressView
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -36,9 +35,9 @@ class WhatsYourEmailAddressController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
-                                        auth: Auth,
-                                        getData: DataRetrievalAction,
-                                        requireData: DataRequiredAction,
+                                        auth: StcValidIndividualAction,
+                                        getData: ValidIndividualDataRetrievalAction,
+                                        requireData: ValidIndividualDataRequiredAction,
                                         formProvider: WhatsYourEmailAddressFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: WhatsYourEmailAddressView
@@ -47,7 +46,7 @@ class WhatsYourEmailAddressController @Inject()(
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) { implicit request =>
+    (auth andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(WhatsYourEmailAddressPage) match {
         case None => form
         case Some(value) => form.fill(value)
@@ -56,7 +55,7 @@ class WhatsYourEmailAddressController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

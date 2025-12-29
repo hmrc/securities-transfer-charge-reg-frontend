@@ -36,9 +36,9 @@ import scala.concurrent.{ExecutionContext, Future}
 class WhatsYourContactNumberController @Inject()(
                                                   override val messagesApi: MessagesApi,
                                                   sessionRepository: SessionRepository,
-                                                  auth: Auth,
-                                                  getData: DataRetrievalAction,
-                                                  requireData: DataRequiredAction,
+                                                  auth: StcValidIndividualAction,
+                                                  getData: ValidIndividualDataRetrievalAction,
+                                                  requireData: ValidIndividualDataRequiredAction,
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   registrationClient: RegistrationClient,
@@ -47,7 +47,7 @@ class WhatsYourContactNumberController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
@@ -58,7 +58,7 @@ class WhatsYourContactNumberController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
@@ -70,12 +70,13 @@ class WhatsYourContactNumberController @Inject()(
             updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
             _              <- sessionRepository.set(updatedAnswers)
             subscribed     <- subscribe(updatedAnswers)
-            enrolled       <- enrol(request.request.maybeNino)
+            enrolled       <- enrol(request.request.nino)
           } yield {
-            if (subscribed && enrolled)
+            if (subscribed && enrolled) {
               Redirect(routes.RegistrationCompleteController.onPageLoad())
-            else
+            } else {
               Redirect(routes.UpdateDobKickOutController.onPageLoad())
+            }
           }
       )
   }
@@ -114,16 +115,12 @@ class WhatsYourContactNumberController @Inject()(
     }
   }
 
-  private val enrol: Option[String] => Future[Boolean] = {
-    case Some(nino) =>
-      registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map {
-        case Right(EnrolmentSuccessful) => true
-        case Right(other) => false
-        case Left(err) => false
-      }
-
-    case None =>
-      Future.successful(false)
+  private val enrol: String => Future[Boolean] = nino => {
+    registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map {
+      case Right(EnrolmentSuccessful) => true
+      case Right(_) => false
+      case Left(_) => false
+    }
   }
 
 }
