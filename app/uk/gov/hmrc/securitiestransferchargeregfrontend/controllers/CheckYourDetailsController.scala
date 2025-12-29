@@ -19,9 +19,8 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
@@ -37,56 +36,44 @@ class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             sessionRepository: SessionRepository,
                                             navigator: Navigator,
-                                            auth: Auth,
-                                            getData: DataRetrievalAction,
+                                            stcValidIndividualAction: StcValidIndividualAction,
+                                            getData: ValidIndividualDataRetrievalAction,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
-                                            view: CheckYourDetailsView,
-                                            config: FrontendAppConfig
+                                            view: CheckYourDetailsView
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with Logging {
 
   private val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (auth.authorisedIndividualAndNotEnrolled andThen getData) { implicit request =>
+    (stcValidIndividualAction andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
 
-      extractData(request.request)
-        .map {
-          case (fn, ln, nino) => Ok(view(preparedForm, fn, ln, nino, mode))
-        }.getOrElse(noAuthDetails)
-      }
-    
+      val innerRequest = request.request
+      Ok(view(preparedForm, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))
+    }
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = {
-    (auth.authorisedIndividualAndNotEnrolled andThen getData).async { implicit request =>
+    (stcValidIndividualAction andThen getData).async { implicit request =>
+      val innerRequest = request.request
+      form.bindFromRequest().fold(
+        formWithErrors =>
+          Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))),
+        value => {
+          val updatedAnswers =
+            request.userAnswers
+              .getOrElse(UserAnswers(request.request.userId))
+              .set(CheckYourDetailsPage, value)
+              .get
 
-      extractData(request.request).map { case (fn, ln, nino) =>
-        form.bindFromRequest().fold(
-          formWithErrors =>
-            Future.successful(BadRequest(view(formWithErrors, fn, ln, nino, mode))),
-          value => {
-            val updatedAnswers =
-              request.userAnswers
-                .getOrElse(UserAnswers(request.userId))
-                .set(CheckYourDetailsPage, value)
-                .get
-
-            sessionRepository.set(updatedAnswers).map { _ =>
-              Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
-            }
-          })
-      }.getOrElse(Future.successful(noAuthDetails))
+          sessionRepository.set(updatedAnswers).map { _ =>
+            Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
+          }
+        })
     }
   }
-  
-  private def noAuthDetails: Result = {
-    logger.warn("CheckYourDetailsController onPageLoad: missing user details in auth request")
-    Redirect(config.ivUpliftUrl)
-  }
-  
 }

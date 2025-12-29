@@ -16,25 +16,42 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, OptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 import play.api.mvc.Results.Redirect
 import play.api.mvc.{ActionRefiner, Result}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+
+val hasUserAnswers: Option[UserAnswers] => Either[Result, UserAnswers] =
+  case Some(data) => Right(data)
+  case None       => Left(Redirect(routes.JourneyRecoveryController.onPageLoad()))
+
+trait DataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]
 
 class DataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends DataRequiredAction {
 
   override protected def refine[A](request: OptionalDataRequest[A]): Future[Either[Result, DataRequest[A]]] = {
 
-    request.userAnswers match {
-      case None =>
-        Future.successful(Left(Redirect(routes.JourneyRecoveryController.onPageLoad())))
-      case Some(data) =>
-        Future.successful(Right(DataRequest(request.request, request.userId, data)))
+    hasUserAnswers(request.userAnswers) match {
+      case Right(answers) => Future.successful(Right(DataRequest(request.request, request.userId, answers)))
+      case Left(redirect) => Future.successful(Left(redirect))
     }
   }
 }
 
-trait DataRequiredAction extends ActionRefiner[OptionalDataRequest, DataRequest]
+trait ValidIndividualDataRequiredAction extends ActionRefiner[ValidIndividualOptionalDataRequest, ValidIndividualDataRequest]
+
+class ValidIndividualDataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends ValidIndividualDataRequiredAction {
+
+  override protected def refine[A](request: ValidIndividualOptionalDataRequest[A]): Future[Either[Result, ValidIndividualDataRequest[A]]] = {
+
+    hasUserAnswers(request.userAnswers) match {
+      case Right(answers) => Future.successful(Right(ValidIndividualDataRequest(request.request, answers)))
+      case Left(redirect) => Future.successful(Left(redirect))
+    }
+  }
+}
+

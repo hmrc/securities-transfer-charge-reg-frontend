@@ -63,7 +63,7 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
           case Right(authRequest) => block(authRequest)
           case Left(futureResult) => futureResult
         }
-        
+
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
