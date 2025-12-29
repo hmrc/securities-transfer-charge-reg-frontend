@@ -35,7 +35,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourContactNumberView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import java.time.LocalDate
 import scala.concurrent.Future

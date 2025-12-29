@@ -20,7 +20,7 @@ import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDobKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.UpdateDobKickOutView
 import views.ViewBaseSpec
 
 class UpdateDobKickOutViewSpec extends ViewBaseSpec {

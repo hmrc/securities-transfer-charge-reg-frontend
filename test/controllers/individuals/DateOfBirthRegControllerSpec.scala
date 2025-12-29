@@ -33,7 +33,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserA
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.DateOfBirthRegView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
 import scala.concurrent.Future

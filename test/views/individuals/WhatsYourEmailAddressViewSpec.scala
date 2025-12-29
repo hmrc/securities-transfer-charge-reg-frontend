@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.{UpdateDetailsKickOutView, WhatsYourEmailAddressView}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.{UpdateDetailsKickOutView, WhatsYourEmailAddressView}
 import views.ViewBaseSpec
 
 class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {

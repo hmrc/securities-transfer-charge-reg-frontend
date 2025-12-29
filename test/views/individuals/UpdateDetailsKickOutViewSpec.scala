@@ -19,7 +19,7 @@ package views.individuals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.UpdateDetailsKickOutView
 import views.ViewBaseSpec
 
 class UpdateDetailsKickOutViewSpec extends ViewBaseSpec {

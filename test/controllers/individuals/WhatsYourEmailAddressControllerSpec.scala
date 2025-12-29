@@ -27,7 +27,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourEmailAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.WhatsYourEmailAddressView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourEmailAddressView
 
 class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
 

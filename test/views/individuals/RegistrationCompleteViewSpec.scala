@@ -19,7 +19,7 @@ package views.individuals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegistrationCompleteView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.RegistrationCompleteView
 import views.ViewBaseSpec
 
 class RegistrationCompleteViewSpec extends ViewBaseSpec {

@@ -20,7 +20,7 @@ import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.UpdateDetailsKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.UpdateDetailsKickOutView
 
 class UpdateDetailsKickOutControllerSpec extends SpecBase {
 

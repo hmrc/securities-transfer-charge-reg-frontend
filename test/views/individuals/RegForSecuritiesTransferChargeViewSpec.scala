@@ -20,7 +20,7 @@ import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.RegForSecuritiesTransferChargeView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.RegForSecuritiesTransferChargeView
 import views.ViewBaseSpec
 
 class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {

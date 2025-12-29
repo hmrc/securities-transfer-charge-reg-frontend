@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYourDetailsPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourDetailsView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.CheckYourDetailsView
 
 class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
