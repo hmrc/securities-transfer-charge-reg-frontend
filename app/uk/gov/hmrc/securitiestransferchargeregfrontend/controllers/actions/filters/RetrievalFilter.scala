@@ -17,13 +17,50 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters
 
 import play.api.mvc.Result
-import uk.gov.hmrc.auth.core.AffinityGroup
+import uk.gov.hmrc.auth.core.retrieve.ItmpName
+import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.http.UnauthorizedException
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 
+import javax.inject.Inject
 import scala.concurrent.Future
 
 type RetrievalFilterResult[A] = Either[Future[Result], A]
 type RetrievalFilterFunction[A, B] = A => RetrievalFilterResult[B]
+
+class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
+                                 redirects: Redirects) {
+
+  import redirects.*
+
+  val enrolledForSTC: Enrolments => Boolean = es => {
+    val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
+    stcEnrolment.exists(_.isActivated)
+  }
+
+  val enrolledFilter: RetrievalFilterFunction[Enrolments, Unit] = enrolments =>
+    if (enrolledForSTC(enrolments)) Left(redirects.redirectToServiceF)
+    else Right(())
+
+  val isIndividualFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] =
+    case Some(AffinityGroup.Individual) => Right(())
+    case Some(_) => Left(redirectToRegisterF)
+    case None => Left(Future.failed(new UnauthorizedException("Retrieval Error: No AffinityGroup found in request")))
+
+  val confidenceLevelFilter: RetrievalFilterFunction[ConfidenceLevel, Unit] = confidenceLevel =>
+    if (confidenceLevel >= ConfidenceLevel.L250) Right(())
+    else Left(redirectToIVUpliftF)
+
+  val ninoPresentFilter: RetrievalFilterFunction[Option[String], String] =
+    case Some(nino) => Right(nino)
+    case None => Left(redirectToIVUpliftF)
+
+  val namePresentFilter: RetrievalFilterFunction[Option[ItmpName], (String, String)] =
+    case Some(ItmpName(Some(fn), _, Some(ln))) => Right((fn, ln))
+    case _                                     => Left(redirectToRegisterF)
+
+}
 
 object RetrievalFilter {
 
@@ -36,5 +73,7 @@ object RetrievalFilter {
     maybeAffinityGroup
       .map(Right.apply)
       .getOrElse(Left(Future.failed(new UnauthorizedException("Retrieval Error: No AffinityGroup found in request"))))
+  
+
 }
 

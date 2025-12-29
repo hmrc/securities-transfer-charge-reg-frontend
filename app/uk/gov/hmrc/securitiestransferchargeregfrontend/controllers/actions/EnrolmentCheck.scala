@@ -49,7 +49,7 @@ class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
 
   import redirects.*
 
-  private[controllers] val enrolledForSTC: Enrolments => Boolean = es => {
+  val enrolledForSTC: Enrolments => Boolean = es => {
     val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
     stcEnrolment.exists(_.isActivated)
   }
