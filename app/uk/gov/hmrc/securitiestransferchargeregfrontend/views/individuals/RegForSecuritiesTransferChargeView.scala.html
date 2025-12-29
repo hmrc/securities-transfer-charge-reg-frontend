@@ -14,7 +14,7 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
 @this(
@@ -27,7 +27,7 @@
 
 @layout(pageTitle = titleNoForm(messages("regForSecuritiesTransferCharge.title"))) {
 
-    @formHelper(action = RegForSecuritiesTransferChargeController.onSubmit()) {
+    @formHelper(action = routes.RegForSecuritiesTransferChargeController.onSubmit()) {
         <h1 class="govuk-heading-l">@messages("regForSecuritiesTransferCharge.heading")</h1>
         <p class="govuk-body">@messages("regForSecuritiesTransferCharge.p1")</p>
         <p class="govuk-body">@messages("regForSecuritiesTransferCharge.p2")</p>
