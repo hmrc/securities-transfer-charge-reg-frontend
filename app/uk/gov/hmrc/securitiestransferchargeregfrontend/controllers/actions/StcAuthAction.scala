@@ -26,6 +26,7 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedF
 import uk.gov.hmrc.http.{HeaderCarrier, UnauthorizedException}
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter.{affinityGroupPresentFilter, internalIdPresentFilter}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
@@ -46,9 +47,18 @@ class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnecto
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
-      case Some(internalId) ~ enrolments ~ Some(affinityGroup) ~ confidenceLevel ~ nino ~ itmpName =>
-        block(StcAuthRequest(request, internalId, enrolments, affinityGroup, confidenceLevel, nino, itmpName))
-      case _ => Future.failed(UnauthorizedException("Unable to retrieve internalId or affinityGroup from auth"))
+      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ nino ~ itmpName =>
+
+        val maybeRequest = for {
+          internalId    <- internalIdPresentFilter(maybeInternalId)
+          affinityGroup <- affinityGroupPresentFilter(maybeAffinityGroup)
+        } yield StcAuthRequest(request, internalId, enrolments, affinityGroup, confidenceLevel, nino, itmpName)
+
+        maybeRequest match {
+          case Right(authRequest) => block(authRequest)
+          case Left(futureResult) => futureResult
+        }
+
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))

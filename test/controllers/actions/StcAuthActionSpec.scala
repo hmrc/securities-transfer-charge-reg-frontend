@@ -166,7 +166,7 @@ class StcAuthActionSpec extends SpecBase {
        }
 
        whenReady(thrown) { ex =>
-         ex.getMessage must include("Unable to retrieve internalId or affinityGroup from auth")
+         ex.getMessage must include("Retrieval Error:")
        }
      }
    }
