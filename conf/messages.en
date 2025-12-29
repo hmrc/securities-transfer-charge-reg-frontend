@@ -110,3 +110,8 @@ registrationComplete.heading = Registration complete
 registrationComplete.p1 = Now you can use the online service to
 registrationComplete.p1.link = tell us about a securities transfer.
 
+ukOrNot.title = Does your company operate in the UK?
+ukOrNot.heading = Does your company operate in the UK?
+ukOrNot.checkYourAnswersLabel = Does your company operate in the UK?
+ukOrNot.error.required = Select yes if your company operates in the UK
+ukOrNot.change.hidden = Does your company operate in the UK?
