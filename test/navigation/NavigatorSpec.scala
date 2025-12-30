@@ -17,10 +17,12 @@
 package navigation
 
 import base.SpecBase
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{CheckYourDetailsPage, Page, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
 class NavigatorSpec extends SpecBase {
 
@@ -37,13 +39,13 @@ class NavigatorSpec extends SpecBase {
       }
       
       "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
-        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe routes.CheckYourDetailsController.onPageLoad(NormalMode)
+        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
       }
 
       "must go from the CheckYourDetailsPage to UpdateDetailsKickOutPage when user answers No" in {
         val answers = emptyUserAnswers
           .set(CheckYourDetailsPage, false).success.value
-        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe routes.UpdateDetailsKickOutController.onPageLoad()
+        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe individualRoutes.UpdateDetailsKickOutController.onPageLoad()
       }
 
       "must go from the WhatsYourEmailAddressPage to WhatsYourContactNumberPage" in {
@@ -51,7 +53,7 @@ class NavigatorSpec extends SpecBase {
           WhatsYourEmailAddressPage,
           NormalMode,
           UserAnswers("id")
-        ) mustBe routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+        ) mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
       }
 
     }

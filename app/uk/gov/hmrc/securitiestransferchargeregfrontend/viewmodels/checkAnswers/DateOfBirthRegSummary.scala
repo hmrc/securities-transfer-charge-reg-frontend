@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.checkAnswers
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import play.api.i18n.{Lang, Messages}
 import uk.gov.hmrc.govukfrontend.views.viewmodels.summarylist.SummaryListRow
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{CheckMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.DateOfBirthRegPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dateTimeFormat
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.summarylist.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.implicits.*
@@ -37,7 +37,7 @@ object DateOfBirthRegSummary  {
           key     = "dateOfBirthReg.checkYourAnswersLabel",
           value   = ValueViewModel(answer.format(dateTimeFormat())),
           actions = Seq(
-            ActionItemViewModel("site.change", routes.DateOfBirthRegController.onPageLoad(CheckMode).url)
+            ActionItemViewModel("site.change", individualRoutes.DateOfBirthRegController.onPageLoad(CheckMode).url)
               .withVisuallyHiddenText(messages("dateOfBirthReg.change.hidden"))
           )
         )
