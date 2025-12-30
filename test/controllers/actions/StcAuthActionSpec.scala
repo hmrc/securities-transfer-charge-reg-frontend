@@ -23,7 +23,7 @@ import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.*
-import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
+import uk.gov.hmrc.auth.core.retrieve.~
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedStcAction
@@ -38,23 +38,12 @@ class StcAuthActionSpec extends SpecBase {
 
   def buildRetrieval(internalId: String,
                      enrolments: Enrolments,
-                     affinityGroup: AffinityGroup,
-                     confidenceLevel: ConfidenceLevel,
-                     nino: Option[String],
-                     itmpName: Option[ItmpName]) =
+                     affinityGroup: AffinityGroup): Some[String] ~ Enrolments ~ Some[AffinityGroup] = {
     new ~(
-      new ~(
-        new ~(
-          new ~(
-            new ~(Some(internalId), enrolments),
-            Some(affinityGroup)
-          ),
-          confidenceLevel
-        ),
-        nino
-      ),
-      itmpName
+      new ~(Some(internalId), enrolments),
+      Some(affinityGroup)
     )
+  }
 
   "AuthenticatedStcAction" - {
 
@@ -68,10 +57,7 @@ class StcAuthActionSpec extends SpecBase {
         val retrievalValue = buildRetrieval(
           "internal-1",
           Enrolments(Set()),
-          AffinityGroup.Individual,
-          ConfidenceLevel.L250,
-          Some("AA123456A"),
-          Some(ItmpName(Some("First"), None, Some("Last")))
+          AffinityGroup.Individual
         )
 
         val authConnector = new FakeAuthConnectorSuccess(retrievalValue)
@@ -92,8 +78,6 @@ class StcAuthActionSpec extends SpecBase {
         stc.userId mustBe "internal-1"
         stc.enrolments mustBe Enrolments(Set())
         stc.affinityGroup mustBe AffinityGroup.Individual
-        stc.confidenceLevel mustBe ConfidenceLevel.L250
-        stc.maybeNino mustBe Some("AA123456A")
       }
     }
 
@@ -141,19 +125,11 @@ class StcAuthActionSpec extends SpecBase {
        val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
        // Build a retrieval tuple with None for internalId and/or affinityGroup
-       val retrievalMissingInternal = new ~(
+       val retrievalMissingInternal =
          new ~(
-           new ~(
-             new ~(
-               new ~(None: Option[String], Enrolments(Set())),
-               Some(AffinityGroup.Individual)
-             ),
-             ConfidenceLevel.L250
-           ),
-           Some("AA123456A")
-         ),
-         Some(ItmpName(Some("First"), None, Some("Last")))
-       )
+           new ~(None: Option[String], Enrolments(Set())),
+           Some(AffinityGroup.Individual)
+         )
 
        val authConnector = new FakeAuthConnectorSuccess(retrievalMissingInternal)
 

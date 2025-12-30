@@ -40,19 +40,19 @@ class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnecto
                                       ( implicit val executionContext: ExecutionContext)
                                         extends StcAuthAction with AuthorisedFunctions with Logging {
 
-  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName
+  private[actions] val retrievals = internalId and allEnrolments and affinityGroup
 
   // Enrich the request with auth details or redirect to login/unauthorised
   override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
-      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ nino ~ itmpName =>
+      case maybeInternalId ~ enrolments ~ maybeAffinityGroup =>
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
           affinityGroup <- affinityGroupPresentFilter(maybeAffinityGroup)
-        } yield StcAuthRequest(request, internalId, enrolments, affinityGroup, confidenceLevel, nino, itmpName)
+        } yield StcAuthRequest(request, internalId, enrolments, affinityGroup)
 
         maybeRequest match {
           case Right(authRequest) => block(authRequest)

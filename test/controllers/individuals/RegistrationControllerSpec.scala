@@ -23,7 +23,6 @@ import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation}
-import uk.gov.hmrc.auth.core.ConfidenceLevel
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationController
@@ -45,10 +44,7 @@ class RegistrationControllerSpec extends SpecBase {
         request,
         "user-123",
         uk.gov.hmrc.auth.core.Enrolments(Set()),
-        Organisation,
-        ConfidenceLevel.L50,
-        None,
-        None
+        Organisation
       )
 
       val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
@@ -77,10 +73,7 @@ class RegistrationControllerSpec extends SpecBase {
         request,
         "user-123",
         uk.gov.hmrc.auth.core.Enrolments(Set()),
-        Agent,
-        ConfidenceLevel.L50,
-        None,
-        None
+        Agent
       )
 
       val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))

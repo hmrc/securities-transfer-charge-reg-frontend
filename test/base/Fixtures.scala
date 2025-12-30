@@ -60,19 +60,13 @@ object Fixtures {
                              request: Request[A],
                              userId: String = user,
                              enrolmentsOverride: Enrolments = emptyEnrolments,
-                             affinityGroupOverride: AffinityGroup = affinityGroupIndividual,
-                             confidenceLevelOverride: ConfidenceLevel = confidenceLevel250,
-                             maybeNinoOverride: Option[String] = someValidNino,
-                             maybeNameOverride: Option[ItmpName] = someValidName
+                             affinityGroupOverride: AffinityGroup = affinityGroupIndividual
   ): StcAuthRequest[A] =
     StcAuthRequest[A](
       request,
       userId,
       enrolmentsOverride,
-      affinityGroupOverride,
-      confidenceLevelOverride,
-      maybeNinoOverride,
-      maybeNameOverride
+      affinityGroupOverride
     )
 
   def fakeStcValidIndividualAuthRequest[A](
@@ -120,10 +114,7 @@ object Fixtures {
         request,
         fixedRequest.userId,
         fixedRequest.enrolments,
-        fixedRequest.affinityGroup,
-        fixedRequest.confidenceLevel,
-        fixedRequest.maybeNino,
-        fixedRequest.maybeName
+        fixedRequest.affinityGroup
       )
       block(adapted)
     }
