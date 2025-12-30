@@ -23,9 +23,8 @@ import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
 import scala.concurrent.ExecutionContext

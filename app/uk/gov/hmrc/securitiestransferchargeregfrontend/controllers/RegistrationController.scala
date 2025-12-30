@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
+package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
 import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
@@ -25,6 +25,7 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
