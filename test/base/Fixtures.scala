@@ -26,7 +26,7 @@ import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enr
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -37,8 +37,12 @@ object Fixtures {
   val enrolments = Enrolments(Set())
   val affinityGroup: AffinityGroup.Individual.type = AffinityGroup.Individual
   val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
-  val maybeNino = Some("AA123456A")
-  val maybeName = Some(ItmpName(Some("First"), Some("Middle"), Some("Last")))
+  val nino = "AA123456A"
+  val maybeNino = Some(nino)
+  val firstName = "First"
+  val lastName = "Last"
+
+  val maybeName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues
   val fakeIdentifierRequest = IdentifierRequest[AnyContent](FakeRequest(), user)
@@ -68,6 +72,20 @@ object Fixtures {
       maybeNameOverride
     )
 
+  def fakeStcValidIndividualAuthRequest[A](
+                             request: Request[A],
+                             userId: String = user,
+                             ninoOverride: String = nino,
+                             firstNameOverride: String = firstName,
+                             lastNameOverride: String = lastName
+                           ): StcValidIndividualRequest[A] =
+    StcValidIndividualRequest[A](
+      request,
+      userId,
+      ninoOverride,
+      firstNameOverride,
+      lastNameOverride
+    )
 
   // simple stub AuthConnector that returns a preconfigured value for any retrieval
   class FakeAuthConnector[T](value: T) extends AuthConnector {
