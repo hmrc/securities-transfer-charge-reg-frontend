@@ -14,20 +14,16 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
+import play.api.libs.json.JsPath
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-class WithNameSpec extends AnyFreeSpec with Matchers {
+import java.time.LocalDate
 
-  object Foo extends WithName("bar")
+case object DateOfBirthRegPage extends QuestionPage[LocalDate] {
 
-  ".toString" - {
+  override def path: JsPath = JsPath \ toString
 
-    "must return the correct string" in {
-      Foo.toString mustEqual "bar"
-    }
-  }
+  override def toString: String = "dateOfBirthReg"
 }

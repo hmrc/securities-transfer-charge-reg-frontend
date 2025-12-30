@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.EmailMapping
 
-class WithNameSpec extends AnyFreeSpec with Matchers {
+import javax.inject.Inject
 
-  object Foo extends WithName("bar")
+class WhatsYourEmailAddressFormProvider @Inject() extends EmailMapping {
 
-  ".toString" - {
-
-    "must return the correct string" in {
-      Foo.toString mustEqual "bar"
-    }
-  }
+  def apply(): Form[String] = Form(
+    "value" -> emailMapping(
+      "whatsYourEmailAddress.error.required",
+      "whatsYourEmailAddress.error.length",
+      "whatsYourEmailAddress.error.invalid"
+    )
+  )
 }

@@ -1,4 +1,4 @@
-/*
+@*
  * Copyright 2025 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -12,22 +12,26 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package models
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
 
-class WithNameSpec extends AnyFreeSpec with Matchers {
+@()(implicit request: Request[_], messages: Messages)
 
-  object Foo extends WithName("bar")
+@layout(pageTitle = titleNoForm(messages("updateDobKickOut.title"))) {
 
-  ".toString" - {
-
-    "must return the correct string" in {
-      Foo.toString mustEqual "bar"
-    }
-  }
+    <h1 class="govuk-heading-xl">@messages("updateDobKickOut.heading")</h1>
+    <p class="govuk-body">@messages("updateDobKickOut.p1")</p>
 }
+
+
+
+
+
+
+

@@ -17,9 +17,11 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
 import play.api.mvc.Call
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 
 import javax.inject.{Inject, Singleton}
 
@@ -28,13 +30,13 @@ class Navigator @Inject()() {
 
   private val normalRoutes: Page => UserAnswers => Call = {
     case RegForSecuritiesTransferChargePage =>
-      _ => routes.CheckYourDetailsController.onPageLoad(NormalMode)
+      _ => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
 
     case CheckYourDetailsPage =>
       userAnswers =>
         userAnswers.get(CheckYourDetailsPage) match {
-          case Some(true)  => routes.DateOfBirthRegController.onPageLoad(NormalMode)
-          case Some(false) => routes.UpdateDetailsKickOutController.onPageLoad()
+          case Some(true)  => individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
+          case Some(false) => individualRoutes.UpdateDetailsKickOutController.onPageLoad()
           case None        => routes.JourneyRecoveryController.onPageLoad()
         }
 
@@ -42,10 +44,10 @@ class Navigator @Inject()() {
       _ => routes.AddressController.onPageLoad()
 
     case _: AddressPage[_] =>
-      _ => routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+      _ => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
 
     case WhatsYourEmailAddressPage =>
-      _ => routes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+      _ => individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
 
     case _ =>
       _ => routes.IndexController.onPageLoad()

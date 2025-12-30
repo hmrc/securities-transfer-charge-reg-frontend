@@ -14,20 +14,13 @@
  * limitations under the License.
  */
 
-package models
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals
 
-import org.scalatest.freespec.AnyFreeSpec
-import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
-class WithNameSpec extends AnyFreeSpec with Matchers {
+import scala.language.implicitConversions
 
-  object Foo extends WithName("bar")
+case object RegForSecuritiesTransferChargePage extends Page {
 
-  ".toString" - {
-
-    "must return the correct string" in {
-      Foo.toString mustEqual "bar"
-    }
-  }
+  override def toString: String = "regForSecuritiesTransferCharge"
 }
