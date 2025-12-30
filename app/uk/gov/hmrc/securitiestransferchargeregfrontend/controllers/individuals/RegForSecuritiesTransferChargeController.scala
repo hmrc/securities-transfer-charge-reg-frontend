@@ -27,19 +27,18 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Re
 
 import javax.inject.Inject
 
-class RegForSecuritiesTransferChargeController @Inject()(
-                                                         auth: StcValidIndividualAction,
+class RegForSecuritiesTransferChargeController @Inject()(auth: Auth,
                                                          navigator: Navigator,
                                                          val controllerComponents: MessagesControllerComponents,
                                                          view: RegForSecuritiesTransferChargeView
                                                        ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = auth {
+  def onPageLoad: Action[AnyContent] = auth.validIndividual {
     implicit request =>
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = auth {
+  def onSubmit(): Action[AnyContent] = auth.validIndividual {
     implicit request =>
       Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
   }

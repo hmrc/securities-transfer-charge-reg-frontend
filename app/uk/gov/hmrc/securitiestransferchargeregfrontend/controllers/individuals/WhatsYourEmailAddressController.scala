@@ -35,7 +35,7 @@ class WhatsYourEmailAddressController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
-                                        auth: StcValidIndividualAction,
+                                        auth: Auth,
                                         getData: ValidIndividualDataRetrievalAction,
                                         requireData: ValidIndividualDataRequiredAction,
                                         formProvider: WhatsYourEmailAddressFormProvider,
@@ -46,7 +46,7 @@ class WhatsYourEmailAddressController @Inject()(
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (auth andThen getData andThen requireData) { implicit request =>
+    (auth.validIndividual andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(WhatsYourEmailAddressPage) match {
         case None => form
         case Some(value) => form.fill(value)
@@ -55,7 +55,7 @@ class WhatsYourEmailAddressController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

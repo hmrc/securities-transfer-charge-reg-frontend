@@ -39,7 +39,7 @@ class DateOfBirthRegController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
-                                        validIndividualAction: StcValidIndividualAction,
+                                        auth: Auth,
                                         getData: ValidIndividualDataRetrievalAction,
                                         requireData: ValidIndividualDataRequiredAction,
                                         formProvider: DateOfBirthRegFormProvider,
@@ -48,7 +48,7 @@ class DateOfBirthRegController @Inject()(
                                         registrationClient: RegistrationClient
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividualAction andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
     implicit request =>
       val form = formProvider()
 
@@ -60,7 +60,7 @@ class DateOfBirthRegController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validIndividualAction andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData).async {
     implicit request =>
       val form = formProvider()
 

@@ -26,14 +26,14 @@ import javax.inject.Inject
 
 class RegistrationCompleteController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       auth: StcValidIndividualAction,
+                                       auth: Auth,
                                        getData: ValidIndividualDataRetrievalAction,
                                        requireData: ValidIndividualDataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: RegistrationCompleteView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (auth andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
     implicit request =>
       Ok(view())
   }

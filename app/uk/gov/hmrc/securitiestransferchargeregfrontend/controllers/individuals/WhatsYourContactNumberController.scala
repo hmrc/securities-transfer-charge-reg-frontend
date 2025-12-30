@@ -35,10 +35,9 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Wh
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatsYourContactNumberController @Inject()(
-                                                  override val messagesApi: MessagesApi,
+class WhatsYourContactNumberController @Inject()( override val messagesApi: MessagesApi,
                                                   sessionRepository: SessionRepository,
-                                                  auth: StcValidIndividualAction,
+                                                  auth: Auth,
                                                   getData: ValidIndividualDataRetrievalAction,
                                                   requireData: ValidIndividualDataRequiredAction,
                                                   formProvider: WhatsYourContactNumberFormProvider,
@@ -49,7 +48,7 @@ class WhatsYourContactNumberController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
@@ -60,7 +59,7 @@ class WhatsYourContactNumberController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
