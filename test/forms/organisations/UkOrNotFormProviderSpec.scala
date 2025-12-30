@@ -2,7 +2,6 @@ package forms.organisations
 
 import forms.behaviours.BooleanFieldBehaviours
 import play.api.data.FormError
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrNotFormProvider
 
 class UkOrNotFormProviderSpec extends BooleanFieldBehaviours {
 
