@@ -47,7 +47,8 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
   override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(retrievals) {
+    authorised()
+      .retrieve(retrievals) {
       case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName =>
 
         val maybeRequest = for {

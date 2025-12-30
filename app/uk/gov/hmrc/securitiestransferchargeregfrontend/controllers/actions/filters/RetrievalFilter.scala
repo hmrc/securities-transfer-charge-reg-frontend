@@ -29,6 +29,8 @@ import scala.concurrent.Future
 type RetrievalFilterResult[A] = Either[Future[Result], A]
 type RetrievalFilterFunction[A, B] = A => RetrievalFilterResult[B]
 
+val retrievalError: String => UnauthorizedException = msg => new UnauthorizedException(s"Retrieval Error: $msg")
+
 class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
                                  redirects: Redirects) {
 
@@ -46,7 +48,7 @@ class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
   val isIndividualFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] =
     case Some(AffinityGroup.Individual) => Right(())
     case Some(_) => Left(redirectToRegisterF)
-    case None => Left(Future.failed(new UnauthorizedException("Retrieval Error: No AffinityGroup found in request")))
+    case None => Left(Future.failed(retrievalError("No AffinityGroup found in request")))
 
   val confidenceLevelFilter: RetrievalFilterFunction[ConfidenceLevel, Unit] = confidenceLevel =>
     if (confidenceLevel >= ConfidenceLevel.L250) Right(())
@@ -58,7 +60,7 @@ class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
 
   val namePresentFilter: RetrievalFilterFunction[Option[ItmpName], (String, String)] =
     case Some(ItmpName(Some(fn), _, Some(ln))) => Right((fn, ln))
-    case _                                     => Left(redirectToRegisterF)
+    case _                                     => Left(Future.failed(retrievalError("No name found in request")))
 
 }
 
@@ -67,12 +69,12 @@ object RetrievalFilter {
   val internalIdPresentFilter: RetrievalFilterFunction[Option[String], String] = maybeInternalId =>
      maybeInternalId
        .map(Right.apply)
-       .getOrElse(Left(Future.failed(new UnauthorizedException("Retrieval Error: No internalId found in request"))))
+       .getOrElse(Left(Future.failed(retrievalError("No internalId found in request"))))
 
   val affinityGroupPresentFilter: RetrievalFilterFunction[Option[AffinityGroup], AffinityGroup] = maybeAffinityGroup =>
     maybeAffinityGroup
       .map(Right.apply)
-      .getOrElse(Left(Future.failed(new UnauthorizedException("Retrieval Error: No AffinityGroup found in request"))))
+      .getOrElse(Left(Future.failed(retrievalError("No AffinityGroup found in request"))))
   
 
 }

@@ -22,7 +22,7 @@ import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
 import uk.gov.hmrc.auth.core.authorise.*
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
@@ -34,15 +34,18 @@ object Fixtures {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val user = "user-123"
-  val enrolments = Enrolments(Set())
-  val affinityGroup: AffinityGroup.Individual.type = AffinityGroup.Individual
-  val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
+  val emptyEnrolments = Enrolments(Set())
+  val stcEnrolmentKey = "HMRC-STC-ORG"
+  val stcEnrolment = Enrolment(stcEnrolmentKey, Seq(), "Activated")
+  val alreadyEnrolled: Enrolments = Enrolments(Set(stcEnrolment))
+  val affinityGroupIndividual: AffinityGroup.Individual.type = AffinityGroup.Individual
+  val confidenceLevel250: ConfidenceLevel = ConfidenceLevel.L250
   val nino = "AA123456A"
-  val maybeNino = Some(nino)
+  val someValidNino = Some(nino)
   val firstName = "First"
   val lastName = "Last"
 
-  val maybeName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
+  val someValidName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues
   val fakeIdentifierRequest = IdentifierRequest[AnyContent](FakeRequest(), user)
@@ -54,13 +57,13 @@ object Fixtures {
    * but you can pass a different Request[A] to change the body type or headers.
    */
   def fakeStcAuthRequest[A](
-    request: Request[A],
-    userId: String = user,
-    enrolmentsOverride: Enrolments = enrolments,
-    affinityGroupOverride: AffinityGroup = affinityGroup,
-    confidenceLevelOverride: ConfidenceLevel = confidenceLevel,
-    maybeNinoOverride: Option[String] = maybeNino,
-    maybeNameOverride: Option[ItmpName] = maybeName
+                             request: Request[A],
+                             userId: String = user,
+                             enrolmentsOverride: Enrolments = emptyEnrolments,
+                             affinityGroupOverride: AffinityGroup = affinityGroupIndividual,
+                             confidenceLevelOverride: ConfidenceLevel = confidenceLevel250,
+                             maybeNinoOverride: Option[String] = someValidNino,
+                             maybeNameOverride: Option[ItmpName] = someValidName
   ): StcAuthRequest[A] =
     StcAuthRequest[A](
       request,
