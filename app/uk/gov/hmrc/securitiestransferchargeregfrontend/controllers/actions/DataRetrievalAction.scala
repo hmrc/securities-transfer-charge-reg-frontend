@@ -30,27 +30,20 @@ val getUserAnswers: SessionRepository => String => Future[Option[UserAnswers]] =
 trait DataRetrievalAction extends ActionTransformer[StcAuthRequest, OptionalDataRequest]
 
 class DataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
-                                       (implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
+                                       (implicit val executionContext: ExecutionContext) extends DataRetrievalAction:
 
-  override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = {
-    
+  override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] =
     getUserAnswers(sessionRepository)(request.userId).map { answers =>
       OptionalDataRequest(request, request.userId, userAnswers = answers)
     }
-  }
-}
 
 trait ValidIndividualDataRetrievalAction extends ActionTransformer[StcValidIndividualRequest, ValidIndividualOptionalDataRequest]
 
 class ValidIndividualDataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
-                                       (implicit val executionContext: ExecutionContext) extends ValidIndividualDataRetrievalAction {
+                                       (implicit val executionContext: ExecutionContext) extends ValidIndividualDataRetrievalAction:
 
-  override protected def transform[A](request: StcValidIndividualRequest[A]): Future[ValidIndividualOptionalDataRequest[A]] = {
-
+  override protected def transform[A](request: StcValidIndividualRequest[A]): Future[ValidIndividualOptionalDataRequest[A]] =
     getUserAnswers(sessionRepository)(request.userId).map { answers =>
       ValidIndividualOptionalDataRequest(request, answers)
     }
-  }
-}
-
 
