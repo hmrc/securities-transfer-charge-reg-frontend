@@ -117,7 +117,7 @@ trait Constraints {
         Invalid(errorKey)
     }
 
-  protected def minimumCurrency(minimum: BigDecimal, errorKey: String)(implicit ev: Ordering[BigDecimal]): Constraint[BigDecimal] =
+  protected def minimumCurrency(minimum: BigDecimal, errorKey: String): Constraint[BigDecimal] =
     Constraint {
       input =>
         if (input >= minimum) {
@@ -136,7 +136,7 @@ trait Constraints {
           .headOption.getOrElse(Valid)
     }
 
-  protected def maximumCurrency(maximum: BigDecimal, errorKey: String)(implicit ev: Ordering[BigDecimal]): Constraint[BigDecimal] =
+  protected def maximumCurrency(maximum: BigDecimal, errorKey: String): Constraint[BigDecimal] =
     Constraint {
       input =>
         if (input <= maximum) {
