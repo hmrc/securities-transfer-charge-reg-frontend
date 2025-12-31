@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest, StcValidIndividualRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
@@ -44,6 +44,16 @@ class FakeStcAuthAction @Inject()(bodyParsers: PlayBodyParsers) extends StcAuthA
   override def parser: BodyParser[AnyContent] = bodyParsers.default
 
   override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = block(Fixtures.fakeStcAuthRequest(request))
+
+  override protected def executionContext: ExecutionContext = ExecutionContext.global
+}
+
+class PassThroughValidIndividualAction @Inject()(bodyParsers: PlayBodyParsers) extends StcValidIndividualAction {
+
+  override def parser: BodyParser[AnyContent] = bodyParsers.default
+
+  override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result]
+    = block(Fixtures.fakeStcValidIndividualAuthRequest(request))
 
   override protected def executionContext: ExecutionContext = ExecutionContext.global
 }
@@ -94,7 +104,9 @@ trait SpecBase
         bind[DataRequiredAction].to[DataRequiredActionImpl],
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
+        bind[ValidIndividualDataRetrievalAction].toInstance(new FakeValidIndividualDataRetrievalAction(userAnswers)),
         bind[StcAuthAction].to[FakeStcAuthAction],
+        bind[StcValidIndividualAction].to[PassThroughValidIndividualAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
       )
 
@@ -115,6 +127,7 @@ trait SpecBase
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[StcAuthAction].to[FakeStcAuthAction],
+        bind[StcValidIndividualAction].to[PassThroughValidIndividualAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
 
       )

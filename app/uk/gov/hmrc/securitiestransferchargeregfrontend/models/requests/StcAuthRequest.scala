@@ -17,16 +17,12 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
-import uk.gov.hmrc.auth.core.retrieve.ItmpName
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
 
 case class StcAuthRequest[A] (request: Request[A],
                               userId: String,
                               enrolments: Enrolments,
-                              affinityGroup: AffinityGroup,
-                              confidenceLevel: ConfidenceLevel,
-                              maybeNino: Option[String],
-                              maybeName: Option[ItmpName]
+                              affinityGroup: AffinityGroup
                              ) extends WrappedRequest[A](request)
 
 object StcAuthRequest:

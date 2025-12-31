@@ -21,8 +21,8 @@ import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, DataRetrievalAction}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.OptionalDataRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, ValidIndividualDataRetrievalAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualOptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
@@ -35,7 +35,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class AddressController @Inject()( auth: Auth,
                                    navigator: Navigator,
                                    val controllerComponents: MessagesControllerComponents,
-                                   getData: DataRetrievalAction,
+                                   getData: ValidIndividualDataRetrievalAction,
                                    alf: AlfAddressConnector,
                                    sessionRepository: SessionRepository
                                  ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
@@ -44,7 +44,7 @@ class AddressController @Inject()( auth: Auth,
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def onPageLoad: Action[AnyContent] = auth.authorisedIndividualAndNotEnrolled.async {
+  def onPageLoad: Action[AnyContent] = auth.validIndividual.async {
     implicit request =>
       alf.initAlfJourneyRequest()
   }
@@ -53,7 +53,7 @@ class AddressController @Inject()( auth: Auth,
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def onReturn(id: String): Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData).async {
+  def onReturn(id: String): Action[AnyContent] = (auth.validIndividual andThen getData).async {
     implicit request =>
       logger.info("Address lookup frontend has returned control to STC service")
       for {
@@ -66,11 +66,11 @@ class AddressController @Inject()( auth: Auth,
 
   private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
-  private def updateUserAnswers[A](implicit request: OptionalDataRequest[A]): AddressHandler = {
+  private def updateUserAnswers[A](implicit request: ValidIndividualOptionalDataRequest[A]): AddressHandler = {
     address =>
       logger.info("ALF returned address successfully")
       val updatedAnswers = request.userAnswers
-        .getOrElse(UserAnswers(request.userId))
+        .getOrElse(UserAnswers(request.request.userId))
         .set(AddressPage[AlfConfirmedAddress](), address)
         .get
 

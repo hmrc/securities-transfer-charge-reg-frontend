@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package securitiestransferchargeregfrontend.models
+package models
 
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
-import uk.gov.hmrc.securitiestransferchargeregfrontend
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.WithName
 
 class WithNameSpec extends AnyFreeSpec with Matchers {

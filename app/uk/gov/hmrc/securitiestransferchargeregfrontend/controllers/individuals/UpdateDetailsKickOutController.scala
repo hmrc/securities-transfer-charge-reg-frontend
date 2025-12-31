@@ -27,13 +27,13 @@ import javax.inject.Inject
 class UpdateDetailsKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        auth: Auth,
-                                       getData: DataRetrievalAction,
-                                       requireData: DataRequiredAction,
+                                       getData: ValidIndividualDataRetrievalAction,
+                                       requireData: ValidIndividualDataRequiredAction,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: UpdateDetailsKickOutView
                                      ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (auth.authorisedIndividualAndNotEnrolled andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
     implicit request =>
       Ok(view())
   }

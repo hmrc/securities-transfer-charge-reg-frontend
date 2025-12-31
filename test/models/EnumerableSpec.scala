@@ -16,12 +16,10 @@
 
 package securitiestransferchargeregfrontend.models
 
-import org.scalatest.{EitherValues, OptionValues}
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
+import org.scalatest.{EitherValues, OptionValues}
 import play.api.libs.json.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Enumerable
 
 object EnumerableSpec {
@@ -41,7 +39,7 @@ object EnumerableSpec {
 
 class EnumerableSpec extends AnyFreeSpec with Matchers with EitherValues with OptionValues with Enumerable.Implicits {
 
-  import EnumerableSpec._
+  import EnumerableSpec.*
 
   ".reads" - {
 

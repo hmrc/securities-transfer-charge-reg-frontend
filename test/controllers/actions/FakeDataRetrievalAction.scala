@@ -16,9 +16,9 @@
 
 package controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.DataRetrievalAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRetrievalAction, ValidIndividualDataRetrievalAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest, StcValidIndividualRequest, ValidIndividualOptionalDataRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -36,6 +36,22 @@ class FakeDataRetrievalAction(
         userAnswers = dataToReturn
       )
     )
+
+  override protected implicit val executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
+}
+
+class FakeValidIndividualDataRetrievalAction(
+                               dataToReturn: Option[UserAnswers]
+                             ) extends ValidIndividualDataRetrievalAction {
+
+  override protected def transform[A](
+                                       request: StcValidIndividualRequest[A]
+                                     ): Future[ValidIndividualOptionalDataRequest[A]] =
+    Future.successful(
+      ValidIndividualOptionalDataRequest(request, dataToReturn)
+    )
+    
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
