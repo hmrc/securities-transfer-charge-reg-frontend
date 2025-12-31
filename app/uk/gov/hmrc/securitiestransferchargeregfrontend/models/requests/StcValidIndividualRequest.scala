@@ -14,19 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import play.api.mvc.{Request, WrappedRequest}
 
-package object controllers {
+case class StcValidIndividualRequest[A] (request: Request[A],
+                                         userId: String,
+                                         nino: String,
+                                         firstName: String,
+                                         lastName: String) extends WrappedRequest[A](request)
 
-  private[controllers] def extractData[A](request: StcAuthRequest[A]): Option[(String, String, String)] = {
-    for {
-      firstName <- request.maybeName.flatMap(_.givenName)
-      lastName <- request.maybeName.flatMap(_.familyName)
-      nino <- request.maybeNino
-    } yield {
-      (firstName, lastName, nino)
-    }
-  }
-}

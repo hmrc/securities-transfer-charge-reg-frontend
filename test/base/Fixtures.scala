@@ -22,11 +22,11 @@ import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
 import uk.gov.hmrc.auth.core.authorise.*
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolment, Enrolments}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -34,11 +34,18 @@ object Fixtures {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val user = "user-123"
-  val enrolments = Enrolments(Set())
-  val affinityGroup: AffinityGroup.Individual.type = AffinityGroup.Individual
-  val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
-  val maybeNino = Some("AA123456A")
-  val maybeName = Some(ItmpName(Some("First"), Some("Middle"), Some("Last")))
+  val emptyEnrolments = Enrolments(Set())
+  val stcEnrolmentKey = "HMRC-STC-ORG"
+  val stcEnrolment = Enrolment(stcEnrolmentKey, Seq(), "Activated")
+  val alreadyEnrolled: Enrolments = Enrolments(Set(stcEnrolment))
+  val affinityGroupIndividual: AffinityGroup.Individual.type = AffinityGroup.Individual
+  val confidenceLevel250: ConfidenceLevel = ConfidenceLevel.L250
+  val nino = "AA123456A"
+  val someValidNino = Some(nino)
+  val firstName = "First"
+  val lastName = "Last"
+
+  val someValidName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues
   val fakeIdentifierRequest = IdentifierRequest[AnyContent](FakeRequest(), user)
@@ -50,24 +57,32 @@ object Fixtures {
    * but you can pass a different Request[A] to change the body type or headers.
    */
   def fakeStcAuthRequest[A](
-    request: Request[A],
-    userId: String = user,
-    enrolmentsOverride: Enrolments = enrolments,
-    affinityGroupOverride: AffinityGroup = affinityGroup,
-    confidenceLevelOverride: ConfidenceLevel = confidenceLevel,
-    maybeNinoOverride: Option[String] = maybeNino,
-    maybeNameOverride: Option[ItmpName] = maybeName
+                             request: Request[A],
+                             userId: String = user,
+                             enrolmentsOverride: Enrolments = emptyEnrolments,
+                             affinityGroupOverride: AffinityGroup = affinityGroupIndividual
   ): StcAuthRequest[A] =
     StcAuthRequest[A](
       request,
       userId,
       enrolmentsOverride,
-      affinityGroupOverride,
-      confidenceLevelOverride,
-      maybeNinoOverride,
-      maybeNameOverride
+      affinityGroupOverride
     )
 
+  def fakeStcValidIndividualAuthRequest[A](
+                             request: Request[A],
+                             userId: String = user,
+                             ninoOverride: String = nino,
+                             firstNameOverride: String = firstName,
+                             lastNameOverride: String = lastName
+                           ): StcValidIndividualRequest[A] =
+    StcValidIndividualRequest[A](
+      request,
+      userId,
+      ninoOverride,
+      firstNameOverride,
+      lastNameOverride
+    )
 
   // simple stub AuthConnector that returns a preconfigured value for any retrieval
   class FakeAuthConnector[T](value: T) extends AuthConnector {
@@ -99,10 +114,7 @@ object Fixtures {
         request,
         fixedRequest.userId,
         fixedRequest.enrolments,
-        fixedRequest.affinityGroup,
-        fixedRequest.confidenceLevel,
-        fixedRequest.maybeNino,
-        fixedRequest.maybeName
+        fixedRequest.affinityGroup
       )
       block(adapted)
     }

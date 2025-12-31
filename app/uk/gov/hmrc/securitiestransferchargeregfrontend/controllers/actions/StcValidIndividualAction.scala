@@ -17,7 +17,6 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
-import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
@@ -26,33 +25,40 @@ import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedF
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter.{affinityGroupPresentFilter, internalIdPresentFilter}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcValidIndividualRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait StcAuthAction extends ActionBuilder[StcAuthRequest, AnyContent]
+trait StcValidIndividualAction extends ActionBuilder[StcValidIndividualRequest, AnyContent]
 
-class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnector,
-                                        config: FrontendAppConfig,
-                                        val parser: BodyParsers.Default )
-                                      ( implicit val executionContext: ExecutionContext)
-                                        extends StcAuthAction with AuthorisedFunctions with Logging {
+class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthConnector,
+                                              config: FrontendAppConfig,
+                                              retrievalFilter: RetrievalFilter,
+                                              val parser: BodyParsers.Default )
+                                            ( implicit val executionContext: ExecutionContext)
+  extends StcValidIndividualAction with AuthorisedFunctions {
 
-  private[actions] val retrievals = internalId and allEnrolments and affinityGroup
+  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName
 
   // Enrich the request with auth details or redirect to login/unauthorised
-  override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] = {
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(retrievals) {
-      case maybeInternalId ~ enrolments ~ maybeAffinityGroup =>
+    authorised()
+      .retrieve(retrievals) {
+      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName =>
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
-          affinityGroup <- affinityGroupPresentFilter(maybeAffinityGroup)
-        } yield StcAuthRequest(request, internalId, enrolments, affinityGroup)
+          _             <- retrievalFilter.enrolledFilter(enrolments)
+          _             <- retrievalFilter.isIndividualFilter(maybeAffinityGroup)
+          _             <- retrievalFilter.confidenceLevelFilter(confidenceLevel)
+          nino          <- retrievalFilter.ninoPresentFilter(maybeNino)
+          ns            <- retrievalFilter.namePresentFilter(maybeName)
+        } yield StcValidIndividualRequest(request, internalId, nino, ns._1, ns._2)
 
         maybeRequest match {
           case Right(authRequest) => block(authRequest)

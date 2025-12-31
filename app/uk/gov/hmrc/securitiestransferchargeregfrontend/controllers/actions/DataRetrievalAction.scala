@@ -17,26 +17,33 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import play.api.mvc.ActionTransformer
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class DataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
-                                       (implicit val executionContext: ExecutionContext) extends DataRetrievalAction {
-
-  override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] = {
-    
-    sessionRepository.get(request.userId).map { answers =>
-      OptionalDataRequest(
-        request = request,
-        userId = request.userId,
-        userAnswers = answers
-      )
-    }
-  }
-}
+val getUserAnswers: SessionRepository => String => Future[Option[UserAnswers]] =
+  sessionRepository => userId => sessionRepository.get(userId)
 
 trait DataRetrievalAction extends ActionTransformer[StcAuthRequest, OptionalDataRequest]
+
+class DataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
+                                       (implicit val executionContext: ExecutionContext) extends DataRetrievalAction:
+
+  override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] =
+    getUserAnswers(sessionRepository)(request.userId).map { answers =>
+      OptionalDataRequest(request, request.userId, userAnswers = answers)
+    }
+
+trait ValidIndividualDataRetrievalAction extends ActionTransformer[StcValidIndividualRequest, ValidIndividualOptionalDataRequest]
+
+class ValidIndividualDataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
+                                       (implicit val executionContext: ExecutionContext) extends ValidIndividualDataRetrievalAction:
+
+  override protected def transform[A](request: StcValidIndividualRequest[A]): Future[ValidIndividualOptionalDataRequest[A]] =
+    getUserAnswers(sessionRepository)(request.userId).map { answers =>
+      ValidIndividualOptionalDataRequest(request, answers)
+    }
 
