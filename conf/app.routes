@@ -54,7 +54,5 @@ POST       /what-is-your-contact-number                    uk.gov.hmrc.securitie
 GET        /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
 POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET        /ukOrNot                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
-POST       /ukOrNot                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
-GET        /changeUkOrNot                                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
-POST       /changeUkOrNot                                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
+GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onPageLoad()
+POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
