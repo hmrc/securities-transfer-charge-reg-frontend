@@ -25,14 +25,14 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Up
 import javax.inject.Inject
 
 class UpdateDobKickOutController @Inject()(override val messagesApi: MessagesApi,
-                                           auth: Auth,
-                                           getData: ValidIndividualDataRetrievalAction,
-                                           requireData: ValidIndividualDataRequiredAction,
+                                           auth: IndividualAuth,
                                            val controllerComponents: MessagesControllerComponents,
                                            view: UpdateDobKickOutView
                                          ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad: Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
+  import auth.*
+
+  def onPageLoad: Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
     implicit request =>
       Ok(view())
   }

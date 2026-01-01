@@ -26,3 +26,7 @@ case class DataRequest[A] (request: StcAuthRequest[A], userId: String, userAnswe
 case class ValidIndividualOptionalDataRequest[A](request: StcValidIndividualRequest[A], userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
 
 case class ValidIndividualDataRequest[A] (request: StcValidIndividualRequest[A], userAnswers: UserAnswers) extends WrappedRequest[A](request)
+
+case class ValidOrgOptionalDataRequest[A](request: StcValidOrgRequest[A], userAnswers: Option[UserAnswers]) extends WrappedRequest[A](request)
+
+case class ValidOrgDataRequest[A] (request: StcValidOrgRequest[A], userAnswers: UserAnswers) extends WrappedRequest[A](request)

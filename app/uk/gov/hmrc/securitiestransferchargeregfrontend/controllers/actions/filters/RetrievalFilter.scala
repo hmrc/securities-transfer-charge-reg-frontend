@@ -29,26 +29,28 @@ import scala.concurrent.Future
 type RetrievalFilterResult[A] = Either[Future[Result], A]
 type RetrievalFilterFunction[A, B] = A => RetrievalFilterResult[B]
 
-val retrievalError: String => UnauthorizedException = msg => new UnauthorizedException(s"Retrieval Error: $msg")
+def retrievalError[A]: String => Future[A] =
+  name => Future.failed(new UnauthorizedException(s"Retrieval Error: No $name found in request"))
 
-class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
-                                 redirects: Redirects) {
+class RetrievalFilter @Inject() (appConfig: FrontendAppConfig, redirects: Redirects):
 
   import redirects.*
 
-  val enrolledForSTC: Enrolments => Boolean = es => {
+  val enrolledForSTC: Enrolments => Boolean = es =>
     val stcEnrolment = es.getEnrolment(appConfig.stcEnrolmentKey)
     stcEnrolment.exists(_.isActivated)
-  }
 
   val enrolledFilter: RetrievalFilterFunction[Enrolments, Unit] = enrolments =>
     if (enrolledForSTC(enrolments)) Left(redirects.redirectToServiceF)
     else Right(())
 
-  val isIndividualFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] =
-    case Some(AffinityGroup.Individual) => Right(())
-    case Some(_) => Left(redirectToRegisterF)
-    case None => Left(Future.failed(retrievalError("No AffinityGroup found in request")))
+  private val affinityCheckFilter: AffinityGroup => RetrievalFilterFunction[Option[AffinityGroup], Unit] = requiredAffinity =>
+    case Some(affinity) if affinity == requiredAffinity => Right(())
+    case Some(_)                                        => Left(redirectToRegisterF)
+    case None                                           => Left(retrievalError("AffinityGroup"))
+
+  val isIndividualFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] = affinityCheckFilter(AffinityGroup.Individual)
+  val isOrgFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] = affinityCheckFilter(AffinityGroup.Organisation)
 
   val confidenceLevelFilter: RetrievalFilterFunction[ConfidenceLevel, Unit] = confidenceLevel =>
     if (confidenceLevel >= ConfidenceLevel.L250) Right(())
@@ -56,26 +58,21 @@ class RetrievalFilter @Inject() (appConfig: FrontendAppConfig,
 
   val ninoPresentFilter: RetrievalFilterFunction[Option[String], String] =
     case Some(nino) => Right(nino)
-    case None => Left(redirectToIVUpliftF)
+    case None       => Left(redirectToIVUpliftF)
 
   val namePresentFilter: RetrievalFilterFunction[Option[ItmpName], (String, String)] =
     case Some(ItmpName(Some(fn), _, Some(ln))) => Right((fn, ln))
-    case _                                     => Left(Future.failed(retrievalError("No name found in request")))
+    case _                                     => Left(retrievalError("name"))
 
-}
+object RetrievalFilter:
 
-object RetrievalFilter {
-
-  val internalIdPresentFilter: RetrievalFilterFunction[Option[String], String] = maybeInternalId =>
-     maybeInternalId
-       .map(Right.apply)
-       .getOrElse(Left(Future.failed(retrievalError("No internalId found in request"))))
-
-  val affinityGroupPresentFilter: RetrievalFilterFunction[Option[AffinityGroup], AffinityGroup] = maybeAffinityGroup =>
-    maybeAffinityGroup
+  private def presenceFilter[A]: String => RetrievalFilterFunction[Option[A], A] = name => maybeA =>
+    maybeA
       .map(Right.apply)
-      .getOrElse(Left(Future.failed(retrievalError("No AffinityGroup found in request"))))
-  
+      .getOrElse(Left(retrievalError(name)))
 
-}
+  val internalIdPresentFilter: RetrievalFilterFunction[Option[String], String] =
+    presenceFilter[String]("internalId")
 
+  val affinityGroupPresentFilter: RetrievalFilterFunction[Option[AffinityGroup], AffinityGroup] =
+    presenceFilter[AffinityGroup]("AffinityGroup")

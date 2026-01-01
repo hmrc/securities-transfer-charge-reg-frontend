@@ -32,6 +32,8 @@ class Module extends AbstractModule {
     bind(classOf[DataRequiredAction]).to(classOf[DataRequiredActionImpl]).asEagerSingleton()
     bind(classOf[ValidIndividualDataRequiredAction]).to(classOf[ValidIndividualDataRequiredActionImpl])
     bind(classOf[ValidIndividualDataRetrievalAction]).to(classOf[ValidIndividualDataRetrievalActionImpl])
+    bind(classOf[ValidOrgDataRetrievalAction]).to(classOf[ValidOrgDataRetrievalActionImpl])
+    bind(classOf[ValidOrgDataRequiredAction]).to(classOf[ValidOrgDataRequiredActionImpl])
 
     // For session based storage instead of cred based, change to SessionIdentifierAction
     bind(classOf[IdentifierAction]).to(classOf[AuthenticatedIdentifierAction]).asEagerSingleton()
@@ -40,6 +42,7 @@ class Module extends AbstractModule {
 
     bind(classOf[StcAuthAction]).to(classOf[AuthenticatedStcAction])
     bind(classOf[StcValidIndividualAction]).to(classOf[StcValidIndividualActionImpl])
+    bind(classOf[StcValidOrgAction]).to(classOf[StcValidOrgActionImpl])
 
     bind(classOf[RegistrationClient]).to(classOf[RegistrationClientImpl]).asEagerSingleton()
 

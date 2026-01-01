@@ -33,11 +33,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait IdentifierAction extends ActionBuilder[IdentifierRequest, AnyContent] with ActionFunction[Request, IdentifierRequest]
 
-class AuthenticatedIdentifierAction @Inject()(
-                                               override val authConnector: AuthConnector,
-                                               config: FrontendAppConfig,
-                                               val parser: BodyParsers.Default
-                                             )
+class AuthenticatedIdentifierAction @Inject()(override val authConnector: AuthConnector,
+                                              config: FrontendAppConfig,
+                                              val parser: BodyParsers.Default)
                                              (implicit val executionContext: ExecutionContext) extends IdentifierAction with AuthorisedFunctions with Logging {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
@@ -45,10 +43,7 @@ class AuthenticatedIdentifierAction @Inject()(
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(Retrievals.internalId) { maybeId =>
-      internalIdPresentFilter(maybeId) match {
-        case Right(internalId)  => block(IdentifierRequest(request, internalId))
-        case Left(futureResult) => futureResult
-      }
+      internalIdPresentFilter(maybeId).fold(identity, id => block(IdentifierRequest(request, id)))
     } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
@@ -58,9 +53,7 @@ class AuthenticatedIdentifierAction @Inject()(
   }
 }
 
-class SessionIdentifierAction @Inject()(
-                                         val parser: BodyParsers.Default
-                                       )
+class SessionIdentifierAction @Inject()(val parser: BodyParsers.Default)
                                        (implicit val executionContext: ExecutionContext) extends IdentifierAction {
 
   override def invokeBlock[A](request: Request[A], block: IdentifierRequest[A] => Future[Result]): Future[Result] = {
