@@ -20,19 +20,19 @@ import com.google.inject.Inject
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, ValidIndividualDataRequiredAction, ValidIndividualDataRetrievalAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.all.SummaryListViewModel
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.CheckYourAnswersView
 
 class CheckYourAnswersController @Inject()(
-                                            auth: Auth,
-                                            getData: ValidIndividualDataRetrievalAction,
-                                            requireData: ValidIndividualDataRequiredAction,
+                                            auth: IndividualAuth,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourAnswersView
                                           ) extends FrontendBaseController with I18nSupport {
 
-  def onPageLoad(): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
+  import auth.*
+
+  def onPageLoad(): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
     implicit request =>
 
       val list = SummaryListViewModel(

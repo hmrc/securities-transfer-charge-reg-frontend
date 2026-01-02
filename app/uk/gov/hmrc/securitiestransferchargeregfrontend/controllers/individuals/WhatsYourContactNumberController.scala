@@ -37,18 +37,18 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourContactNumberController @Inject()( override val messagesApi: MessagesApi,
                                                   sessionRepository: SessionRepository,
-                                                  auth: Auth,
-                                                  getData: ValidIndividualDataRetrievalAction,
-                                                  requireData: ValidIndividualDataRequiredAction,
+                                                  auth: IndividualAuth,
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   registrationClient: RegistrationClient,
                                                   view: WhatsYourContactNumberView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
+  import auth.*
+  
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
@@ -59,7 +59,7 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (auth.validIndividual andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(

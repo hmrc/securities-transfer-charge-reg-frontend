@@ -46,4 +46,14 @@ class ValidIndividualDataRetrievalActionImpl @Inject()(sessionRepository: Sessio
     getUserAnswers(sessionRepository)(request.userId).map { answers =>
       ValidIndividualOptionalDataRequest(request, answers)
     }
+    
+trait ValidOrgDataRetrievalAction extends ActionTransformer[StcValidOrgRequest, ValidOrgOptionalDataRequest]
+
+class ValidOrgDataRetrievalActionImpl @Inject()(sessionRepository: SessionRepository)
+                                       (implicit val executionContext: ExecutionContext) extends ValidOrgDataRetrievalAction:
+
+  override protected def transform[A](request: StcValidOrgRequest[A]): Future[ValidOrgOptionalDataRequest[A]] =
+    getUserAnswers(sessionRepository)(request.userId).map { answers =>
+      ValidOrgOptionalDataRequest(request, answers)
+    }
 

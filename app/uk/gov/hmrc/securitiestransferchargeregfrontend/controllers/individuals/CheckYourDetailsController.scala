@@ -21,7 +21,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
@@ -36,18 +36,19 @@ class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             sessionRepository: SessionRepository,
                                             navigator: Navigator,
-                                            auth: Auth,
-                                            getData: ValidIndividualDataRetrievalAction,
+                                            auth: IndividualAuth,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourDetailsView
                                           )(implicit ec: ExecutionContext)
   extends FrontendBaseController with I18nSupport with Logging {
 
+  import auth.*
+  
   private val form: Form[Boolean] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (auth.validIndividual andThen getData) { implicit request =>
+    (validIndividual andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
@@ -58,7 +59,7 @@ class CheckYourDetailsController @Inject()(
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = {
-    (auth.validIndividual andThen getData).async { implicit request =>
+    (validIndividual andThen getData).async { implicit request =>
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>

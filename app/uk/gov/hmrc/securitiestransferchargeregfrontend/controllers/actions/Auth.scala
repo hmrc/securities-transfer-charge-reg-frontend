@@ -21,11 +21,23 @@ import play.api.mvc.{ActionBuilder, AnyContent}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
 class Auth @Inject()(stcAuthAction: StcAuthAction,
-                     enrolmentCheck: EnrolmentCheck,
-                     stcValidIndividualAction: StcValidIndividualAction) {
+                     enrolmentCheck: EnrolmentCheck):
   
   val authorised: StcAuthAction = stcAuthAction
   val authorisedAndNotEnrolled: ActionBuilder[StcAuthRequest, AnyContent] = stcAuthAction andThen enrolmentCheck
-  val validIndividual : StcValidIndividualAction = stcValidIndividualAction
-}
 
+class IndividualAuth @Inject()( stcValidIndividualAction: StcValidIndividualAction,
+                                validIndividualDataRetrievalAction: ValidIndividualDataRetrievalAction,
+                                validIndividualDataRequiredAction: ValidIndividualDataRequiredAction):
+
+  val validIndividual : StcValidIndividualAction = stcValidIndividualAction
+  val getData: ValidIndividualDataRetrievalAction = validIndividualDataRetrievalAction
+  val requireData: ValidIndividualDataRequiredAction = validIndividualDataRequiredAction
+
+class OrgAuth @Inject()(stcValidOrgAction: StcValidOrgAction,
+                        validOrgDataRetrievalAction: ValidOrgDataRetrievalAction,
+                        validOrgDataRequiredAction: ValidOrgDataRequiredAction):
+
+  val validOrg : StcValidOrgAction = stcValidOrgAction
+  val getData: ValidOrgDataRetrievalAction = validOrgDataRetrievalAction
+  val requireData: ValidOrgDataRequiredAction = validOrgDataRequiredAction
