@@ -14,11 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
-import play.api.mvc.{Request, WrappedRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
-case class StcValidOrgRequest[A](request: Request[A],
-                                 userId: String
-                                ) extends WrappedRequest[A](request)
+import scala.language.implicitConversions
 
+case object RegForSecuritiesTransferChargePage extends Page {
+
+  override def toString: String = "regForSecuritiesTransferCharge"
+}
