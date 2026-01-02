@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Large
 
 @this(
     layout: templates.Layout,
@@ -36,10 +37,14 @@
             @govukErrorSummary(ErrorSummaryViewModel(form))
         }
 
+        <div id="more-detail-hint" class="govuk-hint">
+            @messages("orgDetails.hint")
+        </div>
+
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("ukOrNot.heading")).asPageHeading()
+                legend = LegendViewModel(messages("ukOrNot.heading")).withCssClass(Large.toString)
             )
         )
 
