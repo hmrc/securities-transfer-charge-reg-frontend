@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 enum SubscriptionResponse:
-  case SubscriptionSuccessful
+  case SubscriptionSuccessful(subscriptionId: String)
   case SubscriptionFailed
 
 type SubscriptionResult = Either[RegistrationServiceError, SubscriptionResponse]
