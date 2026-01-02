@@ -35,18 +35,18 @@ class WhatsYourEmailAddressController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
                                         navigator: Navigator,
-                                        auth: Auth,
-                                        getData: ValidIndividualDataRetrievalAction,
-                                        requireData: ValidIndividualDataRequiredAction,
+                                        auth: IndividualAuth,
                                         formProvider: WhatsYourEmailAddressFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: WhatsYourEmailAddressView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
+  import auth.*
+
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (auth.validIndividual andThen getData andThen requireData) { implicit request =>
+    (validIndividual andThen getData andThen requireData) { implicit request =>
       val preparedForm = request.userAnswers.get(WhatsYourEmailAddressPage) match {
         case None => form
         case Some(value) => form.fill(value)

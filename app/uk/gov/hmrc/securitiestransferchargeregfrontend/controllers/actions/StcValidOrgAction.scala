@@ -17,32 +17,32 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
-import play.api.Logging
-import play.api.mvc.*
+import play.api.mvc.{ActionBuilder, AnyContent, BodyParsers, Request, Result}
 import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter.{affinityGroupPresentFilter, internalIdPresentFilter}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter.internalIdPresentFilter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcValidOrgRequest
 
 import scala.concurrent.{ExecutionContext, Future}
 
-trait StcAuthAction extends ActionBuilder[StcAuthRequest, AnyContent]
+trait StcValidOrgAction extends ActionBuilder[StcValidOrgRequest, AnyContent]
 
-class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnector,
-                                        config: FrontendAppConfig,
-                                        val parser: BodyParsers.Default )
-                                      ( implicit val executionContext: ExecutionContext)
-                                        extends StcAuthAction with AuthorisedFunctions with Logging {
+class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector,
+                                      config: FrontendAppConfig,
+                                      retrievalFilter: RetrievalFilter,
+                                      val parser: BodyParsers.Default )
+                                    ( implicit val executionContext: ExecutionContext) extends StcValidOrgAction with AuthorisedFunctions:
 
   private[actions] val retrievals = internalId and allEnrolments and affinityGroup
 
-  override def invokeBlock[A](request: Request[A], block: StcAuthRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: StcValidOrgRequest[A] => Future[Result]): Future[Result] =
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
@@ -50,17 +50,15 @@ class AuthenticatedStcAction @Inject()( override val authConnector: AuthConnecto
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
-          affinityGroup <- affinityGroupPresentFilter(maybeAffinityGroup)
-        } yield StcAuthRequest(request, internalId, enrolments, affinityGroup)
+          _             <- retrievalFilter.enrolledFilter(enrolments)
+          _             <- retrievalFilter.isOrgFilter(maybeAffinityGroup)
+        } yield StcValidOrgRequest(request, internalId)
 
         maybeRequest.fold(identity, block)
-          
-    } recover {
-      case _: NoActiveSession =>
-        Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-      case _: AuthorisationException =>
-        Redirect(routes.UnauthorisedController.onPageLoad())
-    }
-  }
-}
 
+    } recover {
+    case _: NoActiveSession =>
+      Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+    case _: AuthorisationException =>
+      Redirect(routes.UnauthorisedController.onPageLoad())
+    }
