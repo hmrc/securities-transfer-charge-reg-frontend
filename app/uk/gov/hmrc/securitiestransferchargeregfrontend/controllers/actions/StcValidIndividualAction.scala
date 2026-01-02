@@ -38,17 +38,14 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
                                               config: FrontendAppConfig,
                                               retrievalFilter: RetrievalFilter,
                                               val parser: BodyParsers.Default )
-                                            ( implicit val executionContext: ExecutionContext)
-  extends StcValidIndividualAction with AuthorisedFunctions {
+                                            ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions:
 
   private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName
 
-  // Enrich the request with auth details or redirect to login/unauthorised
-  override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] = {
+  override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] =
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised()
-      .retrieve(retrievals) {
+    authorised().retrieve(retrievals) {
       case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName =>
 
         val maybeRequest = for {
@@ -58,19 +55,14 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
           _             <- retrievalFilter.confidenceLevelFilter(confidenceLevel)
           nino          <- retrievalFilter.ninoPresentFilter(maybeNino)
           ns            <- retrievalFilter.namePresentFilter(maybeName)
-        } yield StcValidIndividualRequest(request, internalId, nino, ns._1, ns._2)
+          (first, last)  = ns
+        } yield StcValidIndividualRequest(request, internalId, nino, first, last)
 
-        maybeRequest match {
-          case Right(authRequest) => block(authRequest)
-          case Left(futureResult) => futureResult
-        }
+        maybeRequest.fold(identity, block)
 
-    } recover {
+      } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: AuthorisationException =>
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
-  }
-}
-

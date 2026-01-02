@@ -21,7 +21,7 @@ import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, ValidIndividualDataRetrievalAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualOptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
@@ -32,7 +32,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class AddressController @Inject()( auth: Auth,
+class AddressController @Inject()( auth: IndividualAuth,
                                    navigator: Navigator,
                                    val controllerComponents: MessagesControllerComponents,
                                    getData: ValidIndividualDataRetrievalAction,
@@ -40,11 +40,13 @@ class AddressController @Inject()( auth: Auth,
                                    sessionRepository: SessionRepository
                                  ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
 
+  import auth.*
+
   /*
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def onPageLoad: Action[AnyContent] = auth.validIndividual.async {
+  def onPageLoad: Action[AnyContent] = validIndividual.async {
     implicit request =>
       alf.initAlfJourneyRequest()
   }

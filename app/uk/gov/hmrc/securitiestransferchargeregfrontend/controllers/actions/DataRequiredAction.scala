@@ -65,3 +65,12 @@ class ValidIndividualDataRequiredActionImpl @Inject()(implicit val executionCont
     requestOrRedirect(request.userAnswers) { answers =>
       ValidIndividualDataRequest(request.request, answers)
     }
+
+trait ValidOrgDataRequiredAction extends ActionRefiner[ValidOrgOptionalDataRequest, ValidOrgDataRequest]
+
+class ValidOrgDataRequiredActionImpl @Inject()(implicit val executionContext: ExecutionContext) extends ValidOrgDataRequiredAction:
+
+  override protected def refine[A](request: ValidOrgOptionalDataRequest[A]): Future[Either[Result, ValidOrgDataRequest[A]]] =
+    requestOrRedirect(request.userAnswers) { answers =>
+      ValidOrgDataRequest(request.request, answers)
+    }
