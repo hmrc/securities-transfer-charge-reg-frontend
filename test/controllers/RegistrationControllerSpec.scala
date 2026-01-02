@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package controllers.individuals
+package controllers
 
 import base.Fixtures.FakeStcAuthAction
 import base.SpecBase
@@ -22,10 +22,12 @@ import play.api.inject
 import play.api.mvc.*
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
-import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Organisation}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
+import uk.gov.hmrc.auth.core.AffinityGroup.{Agent, Individual, Organisation}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{Auth, StcAuthAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.{Redirects, RegistrationController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.{routes => orgRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 
 import scala.concurrent.ExecutionContext
 
@@ -35,6 +37,7 @@ class RegistrationControllerSpec extends SpecBase {
 
 
   "RegistrationController" - {
+
 
     "should redirect organisation users to organisation registration" in {
 
@@ -53,7 +56,6 @@ class RegistrationControllerSpec extends SpecBase {
 
       running(application) {
         val mcc = application.injector.instanceOf[MessagesControllerComponents]
-        val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
@@ -62,7 +64,7 @@ class RegistrationControllerSpec extends SpecBase {
         val result = controller.routingLogic.apply(FakeRequest())
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result) mustBe Some(appConfig.registerOrganisationUrl)
+        redirectLocation(result) mustBe Some(orgRoutes.RegForSecuritiesTransferChargeController.onSubmit().url)
       }
     }
 
