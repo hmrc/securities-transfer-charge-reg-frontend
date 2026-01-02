@@ -19,6 +19,6 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 import play.api.mvc.{Request, WrappedRequest}
 
 case class StcValidOrgRequest[A](request: Request[A],
-                                 userId: String,
+                                 userId: String
                                 ) extends WrappedRequest[A](request)
 
