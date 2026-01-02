@@ -18,10 +18,12 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.{routes => orgRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{UkOrNotPage}
 
 import javax.inject.{Inject, Singleton}
 
@@ -48,6 +50,20 @@ class Navigator @Inject()() {
 
     case WhatsYourEmailAddressPage =>
       _ => individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+
+
+    case RegForSecuritiesTransferChargePage =>
+      _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode) ////////////////////////////
+
+    case UkOrNotPage => {
+      userAnswers => {
+        userAnswers.get(UkOrNotPage) match {
+          case Some(true) => ???
+          case Some(false) => ???
+          case None => routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
+    }
 
     case _ =>
       _ => routes.IndexController.onPageLoad()
