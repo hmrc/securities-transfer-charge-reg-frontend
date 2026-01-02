@@ -14,30 +14,31 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
 @this(
-        layout: templates.Layout,
-        govukButton: GovukButton,
-        formHelper: FormWithCSRF
+    layout: templates.Layout,
+    govukButton: GovukButton,
+    formHelper: FormWithCSRF
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("regForSecuritiesTransferCharge.title"))) {
 
-    @formHelper(action = routes.RegForSecuritiesTransferChargeController.onSubmit()) {
-        <h1 class="govuk-heading-l">@messages("regForSecuritiesTransferCharge.heading")</h1>
-        <p class="govuk-body">@messages("regForSecuritiesTransferCharge.p1")</p>
-        <p class="govuk-body">@messages("regForSecuritiesTransferCharge.p2")</p>
+@formHelper(action = routes.RegForSecuritiesTransferChargeController.onSubmit()) {
 
-        <p>
-        @govukButton(
-            ButtonViewModel(
-                messages("site.continue")
-            )
-        )
-        </p>
+    <h1 class="govuk-heading-xl">@messages("regForSecuritiesTransferCharge.heading")</h1>
+    <p class="govuk-body">@messages("organisationsRegForSecuritiesTransferCharge.p1")</p>
+    <p class="govuk-body">@messages("regForSecuritiesTransferCharge.p2")</p>
+    <p>@govukButton(ButtonViewModel(messages("site.continue")))</p>
     }
 }
+
+
+
+
+
+
+

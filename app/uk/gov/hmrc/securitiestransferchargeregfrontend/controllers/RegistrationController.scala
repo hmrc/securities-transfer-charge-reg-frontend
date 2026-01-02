@@ -25,7 +25,8 @@ import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Auth
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.{routes => orgRoutes}
 
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.Future
@@ -48,8 +49,8 @@ class RegistrationController @Inject()(
 
   val routingLogic: Action[AnyContent] = auth.authorisedAndNotEnrolled.async { implicit request =>
     request.affinityGroup match {
-      case Individual   => Future.successful(Redirect(routes.RegForSecuritiesTransferChargeController.onPageLoad()))
-      case Organisation => redirectToRegisterOrganisationF
+      case Individual   => Future.successful(Redirect(individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()))
+      case Organisation => Future.successful(Redirect(orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad()))
       case Agent        => redirectToAsaF
     }
   }
