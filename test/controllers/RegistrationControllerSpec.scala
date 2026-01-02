@@ -38,6 +38,34 @@ class RegistrationControllerSpec extends SpecBase {
 
   "RegistrationController" - {
 
+    "should redirect individual users to individual registration" in {
+
+      def fakeStcAuthRequest[A](request: Request[A]): StcAuthRequest[A]
+      = new StcAuthRequest(
+        request,
+        "user-123",
+        uk.gov.hmrc.auth.core.Enrolments(Set()),
+        Individual
+      )
+
+      val authAction = FakeStcAuthAction(fakeStcAuthRequest(FakeRequest()))
+      val application = applicationBuilderNoAuth()
+        .overrides(inject.bind[StcAuthAction].toInstance(authAction))
+        .configure().build()
+
+      running(application) {
+        val mcc = application.injector.instanceOf[MessagesControllerComponents]
+        val redirects = application.injector.instanceOf[Redirects]
+        val auth = application.injector.instanceOf[Auth]
+
+        val controller = new RegistrationController(mcc, redirects, auth)
+
+        val result = controller.routingLogic.apply(FakeRequest())
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result) mustBe Some(individualRoutes.RegForSecuritiesTransferChargeController.onSubmit().url)
+      }
+    }
 
     "should redirect organisation users to organisation registration" in {
 
