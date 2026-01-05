@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationData
 
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -46,7 +47,11 @@ object Fixtures {
   val lastName = "Last"
   val safeId = "SAFE-123"
   val subscriptionId = "SUBS-123"
-
+  val registrationData = RegistrationData(
+    id = Fixtures.user,
+    safeId = Some(Fixtures.safeId),
+    subscriptionId = Some(Fixtures.subscriptionId)
+  )
   val someValidName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues

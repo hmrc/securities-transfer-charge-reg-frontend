@@ -25,8 +25,8 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
@@ -35,7 +35,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import java.time.LocalDate
@@ -126,6 +126,130 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual individualRoutes.RegistrationCompleteController.onPageLoad().url
+      }
+    }
+
+    "must redirect to KO Page if subscription fails" in {
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
+          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
+          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+        .thenReturn(Future.successful(Right(SubscriptionFailed)))
+
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+        .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
+
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+        .thenReturn(Future.successful(Right(SubscriptionActive)))
+
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, whatsYourContactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual individualRoutes.UpdateDobKickOutController.onPageLoad().url
+      }
+    }
+
+    "must redirect to KO Page if enrolment fails" in {
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
+          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
+          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
+
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+        .thenReturn(Future.successful(Right(EnrolmentFailed)))
+
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+        .thenReturn(Future.successful(Right(SubscriptionActive)))
+
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, whatsYourContactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual individualRoutes.UpdateDobKickOutController.onPageLoad().url
+      }
+    }
+
+    "must fail to journey recovery if there is no safe-id in the repository" in {
+
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
+          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
+          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
+
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+        .thenReturn(Future.successful(Right(EnrolmentFailed)))
+
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+        .thenReturn(Future.successful(Right(SubscriptionActive)))
+
+      val emptyRegistrationData = new RegistrationData(Fixtures.user, None, None)
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository(emptyRegistrationData))
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, whatsYourContactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 

@@ -21,16 +21,10 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{Registratio
 
 import scala.concurrent.Future
 
-class FakeRegistrationDataRepository extends RegistrationDataRepository {
+class FakeRegistrationDataRepository(data: RegistrationData = Fixtures.registrationData) extends RegistrationDataRepository {
 
   override def getRegistrationData(id: String): Future[RegistrationData] =
-    Future.successful(
-      RegistrationData(
-        id = Fixtures.user,
-        safeId = Some(Fixtures.safeId),
-        subscriptionId = Some(Fixtures.subscriptionId)
-      )
-    )
+    Future.successful(data)
 
   override def setSafeId(id: String)(safeId: String): Future[Unit] = Future.successful(())
 

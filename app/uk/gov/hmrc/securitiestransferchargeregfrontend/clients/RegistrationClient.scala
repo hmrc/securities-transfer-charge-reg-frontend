@@ -32,6 +32,7 @@ trait RegistrationClient:
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
   def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
 
+// DUMMY IMPL until we have a real BE implementation for this.
 class RegistrationClientImpl @Inject() extends RegistrationClient with Logging {
   override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] = Future.successful(Right(SubscriptionActive))
   override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] = Future.successful(Right(RegistrationSuccessful("SAFE123")))

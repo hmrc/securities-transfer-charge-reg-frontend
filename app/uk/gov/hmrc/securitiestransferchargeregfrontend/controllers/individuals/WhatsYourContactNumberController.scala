@@ -23,8 +23,10 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationDataNotFoundException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes as rootRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
@@ -69,22 +71,26 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
         value =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
-            _               <- sessionRepository.set(updatedAnswers)
-            data            <- registrationDataRepository.getRegistrationData(updatedAnswers.id)
-            subscriptionId  <- subscribe(data.safeId, updatedAnswers)
-            _               <- enrol(subscriptionId)(request.request.nino)
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+            data <- registrationDataRepository.getRegistrationData(updatedAnswers.id)
+            subscriptionId <- subscribe(data.safeId, updatedAnswers)
+            _ <- enrol(subscriptionId)(request.request.nino)
           } yield {
             Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
           }
-      ).recover(_ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad()))
+      ).recover {
+        case _: RegistrationDataNotFoundException => Redirect(rootRoutes.JourneyRecoveryController.onPageLoad())
+        // THIS IS WRONG, we need another page.
+        case _ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
+      }
   }
-
+  
   private def subscribe(maybeSafeId: Option[String], userAnswers: UserAnswers): Future[String] = {
     val outcome = maybeSafeId.flatMap( safeId =>
       buildSubscriptionDetails(safeId)(userAnswers)
         .map(registrationClient.subscribe)
-      ).getOrElse(Future.failed(new Exception("Subscription failed: missing subscription details")))
+      ).getOrElse(Future.failed(new RegistrationDataNotFoundException("Subscription failed: missing subscription details")))
 
     outcome.collect {
       case Right(SubscriptionSuccessful(subscriptionId)) =>
