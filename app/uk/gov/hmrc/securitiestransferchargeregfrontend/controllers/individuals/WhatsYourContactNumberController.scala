@@ -24,12 +24,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, SessionRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import javax.inject.Inject
@@ -41,8 +41,9 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   registrationClient: RegistrationClient,
+                                                  registrationDataRepository: RegistrationDataRepository,
                                                   view: WhatsYourContactNumberView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
   
@@ -68,38 +69,38 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-            subscribed     <- subscribe(updatedAnswers)
-            enrolled       <- enrol(request.request.nino)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
+            _               <- sessionRepository.set(updatedAnswers)
+            data            <- registrationDataRepository.getRegistrationData(updatedAnswers.id)
+            subscriptionId  <- subscribe(data.safeId, updatedAnswers)
+            _               <- enrol(subscriptionId)(request.request.nino)
           } yield {
-            if (subscribed && enrolled) {
-              Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
-            } else {
-              Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
-            }
+            Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
           }
-      )
+      ).recover(_ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad()))
   }
 
-  private def subscribe(userAnswers: UserAnswers): Future[Boolean] = {
-    buildSubscriptionDetails(userAnswers) map { subscriptionDetails =>
-      registrationClient.subscribe(subscriptionDetails).map { status =>
-        status.exists(_ == SubscriptionSuccessful)
-      }
+  private def subscribe(maybeSafeId: Option[String], userAnswers: UserAnswers): Future[String] = {
+    val outcome = maybeSafeId.flatMap( safeId =>
+      buildSubscriptionDetails(safeId)(userAnswers)
+        .map(registrationClient.subscribe)
+      ).getOrElse(Future.failed(new Exception("Subscription failed: missing subscription details")))
+
+    outcome.collect {
+      case Right(SubscriptionSuccessful(subscriptionId)) =>
+        registrationDataRepository.setSubscriptionId(userAnswers.id)(subscriptionId)
+        subscriptionId
     }
-  }.getOrElse {
-    Future.successful(false)
   }
   
-  private val buildSubscriptionDetails: UserAnswers => Option[IndividualSubscriptionDetails] = { answers => for {
+  private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers => for {
     alf           <- getAddress(answers)
     address        = alf.address
     (l1, l2, l3)  <- extractLines(address)
     email         <- getEmailAddress(answers)
     tel           <- getTelephoneNumber(answers)
     } yield {
-      IndividualSubscriptionDetails(l1, l2, l3, address.postcode, address.country.code, tel, None, email)
+      IndividualSubscriptionDetails(safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
     }
   }
 
@@ -109,18 +110,14 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
   private val extractLines: AlfAddress => Option[(String, Option[String], Option[String])] = { address =>
     val lines = address.lines
-    if (lines.nonEmpty) {
-      Some(lines.head, lines.lift(1), lines.lift(2))
-    } else {
-      None
+    lines.headOption.map { h =>
+      (h, lines.lift(1), lines.lift(2))
     }
   }
 
-  private val enrol: String => Future[Boolean] = nino => {
-    registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map {
-      case Right(EnrolmentSuccessful) => true
-      case Right(_) => false
-      case Left(_) => false
+  private val enrol: String => String => Future[Unit] = subscriptionId => nino => {
+    registrationClient.enrolIndividual(IndividualEnrolmentDetails(subscriptionId, nino)).collect {
+      case Right(EnrolmentSuccessful) => ()
     }
   }
 

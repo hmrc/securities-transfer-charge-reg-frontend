@@ -27,13 +27,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndi
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, SessionRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class DateOfBirthRegController @Inject()(
                                         override val messagesApi: MessagesApi,
@@ -43,7 +42,8 @@ class DateOfBirthRegController @Inject()(
                                         formProvider: DateOfBirthRegFormProvider,
                                         val controllerComponents: MessagesControllerComponents,
                                         view: DateOfBirthRegView,
-                                        registrationClient: RegistrationClient
+                                        registrationClient: RegistrationClient,
+                                        registrationDataRepository: RegistrationDataRepository
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
@@ -71,33 +71,33 @@ class DateOfBirthRegController @Inject()(
 
         value =>
           val innerRequest = request.request
-          for {
-            updated    <- updateUserAnswers(value)
-            registered <- registerUser(IndividualRegistrationDetails(innerRequest.firstName, None, innerRequest.lastName, value.toString, innerRequest.nino))
+          val result = for {
+            updated <- updateUserAnswers(value)
+            safeId  <- registerUser(IndividualRegistrationDetails(innerRequest.firstName, None, innerRequest.lastName, value.toString, innerRequest.nino))
+            _       <- registrationDataRepository.setSafeId(innerRequest.userId)(safeId)
           } yield {
-            if (registered) {
-              // Success - redirect to the next page.
               Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
-            } else {
+          }
+          result.recoverWith {
               // Failed to register - redirect to service error page.
-              Redirect(routes.UpdateDobKickOutController.onPageLoad())
-            }
+            case _ => Future.successful(Redirect(routes.UpdateDobKickOutController.onPageLoad()))
           }
       )
   }
 
   private def updateUserAnswers[A](dob: LocalDate)(implicit request: ValidIndividualDataRequest[A]): Future[UserAnswers] = {
-    request.userAnswers.set(DateOfBirthRegPage, dob) match {
-      case Success(updated) => sessionRepository.set(updated).collect {
+    request.userAnswers.set(DateOfBirthRegPage, dob).fold(
+      ex => Future.failed(ex),
+      updated =>
+        sessionRepository.set(updated).collect {
         case true => updated
       }
-      case Failure(exception) => throw exception
-    }
+    )
   }
 
-  private def registerUser(details: IndividualRegistrationDetails): Future[Boolean] = {
-    registrationClient.register(details).map {
-      _ == Right(RegistrationSuccessful)
+  private def registerUser(details: IndividualRegistrationDetails): Future[String] = {
+    registrationClient.register(details).collect {
+      case Right(RegistrationSuccessful(safeId)) => safeId
     }
   }
 }
