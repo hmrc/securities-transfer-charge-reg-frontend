@@ -16,7 +16,7 @@
 
 package controllers.individuals
 
-import base.SpecBase
+import base.{Fixtures, SpecBase}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -29,12 +29,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import java.time.LocalDate
@@ -99,7 +100,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       val fakeRegistrationClient = mock[RegistrationClient]
 
       when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful)))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
 
       when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
         .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
@@ -111,7 +112,8 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[RegistrationClient].toInstance(fakeRegistrationClient)
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
           )
           .build()
 

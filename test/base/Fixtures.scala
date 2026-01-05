@@ -44,6 +44,8 @@ object Fixtures {
   val someValidNino = Some(nino)
   val firstName = "First"
   val lastName = "Last"
+  val safeId = "SAFE-123"
+  val subscriptionId = "SUBS-123"
 
   val someValidName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   

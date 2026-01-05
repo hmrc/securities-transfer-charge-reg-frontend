@@ -20,7 +20,7 @@ import com.google.inject.AbstractModule
 import connectors.{AlfAddressConnector, AlfAddressConnectorImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{SessionRepository, SessionRepositoryImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, RegistrationDataRepositoryImpl, SessionRepository, SessionRepositoryImpl}
 
 import java.time.{Clock, ZoneOffset}
 
@@ -49,5 +49,7 @@ class Module extends AbstractModule {
     bind(classOf[SessionRepository]).to(classOf[SessionRepositoryImpl])
     bind(classOf[EnrolmentCheck]).to(classOf[EnrolmentCheckImpl])
     bind(classOf[AlfAddressConnector]).to(classOf[AlfAddressConnectorImpl]).asEagerSingleton()
+    
+    bind(classOf[RegistrationDataRepository]).to(classOf[RegistrationDataRepositoryImpl])
   }
 }
