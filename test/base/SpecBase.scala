@@ -115,6 +115,7 @@ trait SpecBase
         bind[IdentifierAction].to[FakeIdentifierAction],
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[ValidIndividualDataRetrievalAction].toInstance(new FakeValidIndividualDataRetrievalAction(userAnswers)),
+        bind[ValidOrgDataRetrievalAction].toInstance(new FakeValidOrgDataRetrievalAction(userAnswers)),
         bind[StcAuthAction].to[FakeStcAuthAction],
         bind[StcValidIndividualAction].to[PassThroughValidIndividualAction],
         bind[StcValidOrgAction].to[PassThroughValidOrgAction],
