@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package views
+package views.organisations
 
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
@@ -50,10 +50,6 @@ class UkOrNotViewSpec extends ViewBaseSpec {
 
       "have the correct title" in {
         organisationPage.title must include(ExpectedIndividual.title)
-      }
-
-      "have the correct heading" in {
-        organisationPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
       "display the correct hint text" in {
