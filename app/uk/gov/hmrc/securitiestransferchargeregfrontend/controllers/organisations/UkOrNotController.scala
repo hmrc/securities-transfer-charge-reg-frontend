@@ -48,10 +48,6 @@ class UkOrNotController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
     implicit request =>
 
-//        case None => form
-//        case Some(value) => form.fill(value)
-//      }
-
       val preparedForm = request.userAnswers
         .flatMap(_.get(UkOrNotPage))
         .fold(form)(form.fill)
