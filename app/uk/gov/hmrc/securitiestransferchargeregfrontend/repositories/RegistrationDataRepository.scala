@@ -18,6 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.repositories
 
 import org.mongodb.scala.bson.conversions.Bson
 import org.mongodb.scala.model.*
+import play.api.Logging
 import play.api.libs.json.Format
 import uk.gov.hmrc.mongo.MongoComponent
 import uk.gov.hmrc.mongo.play.json.PlayMongoRepository
@@ -29,7 +30,7 @@ import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class RegistrationData(id: String, safeId: Option[String], subscriptionId: Option[String], lastUpdated: Instant = Instant.now)
+case class RegistrationData(id: String, safeId: Option[String] = None, subscriptionId: Option[String] = None, lastUpdated: Instant = Instant.now)
 object RegistrationData {
   implicit val format: Format[RegistrationData] = play.api.libs.json.Json.format[RegistrationData]
 }
@@ -58,45 +59,45 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
           .expireAfter(appConfig.cacheTtl, TimeUnit.SECONDS),
       )
     )
-  ) with RegistrationDataRepository {
+  ) with RegistrationDataRepository with Logging {
 
   implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
-  private def get(id: String): Future[Option[RegistrationData]] =
+  private def get(id: String): Future[RegistrationData] =
     collection
       .find(byId(id))
       .headOption()
+      .flatMap {
+        case Some(data) => Future.successful(data)
+        case None       => Future.successful(RegistrationData(id))
+      }
 
-  private def set(id: String, update: Bson): Future[Unit] =
+  private def set(data: RegistrationData): Future[Boolean] = {
     collection
-      .updateOne(
-        filter = byId(id),
-        update = Updates.combine(
-          update,
-          Updates.set("lastUpdated", Instant.now(clock))
-        ),
-        options = new com.mongodb.client.model.UpdateOptions().upsert(true)
+      .replaceOne(
+        filter = byId(data.id),
+        replacement = data,
+        options = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .map(_ => ())
-
-  override def getRegistrationData(id: String): Future[RegistrationData] =
-    get(id).map {
-      case Some(data) => data
-      case None       => RegistrationData(id, None, None)
-    }
-
-  override def setSafeId(id: String)(safeId: String): Future[Unit] = {
-    val update: Bson = Updates.set("safeId", safeId)
-    set(id, update)
+      .map(_ => true)
   }
 
-  override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] = {
-    val update: Bson = Updates.set("subscriptionId", subscriptionId)
-    set(id, update)
-  }
+  override def getRegistrationData(id: String): Future[RegistrationData] = get(id)
+
+  override def setSafeId(id: String)(safeId: String): Future[Unit] = for {
+    current <- get(id)
+    updated = current.copy(safeId = Some(safeId), lastUpdated = clock.instant())
+    _      <- set(updated)
+  } yield ()
+
+  override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] = for {
+    current <- get(id)
+    updated = current.copy(subscriptionId = Some(subscriptionId), lastUpdated = clock.instant())
+    _      <- set(updated)
+  } yield ()
 
   override def clear(id: String): Future[Unit] =
     collection
