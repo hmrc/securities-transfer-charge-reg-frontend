@@ -32,7 +32,7 @@ import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest, StcValidIndividualRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest, StcValidIndividualRequest, StcValidOrgRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
@@ -58,6 +58,16 @@ class PassThroughValidIndividualAction @Inject()(bodyParsers: PlayBodyParsers) e
   override protected def executionContext: ExecutionContext = ExecutionContext.global
 }
 
+class PassThroughValidOrgAction @Inject()(bodyParsers: PlayBodyParsers) extends StcValidOrgAction {
+
+  override def parser: BodyParser[AnyContent] = bodyParsers.default
+
+  override def invokeBlock[A](request: Request[A], block: StcValidOrgRequest[A] => Future[Result]): Future[Result]
+  = block(Fixtures.fakeStcValidOrgAuthRequest(request))
+
+  override protected def executionContext: ExecutionContext = ExecutionContext.global
+}
+
 trait SpecBase
   extends AnyFreeSpec
     with Matchers
@@ -71,8 +81,8 @@ trait SpecBase
   val firstName = "First"
   val lastName = "Last"
   val nino = "AA123456A"
-  val affinityGroup = AffinityGroup.Individual
-  val confidenceLevel = ConfidenceLevel.L250
+  val affinityGroup: AffinityGroup.Individual.type = AffinityGroup.Individual
+  val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
 
   val fakeAddress = AlfConfirmedAddress(
     auditRef = "ref",
@@ -89,7 +99,7 @@ trait SpecBase
   )
 
 
-  val fakeRequest = FakeRequest().withHeaders("sessionId" -> sessionId)
+  val fakeRequest: FakeRequest[AnyContentAsEmpty.type] = FakeRequest().withHeaders("sessionId" -> sessionId)
 
   def fakeDataRequest(userAnswers: UserAnswers): DataRequest[AnyContent]
     = DataRequest[AnyContent](Fixtures.fakeStcAuthRequest(FakeRequest()), "userId", userAnswers)
@@ -107,6 +117,7 @@ trait SpecBase
         bind[ValidIndividualDataRetrievalAction].toInstance(new FakeValidIndividualDataRetrievalAction(userAnswers)),
         bind[StcAuthAction].to[FakeStcAuthAction],
         bind[StcValidIndividualAction].to[PassThroughValidIndividualAction],
+        bind[StcValidOrgAction].to[PassThroughValidOrgAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
       )
 
@@ -128,6 +139,7 @@ trait SpecBase
         bind[DataRetrievalAction].toInstance(new FakeDataRetrievalAction(userAnswers)),
         bind[StcAuthAction].to[FakeStcAuthAction],
         bind[StcValidIndividualAction].to[PassThroughValidIndividualAction],
+        bind[StcValidOrgAction].to[PassThroughValidOrgAction],
         bind[AlfAddressConnector].to[FakeAlfConnector]
 
       )

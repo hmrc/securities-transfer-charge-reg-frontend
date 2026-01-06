@@ -22,11 +22,11 @@ import play.api.mvc.request.RequestFactory
 import play.api.test.{FakeRequest, FakeRequestFactory, Helpers}
 import uk.gov.hmrc.auth.core.authorise.*
 import uk.gov.hmrc.auth.core.retrieve.{ItmpName, Retrieval}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolment, Enrolments}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAuthAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest, StcValidOrgRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationData
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -40,6 +40,7 @@ object Fixtures {
   val stcEnrolment = Enrolment(stcEnrolmentKey, Seq(), "Activated")
   val alreadyEnrolled: Enrolments = Enrolments(Set(stcEnrolment))
   val affinityGroupIndividual: AffinityGroup.Individual.type = AffinityGroup.Individual
+  val affinityGroupOrganisation: AffinityGroup.Organisation.type = AffinityGroup.Organisation
   val confidenceLevel250: ConfidenceLevel = ConfidenceLevel.L250
   val nino = "AA123456A"
   val someValidNino = Some(nino)
@@ -90,6 +91,15 @@ object Fixtures {
       firstNameOverride,
       lastNameOverride
     )
+    
+  def fakeStcValidOrgAuthRequest[A](
+                             request: Request[A],
+                             userId: String = user,
+                           ): StcValidOrgRequest[A] =
+      StcValidOrgRequest(
+      request,
+      userId
+      )
 
   // simple stub AuthConnector that returns a preconfigured value for any retrieval
   class FakeAuthConnector[T](value: T) extends AuthConnector {
