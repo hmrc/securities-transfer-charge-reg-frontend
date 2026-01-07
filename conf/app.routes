@@ -58,3 +58,8 @@ GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiest
 POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
 
 GET        /uk-or-not-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
+
+GET        /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
