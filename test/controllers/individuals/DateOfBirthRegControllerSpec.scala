@@ -26,13 +26,17 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentFailed
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionFailed
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, SessionRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
@@ -151,6 +155,31 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, postRequest()).value
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to the KO page if registration fails" in {
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+        .thenReturn(Future.successful(Right(SubscriptionFailed)))
+
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+        .thenReturn(Future.successful(Right(EnrolmentFailed)))
+
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+        .thenReturn(Future.successful(Right(SubscriptionActive)))
+      
+      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
+        .overrides(
+          bind[RegistrationClient].toInstance(fakeRegistrationClient),
+          bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository))
+        .build()
+
+      running(application) {
+        val result = route(application, postRequest()).value
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual individualRoutes.UpdateDobKickOutController.onPageLoad().url
       }
     }
   }
