@@ -1,5 +1,5 @@
-/*
- * Copyright 2025 HM Revenue & Customs
+@*
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,25 +12,21 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ *@
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.queries
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
-import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+@this(
+        layout: templates.Layout,
+        govukButton: GovukButton
+)
 
-import scala.annotation.nowarn
-import scala.util.{Success, Try}
+@()(implicit request: Request[_], messages: Messages)
 
-sealed trait Query {
+@layout(pageTitle = titleNoForm(messages("ukOrNotKickOut.title"))) {
 
-  def path: JsPath
-}
+    <h1 class="govuk-heading-xl">@messages("ukOrNotKickOut.heading")</h1>
+    <p class="govuk-body">@messages("ukOrNotKickOut.p1")</p>
 
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(@nowarn value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
 }

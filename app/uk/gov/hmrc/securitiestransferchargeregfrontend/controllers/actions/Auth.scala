@@ -21,10 +21,14 @@ import play.api.mvc.{ActionBuilder, AnyContent}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 
 class Auth @Inject()(stcAuthAction: StcAuthAction,
-                     enrolmentCheck: EnrolmentCheck):
+                     enrolmentCheck: EnrolmentCheck,
+                     dataRetrievalAction: DataRetrievalAction,
+                     dataRequiredAction: DataRequiredAction):
   
   val authorised: StcAuthAction = stcAuthAction
   val authorisedAndNotEnrolled: ActionBuilder[StcAuthRequest, AnyContent] = stcAuthAction andThen enrolmentCheck
+  val getData: DataRetrievalAction = dataRetrievalAction
+  val requireData: DataRequiredAction = dataRequiredAction
 
 class IndividualAuth @Inject()( stcValidIndividualAction: StcValidIndividualAction,
                                 validIndividualDataRetrievalAction: ValidIndividualDataRetrievalAction,
