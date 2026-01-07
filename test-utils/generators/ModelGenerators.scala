@@ -16,6 +16,9 @@
 
 package generators
 
+import org.scalacheck.{Arbitrary, Gen}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+
 trait ModelGenerators {
 
   implicit lazy val arbitrarySelectBusinessType: Arbitrary[SelectBusinessType] =
