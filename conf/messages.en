@@ -118,4 +118,5 @@ ukOrNot.change.hidden = Does your company operate in the UK?
 
 organisationsRegForSecuritiesTransferCharge.p1 = Before using this service you will need to register and provide details about your business.
 
+orgDetails.caption = Your company details
 orgDetails.hint = Your company details

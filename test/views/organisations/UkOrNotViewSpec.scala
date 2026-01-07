@@ -23,6 +23,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrN
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotView
 import views.ViewBaseSpec
+import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 class UkOrNotViewSpec extends ViewBaseSpec {
 
@@ -36,24 +37,27 @@ class UkOrNotViewSpec extends ViewBaseSpec {
     viewInstance(form, NormalMode)(fakeRequest, messages).body
   )
 
-  object ExpectedIndividual {
+  object ExpectedMessages {
     val title = "Does your company operate in the UK?"
     val heading = "Does your company operate in the UK?"
     val continue = "Continue"
-
-    val hintValue = "Your company details"
+    val caption = "Your company details"
   }
 
   "The UkOrNotView" - {
-    "the user is an organisation" - {
-      val organisationPage = view()
+    "set up a view" - {
+      val ukOrNotPage = view()
 
       "have the correct title" in {
-        organisationPage.title must include(ExpectedIndividual.title)
+        ukOrNotPage.title must include(ExpectedMessages.title)
       }
 
-      "display the correct hint text" in {
-        organisationPage.hintText mustBe Some(ExpectedIndividual.hintValue)
+      "have the correct heading" in {
+        ukOrNotPage.select("h1").text() must include(ExpectedMessages.heading)
+    }
+
+      "display the correct caption text" in {
+        ukOrNotPage.select("span.hmrc-caption").text() must include(ExpectedMessages.caption)
       }
     }
   }

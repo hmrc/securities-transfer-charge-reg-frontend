@@ -57,7 +57,7 @@ POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitie
 GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
 
-GET        /org/ukOrNot                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/ukOrNot                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
-GET        /org/changeUkOrNot                                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/changeUkOrNot                                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
+GET        /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
