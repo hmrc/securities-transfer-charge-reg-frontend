@@ -56,3 +56,8 @@ POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitie
 
 GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
+
+GET        /selectBusinessType                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /selectBusinessType                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /changeSelectBusinessType                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /changeSelectBusinessType                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = CheckMode)
