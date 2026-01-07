@@ -16,6 +16,7 @@
 
 package controllers.actions
 
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
@@ -28,7 +29,7 @@ import scala.concurrent.Future
     override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
       if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
 
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] =
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails)(implicit hc: HeaderCarrier): Future[RegistrationResult] =
       if (succeeds) Future.successful(Right(RegistrationSuccessful("Safe123"))) else Future.successful(Right(RegistrationFailed))
 
     override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] =

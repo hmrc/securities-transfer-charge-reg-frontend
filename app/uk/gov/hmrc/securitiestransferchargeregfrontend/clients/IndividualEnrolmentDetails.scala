@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
+import play.api.libs.json.{Json, OFormat}
+
 /*
  * Copyright 2025 HM Revenue & Customs
  *
@@ -33,6 +35,11 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
  */
 
 case class IndividualEnrolmentDetails(subscriptionId: String, nino: String)
+
+object IndividualEnrolmentDetails {
+  implicit val format: OFormat[IndividualEnrolmentDetails] =
+    Json.format[IndividualEnrolmentDetails]
+}
 
 
 

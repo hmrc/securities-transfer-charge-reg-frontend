@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
+import play.api.libs.json.{Json, OFormat}
+
 case class OrganisationSubscriptionDetails(
   addressLine1: String,
   addressLine2: Option[String] = None,
@@ -26,3 +28,8 @@ case class OrganisationSubscriptionDetails(
   mobileNumber: Option[String] = None,
   email: String
 )
+
+object OrganisationSubscriptionDetails {
+  implicit val format: OFormat[OrganisationSubscriptionDetails] =
+    Json.format[OrganisationSubscriptionDetails]
+}

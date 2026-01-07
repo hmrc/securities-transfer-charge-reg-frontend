@@ -16,8 +16,17 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
+import play.api.libs.json.{Json, OFormat}
+
 enum RegistrationResponse:
   case RegistrationSuccessful(safeId: String)
   case RegistrationFailed
-  
+
 type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+
+final case class RegisterIndividualResponseDto(safeId: String)
+
+object RegisterIndividualResponseDto:
+  given OFormat[RegisterIndividualResponseDto] =
+    Json.format[RegisterIndividualResponseDto]
+

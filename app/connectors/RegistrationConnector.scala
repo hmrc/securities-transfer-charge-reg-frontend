@@ -20,20 +20,21 @@ import play.api.Logging
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.http.HeaderCarrier
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
 trait RegistrationConnector {
-  def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String): Future[Unit]
+  def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String)(implicit hc: HeaderCarrier): Future[Unit]
 }
 
 class RegistrationErrorException(msg: String) extends RuntimeException(msg)
 
 class RegistrationConnectorImpl @Inject() ( registrationClient: RegistrationClient,
                                             registrationDataRepository: RegistrationDataRepository)
-                                          ( implicit ec: ExecutionContext) extends RegistrationConnector with Logging:
+                                          (implicit ec: ExecutionContext) extends RegistrationConnector with Logging:
 
   private def buildIndividualRequest(data: ValidIndividualData, dateOfBirth: String): IndividualRegistrationDetails = {
     IndividualRegistrationDetails(
@@ -45,7 +46,7 @@ class RegistrationConnectorImpl @Inject() ( registrationClient: RegistrationClie
     )
   }
 
-  override def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String): Future[Unit] = {
+  override def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     registrationClient.register(buildIndividualRequest(data, dateOfBirth)).flatMap {
       case Right(RegistrationResponse.RegistrationSuccessful(safeId)) =>
         registrationDataRepository.setSafeId(userId)(safeId).map(_ => ())
