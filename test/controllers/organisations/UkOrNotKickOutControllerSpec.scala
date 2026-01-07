@@ -19,6 +19,7 @@ package controllers.organisations
 import base.SpecBase
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.UkOrNotKickOutController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotKickOutView
 
@@ -36,9 +37,10 @@ class UkOrNotKickOutControllerSpec extends SpecBase {
         val result = route(application, request).value
 
         val view = application.injector.instanceOf[UkOrNotKickOutView]
+        val config = application.injector.instanceOf[FrontendAppConfig]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view()(request, messages(application)).toString
+        contentAsString(result) mustEqual view(config)(request, messages(application)).toString
       }
     }
   }

@@ -19,6 +19,7 @@ package views.organisations
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.UpdateDetailsKickOutView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotKickOutView
 import views.ViewBaseSpec
@@ -28,9 +29,10 @@ class UkOrNotKickOutViewSpec extends ViewBaseSpec {
   override def fakeApplication(): Application = applicationBuilder().build()
 
   private val viewInstance         = app.injector.instanceOf[UkOrNotKickOutView]
+  private val appConfig         = app.injector.instanceOf[FrontendAppConfig]
 
   def view(): Document = Jsoup.parse(
-    viewInstance()(fakeRequest, messages).body
+    viewInstance(appConfig)(fakeRequest, messages).body
   )
 
   object ExpectedMessages {

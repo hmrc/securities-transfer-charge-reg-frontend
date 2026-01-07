@@ -54,15 +54,14 @@ class Navigator @Inject()() {
     case organisations.RegForSecuritiesTransferChargePage =>
       _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
 
-    case UkOrNotPage => {
+    case UkOrNotPage =>
       userAnswers => {
         userAnswers.get(UkOrNotPage) match {
           case Some(true) => ???
-          case Some(false) => ???
+          case Some(false) => orgRoutes.UkOrNotKickOutController.onPageLoad()
           case None => routes.JourneyRecoveryController.onPageLoad()
         }
       }
-    }
 
     case _ =>
       _ => routes.IndexController.onPageLoad()

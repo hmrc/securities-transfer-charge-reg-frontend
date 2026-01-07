@@ -19,6 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotKickOutView
 
@@ -28,13 +29,14 @@ class UkOrNotKickOutController @Inject()(
                                           override val messagesApi: MessagesApi,
                                           auth: Auth,
                                           val controllerComponents: MessagesControllerComponents,
-                                          view: UkOrNotKickOutView
+                                          view: UkOrNotKickOutView,
+                                          appConfig: FrontendAppConfig
                                         ) extends FrontendBaseController with I18nSupport {
 
   import auth.*
-  
+
   def onPageLoad: Action[AnyContent] = (authorised andThen getData andThen requireData) {
     implicit request =>
-      Ok(view())
+      Ok(view(appConfig))
   }
 }

@@ -14,6 +14,7 @@
  * limitations under the License.
  *@
 
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
@@ -22,11 +23,16 @@
         govukButton: GovukButton
 )
 
-@()(implicit request: Request[_], messages: Messages)
+@(appConfig: FrontendAppConfig)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = titleNoForm(messages("ukOrNotKickOut.title"))) {
 
     <h1 class="govuk-heading-xl">@messages("ukOrNotKickOut.heading")</h1>
     <p class="govuk-body">@messages("ukOrNotKickOut.p1")</p>
 
+    <p>
+        <a class="govuk-link govuk-link--no-visited-state" href="@appConfig.taxAgentLink">
+            @messages("ukOrNotKickOut.linkText")
+        </a>
+    </p>
 }
