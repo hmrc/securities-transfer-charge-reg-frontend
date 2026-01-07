@@ -16,13 +16,13 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
-case class IndividualSubscriptionDetails(
-  addressLine1: String,
-  addressLine2: Option[String] = None,
-  addressLine3: Option[String] = None,
-  postCode: String,
-  country: String,
-  telephoneNumber: String,
-  mobileNumber: Option[String] = None,
-  email: String
-)
+case class IndividualSubscriptionDetails( safeId: String,
+                                          addressLine1: String,
+                                          addressLine2: Option[String] = None,
+                                          addressLine3: Option[String] = None,
+                                          postCode: String,
+                                          country: String,
+                                          telephoneNumber: String,
+                                          mobileNumber: Option[String] = None,
+                                          email: String)
+

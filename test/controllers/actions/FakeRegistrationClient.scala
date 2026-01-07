@@ -17,8 +17,8 @@
 package controllers.actions
 
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 
@@ -28,16 +28,16 @@ import scala.concurrent.Future
     override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
       if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
 
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult]
-    = Future.successful(Right(RegistrationSuccessful))
+    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] =
+      if (succeeds) Future.successful(Right(RegistrationSuccessful("Safe123"))) else Future.successful(Right(RegistrationFailed))
 
-    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult]
-    = Future.successful(Right(SubscriptionSuccessful))
+    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] =
+      if (succeeds) Future.successful(Right(SubscriptionSuccessful("Sub123"))) else Future.successful(Right(SubscriptionFailed))
 
-    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
-    = Future.successful(Right(SubscriptionSuccessful))
+    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] =
+      if (succeeds) Future.successful(Right(SubscriptionSuccessful("Sub123"))) else Future.successful(Right(SubscriptionFailed))
 
-    override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
-    = Future.successful(Right(EnrolmentSuccessful))
+    override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult] =
+      Future.successful(Right(EnrolmentSuccessful))
   }
 

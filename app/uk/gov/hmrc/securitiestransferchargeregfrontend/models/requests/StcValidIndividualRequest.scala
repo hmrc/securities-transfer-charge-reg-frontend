@@ -18,9 +18,15 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests
 
 import play.api.mvc.{Request, WrappedRequest}
 
+trait ValidIndividualData:
+  def userId: String
+  def nino: String
+  def firstName: String
+  def lastName: String
+
 case class StcValidIndividualRequest[A] (request: Request[A],
                                          userId: String,
                                          nino: String,
                                          firstName: String,
-                                         lastName: String) extends WrappedRequest[A](request)
+                                         lastName: String) extends WrappedRequest[A](request) with ValidIndividualData
 

@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 enum RegistrationResponse:
-  case RegistrationSuccessful
+  case RegistrationSuccessful(safeId: String)
   case RegistrationFailed
   
 type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
