@@ -31,7 +31,7 @@ lazy val microservice = (project in file("."))
       "uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes._",
       "uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.govuk.all._"
     ),
-    PlayKeys.playDefaultPort := 9000,
+    PlayKeys.playDefaultPort := 30037,
     ScoverageKeys.coverageExcludedFiles := "<empty>;Reverse.*;.*handlers.*;.*components.*;" +
       ".*Routes.*;.*viewmodels.govuk.*;",
     ScoverageKeys.coverageMinimumStmtTotal := 78,

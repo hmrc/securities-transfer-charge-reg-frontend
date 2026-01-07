@@ -57,6 +57,11 @@ POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitie
 GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
 
+GET        /type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = NormalMode)
+POST       /type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = NormalMode)
+GET        /change-type-of-partnership                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = CheckMode)
+POST       /change-type-of-pPartnership                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = CheckMode)
+
 GET        /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
 POST       /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
 GET        /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
