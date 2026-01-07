@@ -16,21 +16,19 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-
-import javax.inject.Inject
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, TypeOfPartnership}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, TypeOfPartnership}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView
 
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class TypeOfPartnershipController @Inject()(
@@ -57,24 +55,17 @@ class TypeOfPartnershipController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
-
         value =>
-          request.userAnswers.fold {
-            Future.successful(
-              Redirect(JourneyRecoveryController.onPageLoad())
-            )
-          } { answers =>
-            for {
-              updatedAnswers <- Future.fromTry(answers.set(TypeOfPartnershipPage, value))
-              _ <- sessionRepository.set(updatedAnswers)
-            } yield Redirect(navigator.nextPage(TypeOfPartnershipPage, mode, updatedAnswers))
-          }
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(TypeOfPartnershipPage, value))
+            _ <- sessionRepository.set(updatedAnswers)
+          } yield Redirect(navigator.nextPage(TypeOfPartnershipPage, mode, updatedAnswers))
       )
   }
 }
