@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
-enum SubscriptionResponse:
-  case SubscriptionSuccessful(subscriptionId: String)
-  case SubscriptionFailed
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
-type SubscriptionResult = Either[RegistrationServiceError, SubscriptionResponse]
+import javax.inject.Inject
 
-enum SubscriptionStatus:
-  case SubscriptionNotFound
-  case SubscriptionExpired
-  case SubscriptionActive
-  
-type SubscriptionStatusResult = Either[RegistrationServiceError, SubscriptionStatus]
+class UkOrNotFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[Boolean] =
+    Form(
+      "value" -> boolean("ukOrNot.error.required")
+    )
+}

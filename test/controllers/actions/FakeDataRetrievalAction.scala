@@ -16,44 +16,39 @@
 
 package controllers.actions
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRetrievalAction, ValidIndividualDataRetrievalAction}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{DataRetrievalAction, ValidIndividualDataRetrievalAction, ValidOrgDataRetrievalAction}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest, StcValidIndividualRequest, ValidIndividualOptionalDataRequest}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{OptionalDataRequest, StcAuthRequest, StcValidIndividualRequest, StcValidOrgRequest, ValidIndividualOptionalDataRequest, ValidOrgOptionalDataRequest}
 
 import scala.concurrent.{ExecutionContext, Future}
 
-class FakeDataRetrievalAction(
-                               dataToReturn: Option[UserAnswers]
-                             ) extends DataRetrievalAction {
-
-  override protected def transform[A](
-                                       request: StcAuthRequest[A]
-                                     ): Future[OptionalDataRequest[A]] =
+class FakeDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends DataRetrievalAction:
+  override protected def transform[A](request: StcAuthRequest[A]): Future[OptionalDataRequest[A]] =
     Future.successful(
-      OptionalDataRequest(
-        request     = request,
-        userId      = request.userId,
-        userAnswers = dataToReturn
-      )
+      OptionalDataRequest(request, request.userId, dataToReturn)
     )
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
-}
 
-class FakeValidIndividualDataRetrievalAction(
-                               dataToReturn: Option[UserAnswers]
-                             ) extends ValidIndividualDataRetrievalAction {
 
-  override protected def transform[A](
-                                       request: StcValidIndividualRequest[A]
-                                     ): Future[ValidIndividualOptionalDataRequest[A]] =
+class FakeValidIndividualDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends ValidIndividualDataRetrievalAction:
+  override protected def transform[A](request: StcValidIndividualRequest[A]): Future[ValidIndividualOptionalDataRequest[A]] =
     Future.successful(
       ValidIndividualOptionalDataRequest(request, dataToReturn)
     )
-    
 
   override protected implicit val executionContext: ExecutionContext =
     scala.concurrent.ExecutionContext.Implicits.global
-}
+
+
+class FakeValidOrgDataRetrievalAction(dataToReturn: Option[UserAnswers]) extends ValidOrgDataRetrievalAction:
+  override protected def transform[A](request: StcValidOrgRequest[A]): Future[ValidOrgOptionalDataRequest[A]] =
+    Future.successful(
+      ValidOrgOptionalDataRequest(request, dataToReturn)
+    )
+  
+  override protected implicit val executionContext: ExecutionContext =
+    scala.concurrent.ExecutionContext.Implicits.global
+
 

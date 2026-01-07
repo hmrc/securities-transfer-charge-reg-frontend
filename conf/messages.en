@@ -126,3 +126,6 @@ selectBusinessType.partnership = Partnership
 selectBusinessType.checkYourAnswersLabel = selectBusinessType
 selectBusinessType.error.required = Select selectBusinessType
 selectBusinessType.change.hidden = SelectBusinessType
+
+orgDetails.caption = Your company details
+orgDetails.hint = Your company details

@@ -32,7 +32,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
  * limitations under the License.
  */
 
-case class IndividualEnrolmentDetails(nino: String)
+case class IndividualEnrolmentDetails(subscriptionId: String, nino: String)
 
 
 

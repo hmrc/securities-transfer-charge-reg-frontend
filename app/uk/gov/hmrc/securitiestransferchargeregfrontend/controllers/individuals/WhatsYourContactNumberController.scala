@@ -16,19 +16,17 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
+import connectors.{RegistrationDataNotFoundException, SubscriptionConnector}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes as rootRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Mode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourContactNumberPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
@@ -40,9 +38,9 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
                                                   auth: IndividualAuth,
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
-                                                  registrationClient: RegistrationClient,
+                                                  subscriptionConnector: SubscriptionConnector,
                                                   view: WhatsYourContactNumberView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
   
@@ -61,6 +59,8 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
     implicit request =>
+      val innerRequest = request.request
+      val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)(innerRequest.nino)
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -68,60 +68,17 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-            subscribed     <- subscribe(updatedAnswers)
-            enrolled       <- enrol(request.request.nino)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
+            _               <- sessionRepository.set(updatedAnswers)
+            _               <- subscribe(updatedAnswers)
           } yield {
-            if (subscribed && enrolled) {
-              Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
-            } else {
-              Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
-            }
+            Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
           }
-      )
-  }
-
-  private def subscribe(userAnswers: UserAnswers): Future[Boolean] = {
-    buildSubscriptionDetails(userAnswers) map { subscriptionDetails =>
-      registrationClient.subscribe(subscriptionDetails).map { status =>
-        status.exists(_ == SubscriptionSuccessful)
+      ).recover {
+        case _: RegistrationDataNotFoundException => Redirect(rootRoutes.JourneyRecoveryController.onPageLoad())
+        // THIS IS WRONG, we need another page.
+        case _ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
       }
-    }
-  }.getOrElse {
-    Future.successful(false)
-  }
-  
-  private val buildSubscriptionDetails: UserAnswers => Option[IndividualSubscriptionDetails] = { answers => for {
-    alf           <- getAddress(answers)
-    address        = alf.address
-    (l1, l2, l3)  <- extractLines(address)
-    email         <- getEmailAddress(answers)
-    tel           <- getTelephoneNumber(answers)
-    } yield {
-      IndividualSubscriptionDetails(l1, l2, l3, address.postcode, address.country.code, tel, None, email)
-    }
-  }
-
-  private val getAddress: UserAnswers => Option[AlfConfirmedAddress] = _.get[AlfConfirmedAddress](AddressPage())
-  private val getEmailAddress: UserAnswers => Option[String] = _.get[String](WhatsYourEmailAddressPage)
-  private val getTelephoneNumber: UserAnswers => Option[String] = _.get[String](WhatsYourContactNumberPage)
-
-  private val extractLines: AlfAddress => Option[(String, Option[String], Option[String])] = { address =>
-    val lines = address.lines
-    if (lines.nonEmpty) {
-      Some(lines.head, lines.lift(1), lines.lift(2))
-    } else {
-      None
-    }
-  }
-
-  private val enrol: String => Future[Boolean] = nino => {
-    registrationClient.enrolIndividual(IndividualEnrolmentDetails(nino)).map {
-      case Right(EnrolmentSuccessful) => true
-      case Right(_) => false
-      case Left(_) => false
-    }
   }
 
 }
