@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{TypeOfPartnershipPage, UkOrNotPage, RegForSecuritiesTransferChargePage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{RegForSecuritiesTransferChargePage, TypeOfPartnershipPage, UkOrNotPage}
 
 import javax.inject.{Inject, Singleton}
 
@@ -55,15 +55,15 @@ class Navigator @Inject()() {
     case RegForSecuritiesTransferChargePage =>
       _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
 
-    case UkOrNotPage => {
+    case UkOrNotPage =>
       userAnswers => {
         userAnswers.get(UkOrNotPage) match {
           case Some(true) => ???
-          case Some(false) => ???
+          case Some(false) => orgRoutes.UkOrNotKickOutController.onPageLoad()
           case None => routes.JourneyRecoveryController.onPageLoad()
         }
       }
-    }
+  
     case TypeOfPartnershipPage =>
       userAnswers => typeOfPartnershipNavigation(userAnswers)
 

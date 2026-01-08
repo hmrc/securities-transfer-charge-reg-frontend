@@ -75,4 +75,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val countdown: Int = configuration.get[Int]("timeout-dialog.countdown")
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
+  
+  //TODO: Update link when available
+  val taxAgentLink = "https://www.gov.uk/guidance/agents"
 }

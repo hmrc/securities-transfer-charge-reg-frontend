@@ -62,6 +62,8 @@ POST       /org/selectBusinessType                        uk.gov.hmrc.securities
 GET        /org/changeSelectBusinessType                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = CheckMode)
 POST       /org/changeSelectBusinessType                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = CheckMode)
 
+GET        /uk-or-not-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
+
 GET        /type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = NormalMode)
 POST       /type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = NormalMode)
 GET        /change-type-of-partnership                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = CheckMode)
