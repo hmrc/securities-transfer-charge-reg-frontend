@@ -151,3 +151,4 @@ typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
 typeOfPartnership.checkYourAnswersLabel = What type of partnership
 typeOfPartnership.error.required = Select a partnership type
 typeOfPartnership.change.hidden = Change partnership type
+
