@@ -25,8 +25,8 @@ POST       /register                                     uk.gov.hmrc.securitiest
 
 GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()
 
-GET        /address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onPageLoad()
-GET        /address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onReturn(id: String)
+GET        /address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.AddressController.onPageLoad()
+GET        /address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.AddressController.onReturn(id: String)
 
 GET        /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
 POST       /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)

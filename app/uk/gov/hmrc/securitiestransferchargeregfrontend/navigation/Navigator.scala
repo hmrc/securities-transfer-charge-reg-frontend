@@ -45,7 +45,7 @@ class Navigator @Inject()() {
         }
 
     case individualsPages.DateOfBirthRegPage =>
-      _ => routes.AddressController.onPageLoad()
+      _ => individualRoutes.AddressController.onPageLoad()
 
     case _: AddressPage[_] =>
       _ => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)

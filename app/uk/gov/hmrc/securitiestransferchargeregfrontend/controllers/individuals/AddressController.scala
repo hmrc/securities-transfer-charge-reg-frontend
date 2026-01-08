@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
+package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import connectors.AlfAddressConnector
 import play.api.Logging
@@ -68,17 +68,12 @@ class AddressController @Inject()( auth: IndividualAuth,
 
   private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
-  private def updateUserAnswers[A](implicit request: ValidIndividualOptionalDataRequest[A]): AddressHandler = {
+  private def updateUserAnswers[A](implicit request: ValidIndividualOptionalDataRequest[A]): AddressHandler =
     address =>
       logger.info("ALF returned address successfully")
-      val updatedAnswers = request.userAnswers
-        .getOrElse(UserAnswers(request.request.userId))
-        .set(AddressPage[AlfConfirmedAddress](), address)
-        .get
-
-      sessionRepository.set(updatedAnswers).collect {
-        case true => updatedAnswers
-      }
-  }
+      sessionRepository.updateAndStore(
+        request.request.userId,
+        _.set(AddressPage[AlfConfirmedAddress](), address).get
+      )
 
 }
