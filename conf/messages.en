@@ -158,3 +158,12 @@ partnershipKickOut.p2 = You will need to use your personal One Login or Governme
 partnershipKickOut.p3 = If you do not have a One Login or Government Gateway account you will need to
 partnershipKickOut.linkText = create one using your personal details.
 
+contactEmailAddress.title = Enter a contact email address
+contactEmailAddress.heading = Enter a contact email address
+contactEmailAddress.checkYourAnswersLabel = Enter a contact email address
+contactEmailAddress.error.required = Enter an email address
+contactEmailAddress.error.length = Your email must be 50 characters or fewer
+contactEmailAddress.error.invalid = Enter an email address with a name, @ symbol and a domain name, like yourname@example.com
+contactEmailAddress.change.hidden = Enter a contact email address
+contactEmailAddress.hint = We will use this email address to notify you about your submission.
+
