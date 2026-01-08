@@ -125,3 +125,13 @@ ukOrNotKickOut.linkText = Find out about choosing a tax agent.
 
 orgDetails.caption = Your company details
 orgDetails.hint = Your company details
+typeOfPartnership.title = What type of partnership
+typeOfPartnership.heading = What type of partnership
+typeOfPartnership.generalPartnership = General Partnership
+typeOfPartnership.scottishPartnership = Scottish Partnership
+typeOfPartnership.scottishLimitedPartnership = Scottish Limited Partnership
+typeOfPartnership.limitedPartnership = Limited Partnership
+typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
+typeOfPartnership.checkYourAnswersLabel = What type of partnership
+typeOfPartnership.error.required = Select a partnership type
+typeOfPartnership.change.hidden = Change partnership type
