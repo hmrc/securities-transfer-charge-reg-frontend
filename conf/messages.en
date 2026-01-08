@@ -151,3 +151,10 @@ typeOfPartnership.checkYourAnswersLabel = What type of partnership
 typeOfPartnership.error.required = Select a partnership type
 typeOfPartnership.change.hidden = Change partnership type
 
+partnershipKickOut.title = You cannot use this service
+partnershipKickOut.heading = You cannot use this service
+partnershipKickOut.p1 = You cannot use your business tax account to access this service.
+partnershipKickOut.p2 = You will need to use your personal One Login or Government Gateway account.
+partnershipKickOut.p3 = If you do not have a One Login or Government Gateway account you will need to
+partnershipKickOut.linkText = create one using your personal details.
+
