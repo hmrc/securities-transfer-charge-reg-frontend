@@ -17,70 +17,68 @@
 package controllers.organisations
 
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.data.Form
 import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
 
 import scala.concurrent.Future
 
-class TypeOfPartnershipControllerSpec extends SpecBase with MockitoSugar {
+class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
 
-  def onwardRoute: Call = Call("GET", "/foo")
+  def onwardRoute = Call("GET", "/foo")
 
-  lazy val typeOfPartnershipRoute: String = routes.TypeOfPartnershipController.onPageLoad(NormalMode).url
+  lazy val selectBusinessTypeRoute = orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode).url
 
-  val formProvider = new TypeOfPartnershipFormProvider()
-  val form: Form[TypeOfPartnership] = formProvider()
+  val formProvider = new SelectBusinessTypeFormProvider()
+  val form = formProvider()
 
-  "TypeOfPartnership Controller" - {
+  "SelectBusinessType Controller" - {
 
-    "must return OK and correctly load the TypeOfPartnership page" in {
+    "must return OK and the correct view for a GET" in {
 
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, typeOfPartnershipRoute)
+        val request = FakeRequest(GET, selectBusinessTypeRoute)
 
         val result = route(application, request).value
 
-        val view = application.injector.instanceOf[TypeOfPartnershipView]
+        val view = application.injector.instanceOf[SelectBusinessTypeView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
       }
     }
 
-    "on pageLoad must populate the TypeOfPartnership page correctly when the question has previously been answered" in {
+    "must populate the view correctly on a GET when the question has previously been answered" in {
 
-      val userAnswers = UserAnswers(userAnswersId).set(TypeOfPartnershipPage, TypeOfPartnership.GeneralPartnership).success.value
+      val userAnswers = UserAnswers(userAnswersId).set(SelectBusinessTypePage, SelectBusinessType.values.head).success.value
 
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, typeOfPartnershipRoute)
+        val request = FakeRequest(GET, selectBusinessTypeRoute)
 
-        val view = application.injector.instanceOf[TypeOfPartnershipView]
+        val view = application.injector.instanceOf[SelectBusinessTypeView]
 
         val result = route(application, request).value
 
         status(result) mustEqual OK
-
-        contentAsString(result) mustEqual view(form.fill(TypeOfPartnership.GeneralPartnership), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(SelectBusinessType.values.head), NormalMode)(request, messages(application)).toString
       }
     }
 
@@ -100,8 +98,8 @@ class TypeOfPartnershipControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, typeOfPartnershipRoute)
-            .withFormUrlEncodedBody(("value", TypeOfPartnership.values.head.toString))
+          FakeRequest(POST, selectBusinessTypeRoute)
+            .withFormUrlEncodedBody(("value", SelectBusinessType.values.head.toString))
 
         val result = route(application, request).value
 
@@ -116,17 +114,31 @@ class TypeOfPartnershipControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, typeOfPartnershipRoute)
+          FakeRequest(POST, selectBusinessTypeRoute)
             .withFormUrlEncodedBody(("value", "invalid value"))
 
         val boundForm = form.bind(Map("value" -> "invalid value"))
 
-        val view = application.injector.instanceOf[TypeOfPartnershipView]
+        val view = application.injector.instanceOf[SelectBusinessTypeView]
 
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+      }
+    }
+
+    "must redirect to Journey Recovery for a GET if no existing data is found" in {
+
+      val application = applicationBuilder(userAnswers = None).build()
+
+      running(application) {
+        val request = FakeRequest(GET, selectBusinessTypeRoute)
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
 
@@ -136,14 +148,14 @@ class TypeOfPartnershipControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val request =
-          FakeRequest(POST, typeOfPartnershipRoute)
-            .withFormUrlEncodedBody(("value", TypeOfPartnership.values.head.toString))
+          FakeRequest(POST, selectBusinessTypeRoute)
+            .withFormUrlEncodedBody(("value", SelectBusinessType.values.head.toString))
 
         val result = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
 
-        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
+        redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
       }
     }
   }

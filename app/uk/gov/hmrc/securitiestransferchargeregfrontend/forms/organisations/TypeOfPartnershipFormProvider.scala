@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
 import play.api.data.Form
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 
 import javax.inject.Inject
 

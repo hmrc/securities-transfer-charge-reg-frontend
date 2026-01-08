@@ -14,35 +14,37 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 
-sealed trait TypeOfPartnership
+sealed trait SelectBusinessType
 
-object TypeOfPartnership extends Enumerable.Implicits {
+object SelectBusinessType extends Enumerable.Implicits {
+  
+  case object LimitedCompany extends WithName("limitedCompany") with SelectBusinessType
+  case object Partnership extends WithName("partnership") with SelectBusinessType
+  case object SoleTrader extends WithName("soleTrader") with SelectBusinessType
+  case object Trust extends WithName("trust") with SelectBusinessType
+  case object RegisteredSociety extends WithName("registeredSociety") with SelectBusinessType
+  case object UnincorporatedAssociation extends WithName("unincorporatedAssociation") with SelectBusinessType
 
-  case object GeneralPartnership extends WithName("generalPartnership") with TypeOfPartnership
-  case object ScottishPartnership extends WithName("scottishPartnership") with TypeOfPartnership
-  case object ScottishLimitedPartnership extends WithName("scottishLimitedPartnership") with TypeOfPartnership
-  case object LimitedPartnership extends WithName("limitedPartnership") with TypeOfPartnership
-  case object LimitedLiabilityPartnership extends WithName("limitedLiabilityPartnership") with TypeOfPartnership
-
-  val values: Seq[TypeOfPartnership] = Seq(
-    GeneralPartnership, ScottishPartnership, ScottishLimitedPartnership, LimitedPartnership, LimitedLiabilityPartnership
+  val values: Seq[SelectBusinessType] = Seq(
+    LimitedCompany, Partnership, SoleTrader, Trust, RegisteredSociety, UnincorporatedAssociation
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {
     case (value, index) =>
       RadioItem(
-        content = Text(messages(s"typeOfPartnership.${value.toString}")),
+        content = Text(messages(s"selectBusinessType.${value.toString}")),
         value   = Some(value.toString),
         id      = Some(s"value_$index")
       )
   }
 
-  implicit val enumerable: Enumerable[TypeOfPartnership] =
+  implicit val enumerable: Enumerable[SelectBusinessType] =
     Enumerable(values.map(v => v.toString -> v): _*)
 }

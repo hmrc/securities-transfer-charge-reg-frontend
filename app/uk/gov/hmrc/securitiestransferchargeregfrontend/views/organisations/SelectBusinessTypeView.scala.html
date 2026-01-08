@@ -16,8 +16,8 @@
 
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 
 @this(
     layout: templates.Layout,
@@ -29,25 +29,26 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("typeOfPartnership.title"))) {
+@layout(pageTitle = title(form, messages("selectBusinessType.title"))) {
 
-    @formHelper(action = routes.TypeOfPartnershipController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.SelectBusinessTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
-            @govukErrorSummary(ErrorSummaryViewModel(form,  errorLinkOverrides = Map("value" -> "value_0")))
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
         }
 
         <span class="govuk-caption-xl">
-                <span class="govuk-visually-hidden">
-                    @messages("section.caption.hidden")
-                </span>
-                @messages("orgDetails.caption")
+            <span class="govuk-visually-hidden">
+                @messages("section.caption.hidden")
+            </span>
+            @messages("orgDetails.caption")
         </span>
+
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("typeOfPartnership.heading")).asPageHeading(),
-                items  = TypeOfPartnership.options
+                legend = LegendViewModel(messages("selectBusinessType.heading")).asPageHeading(),
+                items  = SelectBusinessType.options
             )
         )
 
@@ -56,3 +57,4 @@
         )
     }
 }
+

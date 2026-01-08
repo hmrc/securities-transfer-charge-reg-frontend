@@ -17,12 +17,12 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
 import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-case object TypeOfPartnershipPage extends QuestionPage[TypeOfPartnership] {
+case object SelectBusinessTypePage extends QuestionPage[SelectBusinessType] {
 
   override def path: JsPath = JsPath \ toString
 
-  override def toString: String = "typeOfPartnership"
+  override def toString: String = "selectBusinessType"
 }

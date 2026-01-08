@@ -14,26 +14,26 @@
  * limitations under the License.
  */
 
-package forms
+package forms.organisations
 
 import forms.behaviours.OptionFieldBehaviours
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
 import play.api.data.FormError
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 
-class TypeOfPartnershipFormProviderSpec extends OptionFieldBehaviours {
+class SelectBusinessTypeFormProviderSpec extends OptionFieldBehaviours {
 
-  val form = new TypeOfPartnershipFormProvider()()
+  val form = new SelectBusinessTypeFormProvider()()
 
   ".value" - {
 
     val fieldName = "value"
-    val requiredKey = "typeOfPartnership.error.required"
+    val requiredKey = "selectBusinessType.error.required"
 
-    behave like optionsField[TypeOfPartnership](
+    behave like optionsField[SelectBusinessType](
       form,
       fieldName,
-      validValues  = TypeOfPartnership.values,
+      validValues  = SelectBusinessType.values,
       invalidError = FormError(fieldName, "error.invalid")
     )
 

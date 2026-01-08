@@ -14,15 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
-import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import javax.inject.Inject
 
-case object TypeOfPartnershipPage extends QuestionPage[TypeOfPartnership] {
+class SelectBusinessTypeFormProvider @Inject() extends Mappings {
 
-  override def path: JsPath = JsPath \ toString
-
-  override def toString: String = "typeOfPartnership"
+  def apply(): Form[SelectBusinessType] =
+    Form(
+      "value" -> enumerable[SelectBusinessType]("selectBusinessType.error.required")
+    )
 }

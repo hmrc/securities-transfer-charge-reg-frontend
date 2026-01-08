@@ -21,10 +21,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{TypeOfPartnershipPage, UkOrNotPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals as individualsPages
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations as organisationsPages
 
 import javax.inject.{Inject, Singleton}
 
@@ -35,36 +36,45 @@ class Navigator @Inject()() {
     case individuals.RegForSecuritiesTransferChargePage =>
       _ => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
 
-    case CheckYourDetailsPage =>
+    case individualsPages.CheckYourDetailsPage =>
       userAnswers =>
-        userAnswers.get(CheckYourDetailsPage) match {
+        userAnswers.get(individualsPages.CheckYourDetailsPage) match {
           case Some(true)  => individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
           case Some(false) => individualRoutes.UpdateDetailsKickOutController.onPageLoad()
           case None        => routes.JourneyRecoveryController.onPageLoad()
         }
 
-    case DateOfBirthRegPage =>
+    case individualsPages.DateOfBirthRegPage =>
       _ => routes.AddressController.onPageLoad()
 
     case _: AddressPage[_] =>
       _ => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
 
-    case WhatsYourEmailAddressPage =>
+    case individualsPages. WhatsYourEmailAddressPage =>
       _ => individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
 
-    case organisations.RegForSecuritiesTransferChargePage =>
+    case organisationsPages.RegForSecuritiesTransferChargePage =>
       _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
 
-    case UkOrNotPage =>
+    case organisationsPages.UkOrNotPage =>
       userAnswers => {
-        userAnswers.get(UkOrNotPage) match {
-          case Some(true) => ???
+        userAnswers.get(organisationsPages.UkOrNotPage) match {
+          case Some(true) => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
           case Some(false) => orgRoutes.UkOrNotKickOutController.onPageLoad()
           case None => routes.JourneyRecoveryController.onPageLoad()
         }
       }
+
+    case organisationsPages.SelectBusinessTypePage =>
+      userAnswers => {
+        userAnswers.get(organisationsPages.SelectBusinessTypePage) match {
+          case Some(SelectBusinessType.Partnership) => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+          case Some(_) => ???
+          case None => routes.JourneyRecoveryController.onPageLoad()
+        }
+      }
   
-    case TypeOfPartnershipPage =>
+    case organisationsPages.TypeOfPartnershipPage =>
       userAnswers => typeOfPartnershipNavigation(userAnswers)
 
     case _ =>
@@ -75,7 +85,7 @@ class Navigator @Inject()() {
 
   private def typeOfPartnershipNavigation(userAnswers: UserAnswers): Call =
     userAnswers
-      .get(TypeOfPartnershipPage)
+      .get(organisationsPages.TypeOfPartnershipPage)
       .map {
         case GeneralPartnership | ScottishPartnership => ???
         case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => ???

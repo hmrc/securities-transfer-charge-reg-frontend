@@ -23,42 +23,42 @@ import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import org.scalatest.OptionValues
 import play.api.libs.json.{JsError, JsString, Json}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 
-class TypeOfPartnershipSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
+class SelectBusinessTypeSpec extends AnyFreeSpec with Matchers with ScalaCheckPropertyChecks with OptionValues {
 
-  "TypeOfPartnership" - {
+  "SelectBusinessType" - {
 
     "must deserialise valid values" in {
 
-      val gen = Gen.oneOf(TypeOfPartnership.values.toSeq)
+      val gen = Gen.oneOf(SelectBusinessType.values.toSeq)
 
       forAll(gen) {
-        typeOfPartnership =>
+        selectBusinessType =>
 
-          JsString(typeOfPartnership.toString).validate[TypeOfPartnership].asOpt.value mustEqual typeOfPartnership
+          JsString(selectBusinessType.toString).validate[SelectBusinessType].asOpt.value mustEqual selectBusinessType
       }
     }
 
     "must fail to deserialise invalid values" in {
 
-      val gen = arbitrary[String] suchThat (!TypeOfPartnership.values.map(_.toString).contains(_))
+      val gen = arbitrary[String] suchThat (!SelectBusinessType.values.map(_.toString).contains(_))
 
       forAll(gen) {
         invalidValue =>
 
-          JsString(invalidValue).validate[TypeOfPartnership] mustEqual JsError("error.invalid")
+          JsString(invalidValue).validate[SelectBusinessType] mustEqual JsError("error.invalid")
       }
     }
 
     "must serialise" in {
 
-      val gen = Gen.oneOf(TypeOfPartnership.values.toSeq)
+      val gen = Gen.oneOf(SelectBusinessType.values.toSeq)
 
       forAll(gen) {
-        typeOfPartnership =>
+        selectBusinessType =>
 
-          Json.toJson(typeOfPartnership) mustEqual JsString(typeOfPartnership.toString)
+          Json.toJson(selectBusinessType) mustEqual JsString(selectBusinessType.toString)
       }
     }
   }

@@ -128,6 +128,18 @@ ukOrNotKickOut.heading = You cannot use this service
 ukOrNotKickOut.p1 = To tell us about a securities transfer you will need to use a UK agent who can provide information to HMRC on your behalf.
 ukOrNotKickOut.linkText = Find out about choosing a tax agent.
 
+selectBusinessType.title = Select your business type
+selectBusinessType.heading = Select your business type
+selectBusinessType.limitedCompany = Limited Company
+selectBusinessType.partnership = Partnership
+selectBusinessType.soleTrader = Sole Trader
+selectBusinessType.trust = Trust
+selectBusinessType.registeredSociety = Registered Society
+selectBusinessType.unincorporatedAssociation = Unincorporated Association
+selectBusinessType.checkYourAnswersLabel = Select your business type
+selectBusinessType.error.required = Select your business type
+selectBusinessType.change.hidden = Select your business type
+
 typeOfPartnership.title = What type of partnership
 typeOfPartnership.heading = What type of partnership
 typeOfPartnership.generalPartnership = General Partnership
@@ -138,3 +150,4 @@ typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
 typeOfPartnership.checkYourAnswersLabel = What type of partnership
 typeOfPartnership.error.required = Select a partnership type
 typeOfPartnership.change.hidden = Change partnership type
+
