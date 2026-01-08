@@ -136,10 +136,9 @@ selectBusinessType.soleTrader = Sole Trader
 selectBusinessType.trust = Trust
 selectBusinessType.registeredSociety = Registered Society
 selectBusinessType.unincorporatedAssociation = Unincorporated Association
-
-selectBusinessType.checkYourAnswersLabel = selectBusinessType
-selectBusinessType.error.required = Select selectBusinessType
-selectBusinessType.change.hidden = SelectBusinessType
+selectBusinessType.checkYourAnswersLabel = Select your business type
+selectBusinessType.error.required = Select your business type
+selectBusinessType.change.hidden = Select your business type
 
 typeOfPartnership.title = What type of partnership
 typeOfPartnership.heading = What type of partnership
