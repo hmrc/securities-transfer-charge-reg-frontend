@@ -35,7 +35,7 @@ class UkOrNotKickOutController @Inject()(
 
   import auth.*
 
-  def onPageLoad: Action[AnyContent] = (authorised andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = authorised {
     implicit request =>
       Ok(view(appConfig))
   }
