@@ -51,6 +51,7 @@ unauthorised.heading = You can’t access this service with this account
 ## Section Titles
 section.caption.hidden = This section is
 orgDetails.caption = Your company details
+orgDetails.hint = Your company details
 
 regForSecuritiesTransferCharge.title = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer
@@ -121,6 +122,11 @@ ukOrNot.error.required = Select yes if your company operates in the UK
 ukOrNot.change.hidden = Does your company operate in the UK?
 
 organisationsRegForSecuritiesTransferCharge.p1 = Before using this service you will need to register and provide details about your business.
+
+ukOrNotKickOut.title = You cannot use this service
+ukOrNotKickOut.heading = You cannot use this service
+ukOrNotKickOut.p1 = To tell us about a securities transfer you will need to use a UK agent who can provide information to HMRC on your behalf.
+ukOrNotKickOut.linkText = Find out about choosing a tax agent.
 
 typeOfPartnership.title = What type of partnership
 typeOfPartnership.heading = What type of partnership
