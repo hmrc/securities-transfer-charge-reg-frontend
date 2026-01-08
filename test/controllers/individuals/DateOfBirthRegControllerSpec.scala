@@ -16,6 +16,7 @@
 
 package controllers.individuals
 
+import base.Fixtures.safeId
 import base.SpecBase
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
@@ -99,12 +100,18 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      
+      val fakeRegistrationClient = mock[RegistrationClient]
+      when(fakeRegistrationClient.register(any[IndividualRegistrationDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(RegistrationResponse.RegistrationSuccessful(safeId))))
 
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
             bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
-            bind[SessionRepository].toInstance(mockSessionRepository)
+            bind[SessionRepository].toInstance(mockSessionRepository),
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
           )
           .build()
 
@@ -115,6 +122,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
+
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
