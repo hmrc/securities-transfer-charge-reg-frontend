@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 import play.api.Logging
-import play.api.http.Status.{BAD_REQUEST, OK}
+import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -37,7 +37,7 @@ trait RegistrationClient:
   def register(individualRegistrationDetails: IndividualRegistrationDetails)(implicit hc: HeaderCarrier): Future[RegistrationResult]
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult]
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
-  def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult]
+  def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult]
 
 // DUMMY IMPL until we have a real BE implementation for this.
 class RegistrationClientImpl @Inject()(
@@ -109,6 +109,31 @@ class RegistrationClientImpl @Inject()(
       }
   }
   override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful("SUBSCRIPTION123")))
-  override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult] = Future.successful(Right(EnrolmentSuccessful))
+
+  override def enrolIndividual(
+                                enrolmentDetails: IndividualEnrolmentDetails
+                              )(implicit hc: HeaderCarrier): Future[EnrolmentResult] = {
+
+    val url = url"${config.enrolIndividualBackendUrl}"
+
+    http.post(url)
+      .withBody(Json.toJson(enrolmentDetails): JsValue)
+      .execute[HttpResponse]
+      .map { resp =>
+        resp.status match {
+          case NO_CONTENT | OK =>
+            Right(EnrolmentResponse.EnrolmentSuccessful)
+
+          case BAD_REQUEST =>
+            Left(EnrolmentClientError(s"400 from BE. body=${resp.body}"))
+
+          case status =>
+            Left(EnrolmentServerError(s"unexpected status=$status body=${resp.body}"))
+        }
+      }
+      .recover { case NonFatal(e) =>
+        Left(EnrolmentServerError(s"exception calling BE: ${e.getMessage}"))
+      }
+  }
 
 }

@@ -24,3 +24,5 @@ final case class SubscriptionServerError(message: String) extends RegistrationSe
 final case class RegistrationClientError(message: String) extends RegistrationServiceError
 final case class RegistrationServerError(message: String) extends RegistrationServiceError
 
+final case class EnrolmentClientError(message: String) extends RegistrationServiceError
+final case class EnrolmentServerError(message: String) extends RegistrationServiceError

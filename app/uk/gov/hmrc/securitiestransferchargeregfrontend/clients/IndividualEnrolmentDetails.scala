@@ -41,5 +41,9 @@ object IndividualEnrolmentDetails {
     Json.format[IndividualEnrolmentDetails]
 }
 
+final case class IndividualEnrolmentResponseDto(enrolled: Boolean)
 
+object IndividualEnrolmentResponseDto:
+  given OFormat[IndividualEnrolmentResponseDto] =
+    Json.format[IndividualEnrolmentResponseDto]
 
