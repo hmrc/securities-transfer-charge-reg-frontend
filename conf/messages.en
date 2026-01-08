@@ -48,6 +48,10 @@ signedOut.guidance = We did not save your answers.
 unauthorised.title = You can’t access this service with this account
 unauthorised.heading = You can’t access this service with this account
 
+## Section Titles
+section.caption.hidden = This section is
+orgDetails.caption = Your company details
+
 regForSecuritiesTransferCharge.title = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.p1 = Before using this service you will need to register and confirm or provide some personal details.
@@ -127,5 +131,13 @@ selectBusinessType.checkYourAnswersLabel = selectBusinessType
 selectBusinessType.error.required = Select selectBusinessType
 selectBusinessType.change.hidden = SelectBusinessType
 
-orgDetails.caption = Your company details
-orgDetails.hint = Your company details
+typeOfPartnership.title = What type of partnership
+typeOfPartnership.heading = What type of partnership
+typeOfPartnership.generalPartnership = General Partnership
+typeOfPartnership.scottishPartnership = Scottish Partnership
+typeOfPartnership.scottishLimitedPartnership = Scottish Limited Partnership
+typeOfPartnership.limitedPartnership = Limited Partnership
+typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
+typeOfPartnership.checkYourAnswersLabel = What type of partnership
+typeOfPartnership.error.required = Select a partnership type
+typeOfPartnership.change.hidden = Change partnership type

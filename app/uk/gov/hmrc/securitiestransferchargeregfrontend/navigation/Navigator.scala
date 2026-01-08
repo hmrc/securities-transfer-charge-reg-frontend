@@ -17,13 +17,14 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
 import play.api.mvc.Call
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.{routes => orgRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.UkOrNotPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{TypeOfPartnershipPage, UkOrNotPage, RegForSecuritiesTransferChargePage}
 
 import javax.inject.{Inject, Singleton}
 
@@ -51,7 +52,7 @@ class Navigator @Inject()() {
     case WhatsYourEmailAddressPage =>
       _ => individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
 
-    case organisations.RegForSecuritiesTransferChargePage =>
+    case RegForSecuritiesTransferChargePage =>
       _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
 
     case UkOrNotPage => {
@@ -63,12 +64,24 @@ class Navigator @Inject()() {
         }
       }
     }
+    case TypeOfPartnershipPage =>
+      userAnswers => typeOfPartnershipNavigation(userAnswers)
 
     case _ =>
       _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
+
+  private def typeOfPartnershipNavigation(userAnswers: UserAnswers): Call =
+    userAnswers
+      .get(TypeOfPartnershipPage)
+      .map {
+        case GeneralPartnership | ScottishPartnership => ???
+        case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => ???
+      }
+      .getOrElse(routes.JourneyRecoveryController.onPageLoad())
+
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     mode match {

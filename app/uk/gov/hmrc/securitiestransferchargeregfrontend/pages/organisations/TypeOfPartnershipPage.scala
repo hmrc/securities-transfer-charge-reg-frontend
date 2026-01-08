@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,21 +14,15 @@
  * limitations under the License.
  */
 
-package generators
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
-import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import play.api.libs.json.JsPath
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-trait ModelGenerators {
+case object TypeOfPartnershipPage extends QuestionPage[TypeOfPartnership] {
 
-  implicit lazy val arbitrarySelectBusinessType: Arbitrary[SelectBusinessType] =
-    Arbitrary {
-      Gen.oneOf(SelectBusinessType.values.toSeq)
-    }
+  override def path: JsPath = JsPath \ toString
 
-  implicit lazy val arbitraryTypeOfPartnership: Arbitrary[TypeOfPartnership] =
-    Arbitrary {
-      Gen.oneOf(TypeOfPartnership.values)
-    }
+  override def toString: String = "typeOfPartnership"
 }
