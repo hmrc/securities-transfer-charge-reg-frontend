@@ -17,8 +17,7 @@
 package generators
 
 import org.scalacheck.{Arbitrary, Gen}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 
 trait ModelGenerators {
 

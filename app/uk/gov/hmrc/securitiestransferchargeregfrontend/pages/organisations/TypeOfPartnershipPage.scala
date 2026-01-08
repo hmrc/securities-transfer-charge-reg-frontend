@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
 import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
 case object TypeOfPartnershipPage extends QuestionPage[TypeOfPartnership] {

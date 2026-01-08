@@ -17,9 +17,9 @@
 package forms
 
 import forms.behaviours.OptionFieldBehaviours
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
 import play.api.data.FormError
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 
 class TypeOfPartnershipFormProviderSpec extends OptionFieldBehaviours {
 

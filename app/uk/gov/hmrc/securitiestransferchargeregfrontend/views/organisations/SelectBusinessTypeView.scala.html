@@ -18,7 +18,6 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
-@import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 @this(
     layout: templates.Layout,
@@ -30,29 +29,32 @@
 
 @(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("selectBusinessType.title")))
+@layout(pageTitle = title(form, messages("selectBusinessType.title"))) {
 
-<h1 class="govuk-heading-l">@messages("selectBusinessType.heading")</h1>
+    @formHelper(action = routes.SelectBusinessTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
-@formHelper(action = routes.SelectBusinessTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+        @if(form.errors.nonEmpty) {
+            @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
+        }
 
-    @if(form.errors.nonEmpty) {
-        @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))
-    }
+        <span class="govuk-caption-xl">
+            <span class="govuk-visually-hidden">
+                @messages("section.caption.hidden")
+            </span>
+            @messages("orgDetails.caption")
+        </span>
 
-    @govukRadios(
-        RadiosViewModel(
-            field  = form("value"),
-            legend = LegendViewModel(messages("selectBusinessType.heading")).asPageHeading(),
-            items  = SelectBusinessType.options
-        ).withHeadingAndSectionCaption(
-            Text(messages("selectBusinessType.heading")),
-            Text(messages("orgDetails.caption"))
+        @govukRadios(
+            RadiosViewModel(
+                field  = form("value"),
+                legend = LegendViewModel(messages("selectBusinessType.heading")).asPageHeading(),
+                items  = SelectBusinessType.options
+            )
         )
-    )
 
-    @govukButton(
-        ButtonViewModel(messages("site.continue"))
-    )
+        @govukButton(
+            ButtonViewModel(messages("site.continue"))
+        )
+    }
 }
 

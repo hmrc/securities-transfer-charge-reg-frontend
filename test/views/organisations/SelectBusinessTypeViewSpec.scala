@@ -38,7 +38,7 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
     viewInstance(form, NormalMode)(fakeRequest, messages).body
   )
 
-  object ExpectedIndividual {
+  object ExpectedMessages {
     val title = "Register to tell us about a securities transfer"
     val heading = "Register to tell us about a securities transfer"
     val continue = "Continue"
@@ -47,27 +47,28 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
     val para2Value = "You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account."
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
-    "the user is an Individual" - {
-      val individualPage = view()
+  "The SelectBusinessTypeView" - {
+    
+    "create a view" - {
+      val businessTypeView = view()
 
       "have the correct title" in {
-        individualPage.title must include(ExpectedIndividual.title)
+        businessTypeView.title must include(ExpectedMessages.title)
       }
 
       "have the correct heading" in {
-        individualPage.select("h1").text() mustBe ExpectedIndividual.heading
+        businessTypeView.select("h1").text() mustBe ExpectedMessages.heading
       }
 
       "display the correct paragraph content" in {
 
-        individualPage.para(1) mustBe Some(ExpectedIndividual.para1Value)
-        individualPage.para(2) mustBe Some(ExpectedIndividual.para2Value)
+        businessTypeView.para(1) mustBe Some(ExpectedMessages.para1Value)
+        businessTypeView.para(2) mustBe Some(ExpectedMessages.para2Value)
       }
 
       "have a continue button with the correct text" in {
-        val button = individualPage.select(".govuk-button")
-        button.text() mustBe ExpectedIndividual.continue
+        val button = businessTypeView.select(".govuk-button")
+        button.text() mustBe ExpectedMessages.continue
       }
     }
   }

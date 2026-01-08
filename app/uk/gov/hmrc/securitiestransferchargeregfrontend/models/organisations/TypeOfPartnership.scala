@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.models
+package uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations
 
 import play.api.i18n.Messages
 import uk.gov.hmrc.govukfrontend.views.Aliases.Text
 import uk.gov.hmrc.govukfrontend.views.viewmodels.radios.RadioItem
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Enumerable, WithName}
 
 sealed trait TypeOfPartnership
 

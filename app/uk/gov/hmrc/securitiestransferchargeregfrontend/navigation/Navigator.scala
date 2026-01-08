@@ -21,7 +21,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{TypeOfPartnershipPage, UkOrNotPage, RegForSecuritiesTransferChargePage}

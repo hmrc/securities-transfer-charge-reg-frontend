@@ -51,6 +51,7 @@ unauthorised.heading = You can’t access this service with this account
 ## Section Titles
 section.caption.hidden = This section is
 orgDetails.caption = Your company details
+orgDetails.hint = Your company details
 
 regForSecuritiesTransferCharge.title = Register to tell us about a securities transfer
 regForSecuritiesTransferCharge.heading = Register to tell us about a securities transfer

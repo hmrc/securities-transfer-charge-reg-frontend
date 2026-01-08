@@ -30,7 +30,8 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, TypeOfPartnership, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView

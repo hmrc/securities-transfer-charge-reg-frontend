@@ -22,7 +22,8 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, TypeOfPartnership}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
