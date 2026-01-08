@@ -69,6 +69,7 @@ class Navigator @Inject()() {
       userAnswers => {
         userAnswers.get(organisationsPages.SelectBusinessTypePage) match {
           case Some(SelectBusinessType.Partnership) => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+          case Some(SelectBusinessType.SoleTrader) => orgRoutes.PartnershipKickOutController.onPageLoad()
           case Some(_) => ???
           case None => routes.JourneyRecoveryController.onPageLoad()
         }

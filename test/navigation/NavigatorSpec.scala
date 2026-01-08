@@ -21,10 +21,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{SelectBusinessTypePage, TypeOfPartnershipPage}
 
 class NavigatorSpec extends SpecBase {
 
@@ -76,6 +77,25 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
       }
+
+      "must go from the SelectBusinessTypePage to partnershipKickOutPage when soletrader is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.SoleTrader).success.value
+        navigator.nextPage(
+          SelectBusinessTypePage,
+          NormalMode,
+          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+      }
+
+      "must go from the SelectBusinessTypePage to TypeOfPartnershipPage when partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.Partnership).success.value
+        navigator.nextPage(
+          SelectBusinessTypePage,
+          NormalMode,
+          answers) mustBe orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+      }
+
 
     }
 
