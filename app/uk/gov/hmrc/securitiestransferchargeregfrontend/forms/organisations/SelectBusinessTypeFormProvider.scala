@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,23 +14,17 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.queries
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
-import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import javax.inject.Inject
 
-import scala.annotation.nowarn
-import scala.util.{Success, Try}
+class SelectBusinessTypeFormProvider @Inject() extends Mappings {
 
-sealed trait Query {
-
-  def path: JsPath
-}
-
-trait Gettable[A] extends Query
-
-trait Settable[A] extends Query {
-
-  def cleanup(@nowarn value: Option[A], userAnswers: UserAnswers): Try[UserAnswers] =
-    Success(userAnswers)
+  def apply(): Form[SelectBusinessType] =
+    Form(
+      "value" -> enumerable[SelectBusinessType]("selectBusinessType.error.required")
+    )
 }
