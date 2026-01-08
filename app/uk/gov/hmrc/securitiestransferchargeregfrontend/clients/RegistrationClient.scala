@@ -17,15 +17,14 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 import play.api.Logging
-import play.api.http.Status.{BAD_REQUEST, NO_CONTENT, OK}
+import play.api.http.Status.{BAD_REQUEST, NOT_FOUND, NO_CONTENT, OK}
 import play.api.libs.json.{JsValue, Json}
 import play.api.libs.ws.JsonBodyWritables.writeableOf_JsValue
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.IndividualRegistrationDetails.format
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 import javax.inject.Inject
@@ -33,10 +32,10 @@ import scala.concurrent.{ExecutionContext, Future}
 import scala.util.control.NonFatal
 
 trait RegistrationClient:
-  def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult]
+  def hasCurrentSubscription(etmpSafeId: String)(implicit hc: HeaderCarrier): Future[SubscriptionStatusResult]
   def register(individualRegistrationDetails: IndividualRegistrationDetails)(implicit hc: HeaderCarrier): Future[RegistrationResult]
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult]
-  def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult]
+  def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult]
   def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult]
 
 // DUMMY IMPL until we have a real BE implementation for this.
@@ -44,7 +43,27 @@ class RegistrationClientImpl @Inject()(
                                         http: HttpClientV2,
                                         config: FrontendAppConfig
                                       )(implicit ec: ExecutionContext) extends RegistrationClient with Logging {
-  override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] = Future.successful(Right(SubscriptionActive))
+
+  override def hasCurrentSubscription(
+                                       etmpSafeId: String
+                                     )(implicit hc: HeaderCarrier): Future[SubscriptionStatusResult] = {
+
+    val url = url"${config.hasCurrentSubscriptionBaseUrl}/$etmpSafeId/status"
+
+    http.get(url)
+      .execute[HttpResponse]
+      .map { resp =>
+        resp.status match {
+          case OK        => Right(SubscriptionStatus.SubscriptionActive)
+          case NOT_FOUND => Right(SubscriptionStatus.SubscriptionNotFound)
+          case status    => Left(SubscriptionServerError(s"unexpected status=$status body=${resp.body}"))
+        }
+      }
+      .recover { case NonFatal(e) =>
+        Left(SubscriptionServerError(s"exception calling BE: ${e.getMessage}"))
+      }
+  }
+
   override def register(
                          individualRegistrationDetails: IndividualRegistrationDetails
                        )(implicit hc: HeaderCarrier): Future[RegistrationResult] = {
@@ -108,7 +127,7 @@ class RegistrationClientImpl @Inject()(
         Left(SubscriptionServerError(s"exception calling BE: ${e.getMessage}"))
       }
   }
-  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful("SUBSCRIPTION123")))
+  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful("SUBSCRIPTION123")))
 
   override def enrolIndividual(
                                 enrolmentDetails: IndividualEnrolmentDetails

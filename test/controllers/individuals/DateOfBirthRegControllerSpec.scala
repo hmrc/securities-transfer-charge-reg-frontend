@@ -26,10 +26,8 @@ import play.api.inject.bind
 import play.api.mvc.{AnyContentAsEmpty, AnyContentAsFormUrlEncoded, Call}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentFailed
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionFailed
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualRegistrationDetails, RegistrationClient, RegistrationResponse}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
@@ -100,7 +98,6 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the next page when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
-
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
 
       val application =
@@ -160,21 +157,17 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
 
     "must redirect to the KO page if registration fails" in {
       val fakeRegistrationClient = mock[RegistrationClient]
-
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
-        .thenReturn(Future.successful(Right(SubscriptionFailed)))
-
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
-        .thenReturn(Future.successful(Right(EnrolmentFailed)))
-
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
-        .thenReturn(Future.successful(Right(SubscriptionActive)))
       
-      val application = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[RegistrationClient].toInstance(fakeRegistrationClient),
-          bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository))
-        .build()
+      when(fakeRegistrationClient.register(any[IndividualRegistrationDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(RegistrationResponse.RegistrationFailed)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(emptyUserAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
 
       running(application) {
         val result = route(application, postRequest()).value

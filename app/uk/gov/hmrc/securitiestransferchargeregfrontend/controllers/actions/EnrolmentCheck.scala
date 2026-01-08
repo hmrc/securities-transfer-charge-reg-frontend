@@ -18,11 +18,14 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import play.api.Logging
 import play.api.mvc.*
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
@@ -32,19 +35,44 @@ trait EnrolmentCheck extends ActionFilter[StcAuthRequest]
 class EnrolmentCheckImpl @Inject()(val parser: BodyParsers.Default,
                                    redirects: Redirects,
                                    retrievalFilter: RetrievalFilter,
-                                   registrationClient: RegistrationClient)
+                                   registrationClient: RegistrationClient,
+                                   registrationDataRepository: RegistrationDataRepository
+                                  )
                                   (implicit ec: ExecutionContext) extends EnrolmentCheck with Logging:
 
   import redirects.*
 
   // TODO: We need a way to get the safe-id for the current user
-  private[controllers] def hasCurrentSubscription: Future[Boolean]
-    = registrationClient.hasCurrentSubscription("safe-id").map(_ == Right(SubscriptionActive))
+  private[controllers] def hasCurrentSubscription(
+                                                   etmpSafeId: String
+                                                 )(implicit hc: HeaderCarrier): Future[Boolean] =
+    registrationClient.hasCurrentSubscription(etmpSafeId).map {
+      case Right(SubscriptionActive) => true
+      case _                         => false
+    }
+
 
   override protected def executionContext: ExecutionContext = ec
 
-  override protected def filter[A](request: StcAuthRequest[A]): Future[Option[Result]] =
-    hasCurrentSubscription.map { isSubscribed =>
-      if (retrievalFilter.enrolledForSTC(request.enrolments) && isSubscribed)
-        Some(redirectToService) else None
+  override protected def filter[A](
+                                    request: StcAuthRequest[A]
+                                  ): Future[Option[Result]] = {
+
+    implicit val hc: HeaderCarrier =
+      HeaderCarrierConverter.fromRequestAndSession(request.request, request.request.session)
+
+    registrationDataRepository.getRegistrationData(request.userId).flatMap { regData =>
+      regData.safeId match {
+        case Some(safeId) =>
+          hasCurrentSubscription(safeId).map { isSubscribed =>
+            if (retrievalFilter.enrolledForSTC(request.enrolments) && isSubscribed)
+              Some(redirectToService)
+            else
+              None
+          }
+
+        case None =>
+          Future.successful(None)
+      }
     }
+  }
