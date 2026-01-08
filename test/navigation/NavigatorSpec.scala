@@ -17,12 +17,14 @@
 package navigation
 
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{routes => individualRoutes}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
 
 class NavigatorSpec extends SpecBase {
 
@@ -37,7 +39,7 @@ class NavigatorSpec extends SpecBase {
         case object UnknownPage extends Page
         navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
       }
-      
+
       "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
         navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
       }
@@ -54,6 +56,25 @@ class NavigatorSpec extends SpecBase {
           NormalMode,
           UserAnswers("id")
         ) mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+      }
+
+
+      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when general partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.GeneralPartnership).success.value
+        navigator.nextPage(
+          TypeOfPartnershipPage,
+          NormalMode,
+          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+      }
+
+      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when scottish partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.ScottishPartnership).success.value
+        navigator.nextPage(
+          TypeOfPartnershipPage,
+          NormalMode,
+          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
       }
 
     }
