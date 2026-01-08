@@ -25,15 +25,15 @@ sealed trait SelectBusinessType
 
 object SelectBusinessType extends Enumerable.Implicits {
   
-  case object LimitedCompany extends WithName("limited Company") with SelectBusinessType
-  case object Partnership extends WithName("Partnership") with SelectBusinessType
-  case object SoleTrader extends WithName("Sole Trader") with SelectBusinessType
-  case object Trust extends WithName("Trust") with SelectBusinessType
-  case object RegisteredSociety extends WithName("Registered Society") with SelectBusinessType
-  case object UnincorporatedAssociation extends WithName("Unincorporated Association") with SelectBusinessType
+  case object LimitedCompany extends WithName("limitedCompany") with SelectBusinessType
+  case object Partnership extends WithName("partnership") with SelectBusinessType
+  case object SoleTrader extends WithName("soleTrader") with SelectBusinessType
+  case object Trust extends WithName("trust") with SelectBusinessType
+  case object RegisteredSociety extends WithName("registeredSociety") with SelectBusinessType
+  case object UnincorporatedAssociation extends WithName("unincorporatedAssociation") with SelectBusinessType
 
   val values: Seq[SelectBusinessType] = Seq(
-    LimitedCompany, Partnership
+    LimitedCompany, Partnership, SoleTrader, Trust, RegisteredSociety, UnincorporatedAssociation
   )
 
   def options(implicit messages: Messages): Seq[RadioItem] = values.zipWithIndex.map {

@@ -76,6 +76,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
   
-  //TODO: Update link when available
-  val taxAgentLink = "https://www.gov.uk/guidance/agents"
+  val taxAgentLink: String = configuration.get[String]("urls.taxAgentLink")
 }

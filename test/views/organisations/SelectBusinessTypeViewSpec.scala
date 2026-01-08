@@ -39,12 +39,9 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
   )
 
   object ExpectedMessages {
-    val title = "Register to tell us about a securities transfer"
-    val heading = "Register to tell us about a securities transfer"
+    val title = "Select your business type"
+    val heading = "Select your business type"
     val continue = "Continue"
-
-    val para1Value = "Before using this service you will need to register and provide details about your business."
-    val para2Value = "You will only have to do this the first time you use the online service. These details will not be added to your GOV.UK One Login or Government Gateway account."
   }
 
   "The SelectBusinessTypeView" - {
@@ -58,12 +55,6 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
 
       "have the correct heading" in {
         businessTypeView.select("h1").text() mustBe ExpectedMessages.heading
-      }
-
-      "display the correct paragraph content" in {
-
-        businessTypeView.para(1) mustBe Some(ExpectedMessages.para1Value)
-        businessTypeView.para(2) mustBe Some(ExpectedMessages.para2Value)
       }
 
       "have a continue button with the correct text" in {
