@@ -73,3 +73,5 @@ GET        /org/uk-or-not                                        uk.gov.hmrc.sec
 POST       /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
 GET        /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
 POST       /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
+
+GET        /org/partnership-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.PartnershipKickOutController.onPageLoad()

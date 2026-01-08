@@ -77,4 +77,5 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val cacheTtl: Long = configuration.get[Int]("mongodb.timeToLiveInSeconds")
   
   val taxAgentLink: String = configuration.get[String]("urls.taxAgentLink")
+  val hmrcOnlineServicesLink = "https://www.gov.uk/log-in-register-hmrc-online-services/register"
 }

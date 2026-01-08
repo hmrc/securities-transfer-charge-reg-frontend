@@ -87,7 +87,7 @@ class Navigator @Inject()() {
     userAnswers
       .get(organisationsPages.TypeOfPartnershipPage)
       .map {
-        case GeneralPartnership | ScottishPartnership => ???
+        case GeneralPartnership | ScottishPartnership => orgRoutes.PartnershipKickOutController.onPageLoad()
         case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => ???
       }
       .getOrElse(routes.JourneyRecoveryController.onPageLoad())
