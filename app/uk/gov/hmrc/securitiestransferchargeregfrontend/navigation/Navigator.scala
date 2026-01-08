@@ -21,9 +21,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.{
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.{routes => orgRoutes}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership._
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.UkOrNotPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
 
 import javax.inject.{Inject, Singleton}
 
@@ -63,12 +66,24 @@ class Navigator @Inject()() {
         }
       }
     }
+    case TypeOfPartnershipPage =>
+      userAnswers => typeOfPartnershipNavigation(userAnswers)
 
     case _ =>
       _ => routes.IndexController.onPageLoad()
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
+
+  private def typeOfPartnershipNavigation(userAnswers: UserAnswers): Call =
+    userAnswers
+      .get(TypeOfPartnershipPage)
+      .map {
+        case GeneralPartnership | ScottishPartnership => ???
+        case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => ???
+      }
+      .getOrElse(routes.JourneyRecoveryController.onPageLoad())
+
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
     mode match {

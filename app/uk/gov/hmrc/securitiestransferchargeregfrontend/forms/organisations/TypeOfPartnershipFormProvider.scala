@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,15 +14,18 @@
  * limitations under the License.
  */
 
-package generators
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
-import org.scalacheck.{Arbitrary, Gen}
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.TypeOfPartnership
 
-trait ModelGenerators {
+import javax.inject.Inject
 
-  implicit lazy val arbitraryTypeOfPartnership: Arbitrary[TypeOfPartnership] =
-    Arbitrary {
-      Gen.oneOf(TypeOfPartnership.values)
-    }
+class TypeOfPartnershipFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[TypeOfPartnership] =
+    Form(
+      "value" -> enumerable[TypeOfPartnership]("typeOfPartnership.error.required")
+    )
 }
