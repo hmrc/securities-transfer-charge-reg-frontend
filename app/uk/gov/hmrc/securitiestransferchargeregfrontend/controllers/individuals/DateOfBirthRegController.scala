@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
-import connectors.RegistrationConnector
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.RegistrationConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualDataRequest
@@ -30,18 +30,17 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepos
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class DateOfBirthRegController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        auth: IndividualAuth,
-                                        formProvider: DateOfBirthRegFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: DateOfBirthRegView,
-                                        registrationConnector: RegistrationConnector,
+                                          override val messagesApi: MessagesApi,
+                                          sessionRepository: SessionRepository,
+                                          @Named("individuals") navigator: Navigator,                                          auth: IndividualAuth,
+                                          formProvider: DateOfBirthRegFormProvider,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: DateOfBirthRegView,
+                                          registrationConnector: RegistrationConnector,
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*

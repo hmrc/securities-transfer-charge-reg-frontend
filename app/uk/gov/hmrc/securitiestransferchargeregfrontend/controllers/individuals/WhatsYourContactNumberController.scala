@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
-import connectors.{RegistrationDataNotFoundException, SubscriptionConnector}
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationDataNotFoundException, SubscriptionConnector}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes as rootRoutes

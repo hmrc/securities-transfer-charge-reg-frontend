@@ -17,10 +17,12 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
-import connectors.{AlfAddressConnector, AlfAddressConnectorImpl, RegistrationConnector, RegistrationConnectorImpl, SubscriptionConnector, SubscriptionConnectorImpl}
+import com.google.inject.name.Names
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, RegistrationDataRepositoryImpl, SessionRepository, SessionRepositoryImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.*
 
 import java.time.{Clock, ZoneOffset}
 
@@ -53,5 +55,13 @@ class Module extends AbstractModule {
     bind(classOf[RegistrationDataRepository]).to(classOf[RegistrationDataRepositoryImpl])
     bind(classOf[RegistrationConnector]).to(classOf[RegistrationConnectorImpl])
     bind(classOf[SubscriptionConnector]).to(classOf[SubscriptionConnectorImpl])
+
+    bind(classOf[Navigator])
+      .annotatedWith(Names.named("individuals"))
+      .to(classOf[IndividualsNavigator])
+
+    bind(classOf[Navigator])
+      .annotatedWith(Names.named("organisations"))
+      .to(classOf[OrgNavigator])
   }
 }

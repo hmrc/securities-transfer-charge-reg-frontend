@@ -16,22 +16,22 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.RegForSecuritiesTransferChargePage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.RegForSecuritiesTransferChargeView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 
 class RegForSecuritiesTransferChargeController @Inject()(
-                                       auth: OrgAuth,
-                                       navigator: Navigator,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: RegForSecuritiesTransferChargeView
+                                                          auth: OrgAuth,
+                                                          @Named("organisations") navigator: Navigator,
+                                                          val controllerComponents: MessagesControllerComponents,
+                                                          view: RegForSecuritiesTransferChargeView
                                      ) extends FrontendBaseController with I18nSupport {
 
   import auth.*

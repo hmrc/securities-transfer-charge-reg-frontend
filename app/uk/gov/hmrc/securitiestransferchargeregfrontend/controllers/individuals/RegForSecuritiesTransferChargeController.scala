@@ -25,11 +25,10 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.RegForSecuritiesTransferChargePage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.RegForSecuritiesTransferChargeView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 
 class RegForSecuritiesTransferChargeController @Inject()(auth: IndividualAuth,
-                                                         navigator: Navigator,
-                                                         val controllerComponents: MessagesControllerComponents,
+                                                         @Named("individuals") navigator: Navigator,                                                         val controllerComponents: MessagesControllerComponents,
                                                          view: RegForSecuritiesTransferChargeView
                                                        ) extends FrontendBaseController with I18nSupport {
 

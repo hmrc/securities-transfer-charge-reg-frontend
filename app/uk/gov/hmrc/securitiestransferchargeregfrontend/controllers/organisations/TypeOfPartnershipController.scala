@@ -29,14 +29,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeO
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class TypeOfPartnershipController @Inject()(
                                              override val messagesApi: MessagesApi,
                                              sessionRepository: SessionRepository,
-                                             navigator: Navigator,
-                                             auth: OrgAuth,
+                                             @Named("organisations") navigator: Navigator,                                             auth: OrgAuth,
                                              formProvider: TypeOfPartnershipFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: TypeOfPartnershipView

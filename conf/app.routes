@@ -80,3 +80,6 @@ GET        /org/change-contact-email-address                  uk.gov.hmrc.securi
 POST       /org/change-contact-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onSubmit(mode: Mode = CheckMode)
 
 GET        /org/partnership-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.PartnershipKickOutController.onPageLoad()
+
+GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
+GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)

@@ -16,63 +16,33 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
-import connectors.AlfAddressConnector
-import play.api.Logging
-import play.api.i18n.I18nSupport
-import play.api.mvc.*
-import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidOrgOptionalDataRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IndividualAuth, OrgAuth}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AbstractAddressController
 
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
+import javax.inject.{Inject, Named}
+import scala.concurrent.ExecutionContext
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
-
-class AddressController @Inject()(auth: OrgAuth,
-                                  navigator: Navigator,
-                                  val controllerComponents: MessagesControllerComponents,
-                                  alf: AlfAddressConnector,
-                                  sessionRepository: SessionRepository
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
+                                   alf: AlfAddressConnector,
+                                   sessionRepository: SessionRepository,
+                                   auth: OrgAuth,
+                                   @Named("organisations") val navigator: Navigator)
+                                  (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
 
-  /*
-   * Creates an address journey and redirects to the to it.
-   * If the journey fails to initialise, the user is sent to an error page.
-   */
   def onPageLoad: Action[AnyContent] = validOrg.async {
     implicit request =>
-      alf.initAlfJourneyRequest()
+      super.pageLoad
   }
 
-  /*
-   * Retrieves the outcome of the journey and stores the address in UserAnswers if
-   * it was successful. If retrieval fails the user is sent to an error page.
-   */
-  def onReturn(id: String): Action[AnyContent] = (auth.validOrg andThen getData).async {
+  def onReturn(addressId: String): Action[AnyContent] = (validOrg andThen getData).async {
     implicit request =>
-      logger.info("Address lookup frontend has returned control to STC service")
-      for {
-        address <- alf.alfRetrieveAddress(id)
-        answers <- updateUserAnswers(request)(address)
-      } yield {
-        Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
-      }
+      val userId = request.request.userId
+      super.alfReturn(addressId, userId)
   }
-
-  private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
-
-  private def updateUserAnswers[A](implicit request: ValidOrgOptionalDataRequest[A]): AddressHandler =
-    address =>
-      logger.info("ALF returned address successfully")
-      sessionRepository.updateAndStore(
-        request.request.userId,
-        _.set(AddressPage[AlfConfirmedAddress](), address).get
-      )
-
 }
