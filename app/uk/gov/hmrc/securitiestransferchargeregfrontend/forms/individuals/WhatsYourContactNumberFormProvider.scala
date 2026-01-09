@@ -19,16 +19,11 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals
 import play.api.data.Form
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
 
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.PhoneNumberValidation._
+
 import javax.inject.Inject
 
 class WhatsYourContactNumberFormProvider @Inject() extends Mappings {
-
-  private final val ukPhoneRegex
-    = """^(?:0\s?7\d{3}[ \-]?\d{6}|0\s?1\d{3}[ \-]?\d{6,7}|0\s?2\d{2}[ \-]?\d{7}|0\s?3\d{2}[ \-]?\d{7}|0800[ \-]?\d{4,6}|0\s?8\d{2}[ \-]?\d{7})$"""
-  private final val internationalPhoneRegex = """^\+?[0-9]{1,3}[ \-\.]?(?:\(?[0-9]{1,4}\)?[ \-\.]?)*[0-9]{3,}$"""
-  private final val phoneRegex = (s"(?:${ukPhoneRegex})|(?:${internationalPhoneRegex})")
-  private val maxLength = 25
-
 
   def apply(): Form[String] =
     Form(
@@ -37,7 +32,7 @@ class WhatsYourContactNumberFormProvider @Inject() extends Mappings {
         "whatsYourContactNumber.error.invalid",
         "whatsYourContactNumber.error.length",
         phoneRegex,
-        maxLength
+        maximumLength
       )
     )
 }
