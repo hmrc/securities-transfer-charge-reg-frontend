@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.organisations
 
 import base.SpecBase
 import navigation.FakeNavigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
@@ -28,12 +26,13 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
-
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.ContactEmailAddressController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactEmailAddressFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.ContactEmailAddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactEmailAddressView
 
 import scala.concurrent.Future

@@ -78,6 +78,12 @@ class Navigator @Inject()() {
     case organisationsPages.TypeOfPartnershipPage =>
       userAnswers => typeOfPartnershipNavigation(userAnswers)
 
+    case organisationsPages.ContactEmailAddressPage =>
+      _ => orgRoutes.ContactNumberController.onPageLoad(NormalMode)
+
+    case organisationsPages.ContactNumberPage =>
+      _ => ???
+
     case _ =>
       _ => routes.IndexController.onPageLoad()
   }
