@@ -21,6 +21,7 @@ import org.scalatest.concurrent.IntegrationPatience
 import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
+import repositories.FakeRegistrationDataRepository
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -28,6 +29,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.EnrolmentCheckImpl
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
 import scala.concurrent.Future
 
@@ -38,9 +40,10 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
   class Harness(parser: BodyParsers.Default,
                 redirects: Redirects,
                 retrievalFilter: RetrievalFilter,
-                registrationClient: RegistrationClient)
+                registrationClient: RegistrationClient,
+                registrationDataRepository: RegistrationDataRepository)
                (implicit ec: scala.concurrent.ExecutionContext)
-    extends EnrolmentCheckImpl(parser, redirects, retrievalFilter, registrationClient)
+    extends EnrolmentCheckImpl(parser, redirects, retrievalFilter, registrationClient, registrationDataRepository)
   {
     def callFilter[A](req: StcAuthRequest[A]): Future[Option[Result]] = filter(req)
   }
@@ -63,8 +66,9 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
         val stcReq = Fixtures.fakeStcAuthRequest[AnyContent](request = FakeRequest(), enrolmentsOverride = enrolments)
 
         val registrationClient = new FakeRegistrationClient(true)
-
-        val harness = new Harness(parser, redirects, retrievalFilter, registrationClient)
+        
+        val registrationDataRepository = new FakeRegistrationDataRepository(Fixtures.registrationData)
+        val harness = new Harness(parser, redirects, retrievalFilter, registrationClient, registrationDataRepository)
 
         val maybeResult = harness.callFilter(stcReq)
 
@@ -95,7 +99,8 @@ class EnrolmentCheckSpec extends SpecBase with IntegrationPatience {
 
         val registrationClient = new FakeRegistrationClient(false)
 
-        val harness = new Harness(parser, redirects, retrievalFilter, registrationClient)
+        val registrationDataRepository = new FakeRegistrationDataRepository(Fixtures.registrationData)
+        val harness = new Harness(parser, redirects, retrievalFilter, registrationClient, registrationDataRepository)
 
         val result = harness.callFilter(stcReq).futureValue
 

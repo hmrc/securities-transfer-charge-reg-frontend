@@ -77,7 +77,6 @@ class DateOfBirthRegController @Inject()(
               Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
           }
           result.recoverWith {
-              // Failed to register - redirect to service error page.
             case _ => Future.successful(Redirect(routes.UpdateDobKickOutController.onPageLoad()))
           }
       )

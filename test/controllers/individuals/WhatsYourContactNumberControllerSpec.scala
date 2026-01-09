@@ -25,6 +25,7 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
@@ -55,15 +56,12 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   "WhatsYourContactNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, whatsYourContactNumberRoute)
-
-        val result = route(application, request).value
-
-        val view = application.injector.instanceOf[WhatsYourContactNumberView]
+        val result  = route(application, request).value
+        val view    = application.injector.instanceOf[WhatsYourContactNumberView]
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
@@ -71,17 +69,13 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must populate the view correctly on a GET when the question has previously been answered" in {
-
       val userAnswers = UserAnswers(userAnswersId).set(WhatsYourContactNumberPage, "answer").success.value
-
       val application = applicationBuilder(userAnswers = Some(userAnswers)).build()
 
       running(application) {
         val request = FakeRequest(GET, whatsYourContactNumberRoute)
-
-        val view = application.injector.instanceOf[WhatsYourContactNumberView]
-
-        val result = route(application, request).value
+        val view    = application.injector.instanceOf[WhatsYourContactNumberView]
+        val result  = route(application, request).value
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
@@ -89,7 +83,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
-
       val userAnswers =
         emptyUserAnswers
           .set(AddressPage(), fakeAddress).success.value
@@ -99,15 +92,14 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val fakeRegistrationClient = mock[RegistrationClient]
 
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
 
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
 
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(SubscriptionActive)))
-
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -130,7 +122,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to KO Page if subscription fails" in {
-
       val userAnswers =
         emptyUserAnswers
           .set(AddressPage(), fakeAddress).success.value
@@ -140,15 +131,14 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val fakeRegistrationClient = mock[RegistrationClient]
 
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(SubscriptionFailed)))
 
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
 
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(SubscriptionActive)))
-
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -171,7 +161,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to KO Page if enrolment fails" in {
-
       val userAnswers =
         emptyUserAnswers
           .set(AddressPage(), fakeAddress).success.value
@@ -181,15 +170,14 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val fakeRegistrationClient = mock[RegistrationClient]
 
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
 
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(EnrolmentFailed)))
 
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(SubscriptionActive)))
-
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
@@ -212,7 +200,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must fail to journey recovery if there is no safe-id in the repository" in {
-
       val userAnswers =
         emptyUserAnswers
           .set(AddressPage(), fakeAddress).success.value
@@ -222,13 +209,13 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
       val fakeRegistrationClient = mock[RegistrationClient]
 
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]()))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.safeId))))
+      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
 
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]()))
+      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(EnrolmentFailed)))
 
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]()))
+      when(fakeRegistrationClient.hasCurrentSubscription(any[String]())(any[HeaderCarrier]()))
         .thenReturn(Future.successful(Right(SubscriptionActive)))
 
       val emptyRegistrationData = new RegistrationData(Fixtures.user, None, None)
@@ -253,9 +240,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-
     "must return a Bad Request and errors when invalid data is submitted" in {
-
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
@@ -264,10 +249,8 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
             .withFormUrlEncodedBody(("value", ""))
 
         val boundForm = form.bind(Map("value" -> ""))
-
-        val view = application.injector.instanceOf[WhatsYourContactNumberView]
-
-        val result = route(application, request).value
+        val view      = application.injector.instanceOf[WhatsYourContactNumberView]
+        val result    = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
@@ -275,13 +258,11 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a GET if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {
         val request = FakeRequest(GET, whatsYourContactNumberRoute)
-
-        val result = route(application, request).value
+        val result  = route(application, request).value
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual routes.JourneyRecoveryController.onPageLoad().url
@@ -289,7 +270,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     }
 
     "must redirect to Journey Recovery for a POST if no existing data is found" in {
-
       val application = applicationBuilder(userAnswers = None).build()
 
       running(application) {

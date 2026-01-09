@@ -16,28 +16,51 @@
 
 package controllers.actions
 
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.{SubscriptionActive, SubscriptionNotFound}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 
 import scala.concurrent.Future
 
-  class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
-    override def hasCurrentSubscription(etmpSafeId: String): Future[SubscriptionStatusResult] =
-      if (succeeds) Future.successful(Right(SubscriptionActive)) else Future.successful(Left(SubscriptionClientError("Failed")))
+class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
 
-    override def register(individualRegistrationDetails: IndividualRegistrationDetails): Future[RegistrationResult] =
-      if (succeeds) Future.successful(Right(RegistrationSuccessful("Safe123"))) else Future.successful(Right(RegistrationFailed))
+  override def hasCurrentSubscription(etmpSafeId: String)(implicit hc: HeaderCarrier): Future[SubscriptionStatusResult] =
+    if (succeeds) {
+      Future.successful(Right(SubscriptionActive))
+    }
+    else {
+      Future.successful(Right(SubscriptionNotFound))
+    }
 
-    override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails): Future[SubscriptionResult] =
-      if (succeeds) Future.successful(Right(SubscriptionSuccessful("Sub123"))) else Future.successful(Right(SubscriptionFailed))
+  override def register(individualRegistrationDetails: IndividualRegistrationDetails)(implicit hc: HeaderCarrier): Future[RegistrationResult] =
+    if (succeeds) {
+      Future.successful(Right(RegistrationSuccessful("Safe123")))
+    }
+    else {
+      Future.successful(Right(RegistrationFailed))
+    }
 
-    override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails): Future[SubscriptionResult] =
-      if (succeeds) Future.successful(Right(SubscriptionSuccessful("Sub123"))) else Future.successful(Right(SubscriptionFailed))
+  override def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] =
+    if (succeeds) {
+      Future.successful(Right(SubscriptionSuccessful("Sub123")))
+    }
+    else {
+      Future.successful(Right(SubscriptionFailed))
+    }
 
-    override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails): Future[EnrolmentResult] =
-      Future.successful(Right(EnrolmentSuccessful))
-  }
+  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] =
+    if (succeeds) {
+      Future.successful(Right(SubscriptionSuccessful("Sub123")))
+    }
+    else {
+      Future.successful(Right(SubscriptionFailed))
+    }
+
+  override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult] =
+    Future.successful(Right(EnrolmentSuccessful))
+}
+
 

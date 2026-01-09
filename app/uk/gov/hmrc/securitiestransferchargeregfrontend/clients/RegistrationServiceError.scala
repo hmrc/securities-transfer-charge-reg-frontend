@@ -18,5 +18,11 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
 sealed trait RegistrationServiceError
 
-case class SubscriptionClientError(message: String) extends RegistrationServiceError
-case class SubscriptionServerError(message: String) extends RegistrationServiceError
+final case class SubscriptionClientError(message: String) extends RegistrationServiceError
+final case class SubscriptionServerError(message: String) extends RegistrationServiceError
+
+final case class RegistrationClientError(message: String) extends RegistrationServiceError
+final case class RegistrationServerError(message: String) extends RegistrationServiceError
+
+final case class EnrolmentClientError(message: String) extends RegistrationServiceError
+final case class EnrolmentServerError(message: String) extends RegistrationServiceError
