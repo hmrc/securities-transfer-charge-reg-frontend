@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
 import play.api.data.Form
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
-
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.PhoneNumberValidation._
+
 
 import javax.inject.Inject
 
-class WhatsYourContactNumberFormProvider @Inject() extends Mappings {
+class ContactNumberFormProvider @Inject() extends Mappings {
 
   def apply(): Form[String] =
     Form(
       "value" -> validatedText(
-        "whatsYourContactNumber.error.required",
-        "whatsYourContactNumber.error.invalid",
-        "whatsYourContactNumber.error.length",
+        "contactNumber.error.required",
+        "contactNumber.error.invalid",
+        "contactNumber.error.length",
         phoneRegex,
         maximumLength
       )

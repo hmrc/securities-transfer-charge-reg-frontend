@@ -167,3 +167,10 @@ contactEmailAddress.error.invalid = Enter an email address with a name, @ symbol
 contactEmailAddress.change.hidden = Enter a contact email address
 contactEmailAddress.hint = We will use this email address to notify you about your submission.
 
+contactNumber.title = Enter a contact phone number
+contactNumber.heading = Enter a contact phone number
+contactNumber.hint = For international numbers, include the country code.
+contactNumber.error.required = Enter a phone number
+contactNumber.error.invalid = Enter a telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
+contactNumber.error.length = Your contact number must be 25 characters or less
+

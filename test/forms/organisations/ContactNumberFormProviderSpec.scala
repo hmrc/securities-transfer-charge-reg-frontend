@@ -1,0 +1,77 @@
+/*
+ * Copyright 2025 HM Revenue & Customs
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package forms.organisations
+
+import forms.behaviours.StringFieldBehaviours
+import org.scalacheck.Gen
+import play.api.data.FormError
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
+
+class ContactNumberFormProviderSpec extends StringFieldBehaviours {
+
+  val requiredKey = "contactNumber.error.required"
+  val lengthKey = "contactNumber.error.length"
+  val formatKey = "contactNumber.error.invalid"
+
+  val form = new ContactNumberFormProvider()()
+
+  val invalid: Seq[String] = Seq(
+    "fooexample.com",
+    "@example.com",
+    "foo@example"
+  )
+
+  val valid: Seq[String] = Seq(
+    "07649 599 833",
+    "+402 773 8899",
+    "0800 700 400",
+    "+1 656-778733"
+  )
+
+  ".value" - {
+
+    val fieldName = "value"
+
+    behave like fieldThatBindsValidData(
+      form,
+      fieldName,
+      Gen.oneOf(valid)
+    )
+
+    behave like mandatoryField(
+      form,
+      fieldName,
+      requiredError = FormError(fieldName, requiredKey)
+    )
+
+    "not allow invalid contact number" in {
+
+      forAll(Gen.oneOf(invalid)) { invalid =>
+        val result = form.bind(Map(fieldName -> invalid)).apply(fieldName)
+        result.errors.head.message mustBe formatKey
+
+      }
+    }
+
+    "not allow contact number longer than max length" in {
+      val overMaxLength: String = "07649 599 833 111111111111111"
+      val result =
+        form.bind(Map(fieldName -> overMaxLength)).apply(fieldName)
+      result.errors.head.message mustBe lengthKey
+    }
+  }
+}
