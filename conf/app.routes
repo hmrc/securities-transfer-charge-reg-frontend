@@ -81,5 +81,11 @@ POST       /org/change-contact-email-address                   uk.gov.hmrc.secur
 
 GET        /org/partnership-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.PartnershipKickOutController.onPageLoad()
 
+GET        /org/contact-number                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/contact-number                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-contact-number            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-contact-number             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = CheckMode)
+
+
 GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
 GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)

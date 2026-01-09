@@ -23,7 +23,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.OrgNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{SelectBusinessTypePage, TypeOfPartnershipPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, SelectBusinessTypePage, TypeOfPartnershipPage}
 
 class OrgNavigatorSpec extends SpecBase {
 
@@ -67,6 +67,15 @@ class OrgNavigatorSpec extends SpecBase {
           SelectBusinessTypePage,
           NormalMode,
           answers) mustBe orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+      }
+
+      "must go from the ContactEmailAddressPage to ContactNumberPage" in {
+        val answers = emptyUserAnswers
+          .set(ContactEmailAddressPage, "foo@example.com").success.value
+        navigator.nextPage(
+          ContactEmailAddressPage,
+          NormalMode,
+          answers) mustBe orgRoutes.ContactNumberController.onPageLoad(NormalMode)
       }
 
 

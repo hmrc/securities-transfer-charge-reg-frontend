@@ -14,19 +14,25 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.data.Form
+import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.mappings.Mappings
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.PhoneNumberValidation._
 
-case class IndividualRegistrationDetails(
-  firstName: String,
-  middleName: Option[String] = None,
-  lastName: String,
-  dateOfBirth: String,
-  nino: String
-)
 
-object IndividualRegistrationDetails {
-  implicit val format: OFormat[IndividualRegistrationDetails] =
-    Json.format[IndividualRegistrationDetails]
+import javax.inject.Inject
+
+class ContactNumberFormProvider @Inject() extends Mappings {
+
+  def apply(): Form[String] =
+    Form(
+      "value" -> validatedText(
+        "contactNumber.error.required",
+        "contactNumber.error.invalid",
+        "contactNumber.error.length",
+        phoneRegex,
+        maximumLength
+      )
+    )
 }

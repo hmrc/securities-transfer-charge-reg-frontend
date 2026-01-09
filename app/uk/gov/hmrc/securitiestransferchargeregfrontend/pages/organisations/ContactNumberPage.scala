@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
-import play.api.libs.json.{Json, OFormat}
+import play.api.libs.json.JsPath
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.QuestionPage
 
-enum RegistrationResponse:
-  case RegistrationSuccessful(safeId: String)
-  case RegistrationFailed
+case object ContactNumberPage extends QuestionPage[String] {
 
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+  override def path: JsPath = JsPath \ toString
 
-final case class RegisterIndividualResponseDto(safeId: String)
-
-object RegisterIndividualResponseDto:
-  given OFormat[RegisterIndividualResponseDto] =
-    Json.format[RegisterIndividualResponseDto]
-
+  override def toString: String = "contactNumber"
+}

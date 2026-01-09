@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
 
+import play.api.libs.json.{Json, OFormat}
+
 case class IndividualSubscriptionDetails( safeId: String,
                                           addressLine1: String,
                                           addressLine2: Option[String] = None,
@@ -26,3 +28,14 @@ case class IndividualSubscriptionDetails( safeId: String,
                                           mobileNumber: Option[String] = None,
                                           email: String)
 
+object IndividualSubscriptionDetails {
+  implicit val format: OFormat[IndividualSubscriptionDetails] =
+    Json.format[IndividualSubscriptionDetails]
+}
+
+
+final case class IndividualSubscriptionResponseDto(subscriptionId: String)
+
+object IndividualSubscriptionResponseDto:
+  given OFormat[IndividualSubscriptionResponseDto] =
+    Json.format[IndividualSubscriptionResponseDto]

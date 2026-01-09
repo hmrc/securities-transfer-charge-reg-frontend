@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,19 +14,20 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.utils
 
-import play.api.libs.json.{Json, OFormat}
+object PhoneNumberValidation {
 
-enum RegistrationResponse:
-  case RegistrationSuccessful(safeId: String)
-  case RegistrationFailed
+  val ukPhoneRegex: String =
+    """^(?:0\s?7\d{3}[ \-]?\d{6}|0\s?1\d{3}[ \-]?\d{6,7}|0\s?2\d{2}[ \-]?\d{7}|0\s?3\d{2}[ \-]?\d{7}|0800[ \-]?\d{4,6}|0\s?8\d{2}[ \-]?\d{7})$"""
 
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+  val internationalPhoneRegex: String =
+    """^\+?[0-9]{1,3}[ \-\.]?(?:\(?[0-9]{1,4}\)?[ \-\.]?)*[0-9]{3,}$"""
 
-final case class RegisterIndividualResponseDto(safeId: String)
+  val phoneRegex: String =
+    s"(?:$ukPhoneRegex)|(?:$internationalPhoneRegex)"
 
-object RegisterIndividualResponseDto:
-  given OFormat[RegisterIndividualResponseDto] =
-    Json.format[RegisterIndividualResponseDto]
+  val maximumLength: Int = 25
+
+}
 
