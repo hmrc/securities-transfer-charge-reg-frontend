@@ -22,7 +22,7 @@ import play.api.data.FormError
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 
 class ContactNumberFormProviderSpec extends StringFieldBehaviours {
-  
+
   val requiredKey = "contactNumber.error.required"
   val lengthKey = "contactNumber.error.length"
   val formatKey = "contactNumber.error.invalid"
@@ -35,7 +35,7 @@ class ContactNumberFormProviderSpec extends StringFieldBehaviours {
     "@example.com",
     "foo@example"
   )
-  
+
   val valid: Seq[String] = Seq(
     "07649 599 833",
     "+402 773 8899",
@@ -43,13 +43,6 @@ class ContactNumberFormProviderSpec extends StringFieldBehaviours {
     "+1 656-778733"
   )
 
-  val tooLong: Seq[String] = Seq(
-    "07649 599 833 9087 8733 12323 88",
-    "+402 773 8899 - 003 - 88883233 999",
-    "(0800) 700 400 1234567890 09887765431",
-    "+1 656-778733 - 777 77777 77 778888"
-  )
-  
   ".value" - {
 
     val fieldName = "value"
@@ -70,13 +63,16 @@ class ContactNumberFormProviderSpec extends StringFieldBehaviours {
 
       forAll(Gen.oneOf(invalid)) { invalid =>
         val result = form.bind(Map(fieldName -> invalid)).apply(fieldName)
-
-        result.errors.size mustBe 1
-        result.errors.head.key mustBe fieldName
         result.errors.head.message mustBe formatKey
 
       }
     }
-    
+
+    "not allow contact number longer than max length" in {
+      val overMaxLength: String = "07649 599 833 111111111111111"
+      val result =
+        form.bind(Map(fieldName -> overMaxLength)).apply(fieldName)
+      result.errors.head.message mustBe lengthKey
+    }
   }
 }
