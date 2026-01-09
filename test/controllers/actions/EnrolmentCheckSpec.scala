@@ -17,7 +17,6 @@
 package controllers.actions
 
 import base.{Fixtures, SpecBase}
-import controllers.Execution.trampoline
 import org.scalatest.concurrent.IntegrationPatience
 import play.api.mvc.{AnyContent, BodyParsers, Result}
 import play.api.test.Helpers.*

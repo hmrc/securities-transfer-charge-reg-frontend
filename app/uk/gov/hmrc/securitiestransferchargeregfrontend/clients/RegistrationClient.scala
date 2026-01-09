@@ -24,6 +24,7 @@ import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.IndividualRegistrationDetails.format
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
@@ -80,53 +81,90 @@ class RegistrationClientImpl @Inject()(
           case OK =>
             Json.parse(resp.body).validate[RegisterIndividualResponseDto].asEither match {
               case Right(dto) =>
-                Right(RegistrationResponse.RegistrationSuccessful(dto.safeId))
+                Right(RegistrationSuccessful(dto.safeId))
 
               case Left(errors) =>
                 val msg =
                   s"RegistrationClient.register: Could not parse OK response. errors=$errors body=${resp.body}"
-                logger.warn(msg)
-                Left(RegistrationClientError(msg))
+                logger.error(msg)
+                Left(RegistrationServerError(msg))
             }
 
           case BAD_REQUEST =>
-            Left(RegistrationClientError(s"RegistrationClient.register: 400 from BE. body=${resp.body}"))
+            Left(
+              RegistrationClientError(
+                s"RegistrationClient.register: 400 from BE. body=${resp.body}"
+              )
+            )
 
           case status =>
-            Left(RegistrationServerError(s"RegistrationClient.register: unexpected status=$status body=${resp.body}"))
+            Left(
+              RegistrationServerError(
+                s"RegistrationClient.register: unexpected status=$status body=${resp.body}"
+              )
+            )
         }
       }
       .recover {
         case NonFatal(e) =>
-          val msg = s"RegistrationClient.register: exception calling BE: ${e.getMessage}"
+          val msg =
+            s"RegistrationClient.register: exception calling BE: ${e.getMessage}"
           logger.error(msg, e)
           Left(RegistrationServerError(msg))
       }
   }
 
-  override def subscribe(details: IndividualSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] = {
+  override def subscribe(
+                          details: IndividualSubscriptionDetails
+                        )(implicit hc: HeaderCarrier): Future[SubscriptionResult] = {
+
     val url = url"${config.subscribeIndividualBackendUrl}"
 
-    http.post(url)
+    http
+      .post(url)
       .withBody(Json.toJson(details): JsValue)
       .execute[HttpResponse]
       .map { resp =>
         resp.status match {
+
           case OK =>
             Json.parse(resp.body).validate[IndividualSubscriptionResponseDto].asEither match {
-              case Right(dto) => Right(SubscriptionResponse.SubscriptionSuccessful(dto.subscriptionId))
-              case Left(errs) => Left(SubscriptionClientError(s"Could not parse OK response. errs=$errs body=${resp.body}"))
+              case Right(dto) =>
+                Right(
+                  SubscriptionResponse.SubscriptionSuccessful(dto.subscriptionId)
+                )
+
+              case Left(errs) =>
+                val msg =
+                  s"SubscriptionClient.subscribe: Could not parse OK response. errs=$errs body=${resp.body}"
+                logger.error(msg)
+                Left(SubscriptionServerError(msg))
             }
+
           case BAD_REQUEST =>
-            Left(SubscriptionClientError(s"400 from BE. body=${resp.body}"))
+            Left(
+              SubscriptionClientError(
+                s"SubscriptionClient.subscribe: 400 from BE. body=${resp.body}"
+              )
+            )
+
           case status =>
-            Left(SubscriptionServerError(s"unexpected status=$status body=${resp.body}"))
+            Left(
+              SubscriptionServerError(
+                s"SubscriptionClient.subscribe: unexpected status=$status body=${resp.body}"
+              )
+            )
         }
       }
-      .recover { case NonFatal(e) =>
-        Left(SubscriptionServerError(s"exception calling BE: ${e.getMessage}"))
+      .recover {
+        case NonFatal(e) =>
+          val msg =
+            s"SubscriptionClient.subscribe: exception calling BE: ${e.getMessage}"
+          logger.error(msg, e)
+          Left(SubscriptionServerError(msg))
       }
   }
+
   override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful("SUBSCRIPTION123")))
 
   override def enrolIndividual(
