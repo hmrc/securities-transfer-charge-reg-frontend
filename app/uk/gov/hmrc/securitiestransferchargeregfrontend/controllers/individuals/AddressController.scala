@@ -21,22 +21,25 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.Indiv
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AbstractAddressController
+
 import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
                                    sessionRepository: SessionRepository,
                                    auth: IndividualAuth,
-                                   @Named("individuals") val navigator: Navigator)
+                                   @Named("individuals") val navigator: Navigator,
+                                   config: FrontendAppConfig)
                                   (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
 
   def onPageLoad: Action[AnyContent] = validIndividual.async {
     implicit request =>
-      super.pageLoad
+      super.pageLoad(config.alfIndividualsContinueUrl)
   }
 
   def onReturn(addressId: String): Action[AnyContent] = (validIndividual andThen getData).async {

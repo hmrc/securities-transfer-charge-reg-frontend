@@ -32,7 +32,7 @@ class OrgNavigator @Inject() extends Navigator {
   private val normalRoutes: Page => UserAnswers => Call = {
     
     case _: AddressPage[_] =>
-      _ => ???
+      _ => orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
 
     case organisationsPages.RegForSecuritiesTransferChargePage =>
       _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)

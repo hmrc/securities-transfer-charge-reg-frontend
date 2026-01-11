@@ -39,8 +39,8 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def pageLoad: Future[Result] = {
-      alf.initAlfJourneyRequest()
+  def pageLoad(returnUrl: String): Future[Result] = {
+      alf.initAlfJourneyRequest(returnUrl)
   }
 
   /*

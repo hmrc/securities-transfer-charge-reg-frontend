@@ -50,7 +50,7 @@ class Module extends AbstractModule {
 
     bind(classOf[SessionRepository]).to(classOf[SessionRepositoryImpl])
     bind(classOf[EnrolmentCheck]).to(classOf[EnrolmentCheckImpl])
-    bind(classOf[AlfAddressConnector]).to(classOf[AlfAddressConnectorImpl]).asEagerSingleton()
+    bind(classOf[AlfAddressConnector]).to(classOf[AlfAddressConnectorImpl])
     
     bind(classOf[RegistrationDataRepository]).to(classOf[RegistrationDataRepositoryImpl])
     bind(classOf[RegistrationConnector]).to(classOf[RegistrationConnectorImpl])

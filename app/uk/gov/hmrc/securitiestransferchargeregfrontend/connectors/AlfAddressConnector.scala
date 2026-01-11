@@ -31,7 +31,7 @@ import scala.concurrent.{ExecutionContext, Future}
 
 
 trait AlfAddressConnector {
-  def initAlfJourneyRequest(): Future[Result]
+  def initAlfJourneyRequest(returnUrl: String): Future[Result]
   def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress]
 }
 
@@ -43,19 +43,19 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
   private type ResponseHandler = PartialFunction[WSResponse, Result]
   private[connectors] final class AlfException(msg: String) extends RuntimeException(msg)
 
-  def initAlfJourneyRequest(): Future[Result] = {
-    callAlfInit().map(journeySuccess.orElse(journeyFailure)(_))
+  def initAlfJourneyRequest(returnUrl: String): Future[Result] = {
+    callAlfInit(returnUrl).map(journeySuccess.orElse(journeyFailure)(_))
   }
 
   def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = {
     callAlfRetrieve(key).map(retrievalSuccess)
   }
 
-  private def callAlfInit(): Future[WSResponse] = {
+  private def callAlfInit(returnUrl: String): Future[WSResponse] = {
     ws
       .url(config.alfInitUrl)
       .addHttpHeaders("Content-Type" -> "application/json")
-      .post(payload)
+      .post(payload(returnUrl))
   }
 
   private def journeySuccess: ResponseHandler = {
@@ -89,13 +89,13 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
   }
 
 
-  private def payload: JsValue = {
+  private def payload(returnUrl: String): JsValue = {
     val raw = resourceLoader.loadString("alf.json")
     val parsed = Json.parse(raw).as[JsObject]
     
     val overrideJson = Json.obj(
       "options" -> Json.obj(
-        "continueUrl" -> config.alfContinueUrl
+        "continueUrl" -> returnUrl
       )
     )
 

@@ -16,28 +16,30 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.{IndividualAuth, OrgAuth}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AbstractAddressController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AbstractAddressController
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
                                    sessionRepository: SessionRepository,
                                    auth: OrgAuth,
-                                   @Named("organisations") val navigator: Navigator)
+                                   @Named("organisations") val navigator: Navigator,
+                                   config: FrontendAppConfig)
                                   (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
 
   def onPageLoad: Action[AnyContent] = validOrg.async {
     implicit request =>
-      super.pageLoad
+      super.pageLoad(config.alfOrgContinueUrl)
   }
 
   def onReturn(addressId: String): Action[AnyContent] = (validOrg andThen getData).async {
