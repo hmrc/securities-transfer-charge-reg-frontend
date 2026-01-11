@@ -147,7 +147,7 @@ object Fixtures {
       "foo", Some("bar"), fakeAlfAddress
     )
 
-    override def initAlfJourneyRequest(): Future[Result] = Future.successful(Ok)
+    override def initAlfJourneyRequest(returnUrl: String): Future[Result] = Future.successful(Ok)
 
     override def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = Future.successful(fakeAlfConfirmedAddress)
   }
