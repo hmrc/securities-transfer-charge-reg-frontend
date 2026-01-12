@@ -66,6 +66,8 @@ final case class UserAnswers(
 }
 
 object UserAnswers {
+  
+  val empty: String => UserAnswers = key => UserAnswers(id = key)
 
   val reads: Reads[UserAnswers] = {
 

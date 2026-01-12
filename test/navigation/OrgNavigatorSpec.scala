@@ -17,48 +17,21 @@
 package navigation
 
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.OrgNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, SelectBusinessTypePage, TypeOfPartnershipPage}
 
-class NavigatorSpec extends SpecBase {
+class OrgNavigatorSpec extends SpecBase {
 
-  val navigator = new Navigator
+  val navigator = new OrgNavigator
 
   "Navigator" - {
 
     "in Normal mode" - {
-
-      "must go from a page that doesn't exist in the route map to Index" in {
-
-        case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
-      }
-
-      "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
-        navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
-      }
-
-      "must go from the CheckYourDetailsPage to UpdateDetailsKickOutPage when user answers No" in {
-        val answers = emptyUserAnswers
-          .set(CheckYourDetailsPage, false).success.value
-        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe individualRoutes.UpdateDetailsKickOutController.onPageLoad()
-      }
-
-      "must go from the WhatsYourEmailAddressPage to WhatsYourContactNumberPage" in {
-        navigator.nextPage(
-          WhatsYourEmailAddressPage,
-          NormalMode,
-          UserAnswers("id")
-        ) mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
-      }
-
 
       "must go from the TypeOfPartnershipPage to partnershipKickOutPage when general partnership is selected" in {
         val answers = emptyUserAnswers

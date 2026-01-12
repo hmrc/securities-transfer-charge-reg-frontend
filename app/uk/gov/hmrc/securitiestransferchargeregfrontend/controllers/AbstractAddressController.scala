@@ -21,64 +21,50 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualOptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
-import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
-class AddressController @Inject()( auth: IndividualAuth,
-                                   navigator: Navigator,
-                                   val controllerComponents: MessagesControllerComponents,
-                                   getData: ValidIndividualDataRetrievalAction,
-                                   alf: AlfAddressConnector,
-                                   sessionRepository: SessionRepository
-                                 ) (implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
-
-  import auth.*
-
+abstract class AbstractAddressController( alf: AlfAddressConnector,
+                                          sessionRepository: SessionRepository)
+                                        ( implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
+  
+  val navigator: Navigator
+  
   /*
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def onPageLoad: Action[AnyContent] = validIndividual.async {
-    implicit request =>
-      alf.initAlfJourneyRequest()
+  def pageLoad(returnUrl: String): Future[Result] = {
+      alf.initAlfJourneyRequest(returnUrl)
   }
 
   /*
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def onReturn(id: String): Action[AnyContent] = (auth.validIndividual andThen getData).async {
-    implicit request =>
-      logger.info("Address lookup frontend has returned control to STC service")
-      for {
-        address <- alf.alfRetrieveAddress(id)
-        answers <- updateUserAnswers(request)(address)
-      } yield {
-          Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
-      }
+  def alfReturn(addressId: String, userId: String): Future[Result] = {
+    logger.info("Address lookup frontend has returned control to STC service")
+    for {
+      address <- alf.alfRetrieveAddress(addressId)
+      answers <- updateUserAnswers(userId)(address)
+    } yield {
+        Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
+    }
   }
 
   private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
-  private def updateUserAnswers[A](implicit request: ValidIndividualOptionalDataRequest[A]): AddressHandler = {
+  private def updateUserAnswers[A](userId: String): AddressHandler =
     address =>
       logger.info("ALF returned address successfully")
-      val updatedAnswers = request.userAnswers
-        .getOrElse(UserAnswers(request.request.userId))
-        .set(AddressPage[AlfConfirmedAddress](), address)
-        .get
-
-      sessionRepository.set(updatedAnswers).collect {
-        case true => updatedAnswers
-      }
-  }
+      sessionRepository.updateAndStore(
+        userId,
+        _.set(AddressPage[AlfConfirmedAddress](), address).get
+      )
 
 }

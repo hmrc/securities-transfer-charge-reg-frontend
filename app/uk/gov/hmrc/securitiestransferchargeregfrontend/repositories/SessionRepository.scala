@@ -32,6 +32,8 @@ import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
 trait SessionRepository {
+  def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers]
+    
   def get(id: String): Future[Option[UserAnswers]]
 
   def set(answers: UserAnswers): Future[Boolean]
@@ -104,4 +106,12 @@ class SessionRepositoryImpl @Inject()(
       .toFuture()
       .map(_ => true)
   }
+  
+  override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =
+    get(key).flatMap { maybeAnswers =>
+      val currentAnswers = maybeAnswers.getOrElse(UserAnswers.empty(key))
+      val updatedAnswers = updateFn(currentAnswers)
+      set(updatedAnswers).map(_ => updatedAnswers)
+    }
+    
 }

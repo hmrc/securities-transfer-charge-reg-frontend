@@ -30,18 +30,17 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepos
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class DateOfBirthRegController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        auth: IndividualAuth,
-                                        formProvider: DateOfBirthRegFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: DateOfBirthRegView,
-                                        registrationConnector: RegistrationConnector,
+                                          override val messagesApi: MessagesApi,
+                                          sessionRepository: SessionRepository,
+                                          @Named("individuals") navigator: Navigator,                                          auth: IndividualAuth,
+                                          formProvider: DateOfBirthRegFormProvider,
+                                          val controllerComponents: MessagesControllerComponents,
+                                          view: DateOfBirthRegView,
+                                          registrationConnector: RegistrationConnector,
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*

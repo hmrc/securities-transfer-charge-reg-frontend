@@ -16,27 +16,27 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
-import javax.inject.Inject
-import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
+
+import javax.inject.{Inject, Named}
+import scala.concurrent.{ExecutionContext, Future}
 
 class SelectBusinessTypeController @Inject()(
-                                       override val messagesApi: MessagesApi,
-                                       sessionRepository: SessionRepository,
-                                       navigator: Navigator,
-                                       auth: OrgAuth,
-                                       formProvider: SelectBusinessTypeFormProvider,
-                                       val controllerComponents: MessagesControllerComponents,
-                                       view: SelectBusinessTypeView
+                                              override val messagesApi: MessagesApi,
+                                              sessionRepository: SessionRepository,
+                                              @Named("organisations") navigator: Navigator,                                              auth: OrgAuth,
+                                              formProvider: SelectBusinessTypeFormProvider,
+                                              val controllerComponents: MessagesControllerComponents,
+                                              view: SelectBusinessTypeView
                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*

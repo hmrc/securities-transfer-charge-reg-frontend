@@ -25,8 +25,8 @@ POST       /register                                     uk.gov.hmrc.securitiest
 
 GET        /register/start                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.RegistrationController.routingLogic()
 
-GET        /address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onPageLoad()
-GET        /address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AddressController.onReturn(id: String)
+GET        /address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.AddressController.onPageLoad()
+GET        /address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.AddressController.onReturn(id: String)
 
 GET        /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onPageLoad(mode: Mode = NormalMode)
 POST       /date-of-birth                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.DateOfBirthRegController.onSubmit(mode: Mode = NormalMode)
@@ -85,3 +85,7 @@ GET        /org/contact-number                   uk.gov.hmrc.securitiestransferc
 POST       /org/contact-number                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = NormalMode)
 GET        /org/change-contact-number            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = CheckMode)
 POST       /org/change-contact-number             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = CheckMode)
+
+
+GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
+GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)
