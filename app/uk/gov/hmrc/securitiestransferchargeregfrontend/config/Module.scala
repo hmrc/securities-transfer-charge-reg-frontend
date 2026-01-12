@@ -17,8 +17,8 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
-import connectors.{AlfAddressConnector, AlfAddressConnectorImpl, RegistrationConnector, RegistrationConnectorImpl, SubscriptionConnector, SubscriptionConnectorImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{AlfAddressConnector, AlfAddressConnectorImpl, RegistrationConnector, RegistrationConnectorImpl, SubscriptionConnector, SubscriptionConnectorImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationDataRepository, RegistrationDataRepositoryImpl, SessionRepository, SessionRepositoryImpl}
 

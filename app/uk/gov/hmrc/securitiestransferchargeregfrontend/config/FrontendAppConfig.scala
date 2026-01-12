@@ -51,6 +51,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   private val addressLookupBaseUrl: String =
     servicesConfig.baseUrl("address-lookup-frontend")
 
+  val grsIncorporatedEntityBaseUrl: String =
+    servicesConfig.baseUrl("incorporated-entity-identification-frontend")
+
   val alfInitUrl: String =
     s"$addressLookupBaseUrl/api/init"
 
@@ -59,6 +62,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val alfContinueUrl: String =
     s"$host/register-securities-transfer-charge/address/return"
+    
+  val grsIncorporatedEntityRetrieveUrl: String =
+    s"$grsIncorporatedEntityBaseUrl/api/journey"
 
   private val registrationBackendBaseUrl: String =
     servicesConfig.baseUrl("securities-transfer-charge-registration")

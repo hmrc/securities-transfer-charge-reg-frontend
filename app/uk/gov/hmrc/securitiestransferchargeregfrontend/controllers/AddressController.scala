@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 
-import connectors.AlfAddressConnector
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualOptionalDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
