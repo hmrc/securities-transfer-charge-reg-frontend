@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package controllers
+package controllers.individuals
 
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 
 class AddressControllerSpec extends SpecBase with MockitoSugar {
 

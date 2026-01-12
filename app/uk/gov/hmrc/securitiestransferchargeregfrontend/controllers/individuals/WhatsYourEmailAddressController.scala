@@ -28,17 +28,17 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourEmailAddressView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourEmailAddressController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        navigator: Navigator,
-                                        auth: IndividualAuth,
-                                        formProvider: WhatsYourEmailAddressFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: WhatsYourEmailAddressView
+                                                 override val messagesApi: MessagesApi,
+                                                 sessionRepository: SessionRepository,
+                                                 @Named("individuals") navigator: Navigator,
+                                                 auth: IndividualAuth,
+                                                 formProvider: WhatsYourEmailAddressFormProvider,
+                                                 val controllerComponents: MessagesControllerComponents,
+                                                 view: WhatsYourEmailAddressView
                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*

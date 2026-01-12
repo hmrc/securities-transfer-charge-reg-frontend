@@ -17,7 +17,6 @@
 package base
 
 import base.Fixtures.FakeAlfConnector
-import connectors.AlfAddressConnector
 import controllers.actions.*
 import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
 import org.scalatest.freespec.AnyFreeSpec
@@ -31,6 +30,7 @@ import play.api.mvc.*
 import play.api.test.FakeRequest
 import repositories.FakeSessionRepository
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{DataRequest, StcAuthRequest, StcValidIndividualRequest, StcValidOrgRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}

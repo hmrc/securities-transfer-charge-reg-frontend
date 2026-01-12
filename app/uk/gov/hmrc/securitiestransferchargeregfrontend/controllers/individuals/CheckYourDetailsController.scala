@@ -29,14 +29,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.CheckYourDetailsView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
                                             sessionRepository: SessionRepository,
-                                            navigator: Navigator,
-                                            auth: IndividualAuth,
+                                            @Named("individuals") navigator: Navigator,                                            auth: IndividualAuth,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourDetailsView

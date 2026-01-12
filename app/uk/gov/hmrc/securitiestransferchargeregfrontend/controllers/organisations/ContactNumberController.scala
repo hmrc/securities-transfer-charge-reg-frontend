@@ -28,13 +28,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.Conta
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactNumberView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContactNumberController @Inject()(
                                         override val messagesApi: MessagesApi,
                                         sessionRepository: SessionRepository,
-                                        navigator: Navigator,
+                                        @Named("organisations") navigator: Navigator,
                                         auth: OrgAuth,
                                         formProvider: ContactNumberFormProvider,
                                         val controllerComponents: MessagesControllerComponents,

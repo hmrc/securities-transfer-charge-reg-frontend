@@ -108,7 +108,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
       val application =
         applicationBuilder(userAnswers = Some(emptyUserAnswers))
           .overrides(
-            bind[Navigator].toInstance(new FakeNavigator(onwardRoute)),
+            bind[Navigator].qualifiedWith("individuals").toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[RegistrationClient].toInstance(fakeRegistrationClient),
             bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
@@ -122,7 +122,6 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
         redirectLocation(result).value mustEqual onwardRoute.url
       }
     }
-
 
     "must return a Bad Request and errors when invalid data is submitted" in {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()

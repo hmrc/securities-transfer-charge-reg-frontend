@@ -57,8 +57,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val alfRetrieveUrl: String =
     s"$addressLookupBaseUrl/api/confirmed"
 
-  val alfContinueUrl: String =
+  val alfIndividualsContinueUrl: String =
     s"$host/register-securities-transfer-charge/address/return"
+
+  val alfOrgContinueUrl: String =
+    s"$host/register-securities-transfer-charge/org/address/return"
 
   private val registrationBackendBaseUrl: String =
     servicesConfig.baseUrl("securities-transfer-charge-registration")
