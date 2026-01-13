@@ -86,6 +86,8 @@ POST       /org/contact-number                   uk.gov.hmrc.securitiestransferc
 GET        /org/change-contact-number            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = CheckMode)
 POST       /org/change-contact-number             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = CheckMode)
 
+GET        /org/registration-complete             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegistrationCompleteController.onPageLoad()
+
 
 GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
 GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)

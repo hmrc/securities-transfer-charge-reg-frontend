@@ -78,7 +78,11 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val hasCurrentSubscriptionBaseUrl: String =
     s"$registrationBackendBaseUrl/securities-transfer-charge-registration/subscription"
 
+  val subscribeOrganisationBackendUrl: String =
+    s"$registrationBackendBaseUrl/securities-transfer-charge-registration/subscription/organisation"
 
+  val enrolOrganisationBackendUrl: String =
+    s"$registrationBackendBaseUrl/securities-transfer-charge-registration/enrolment/organisation"
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/securities-transfer-charge-reg-frontend"
 

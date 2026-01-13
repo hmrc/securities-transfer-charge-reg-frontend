@@ -19,11 +19,12 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
 import javax.inject.Inject
@@ -35,7 +36,8 @@ class EnrolmentErrorException(msg: String) extends RuntimeException(msg)
 
 trait SubscriptionConnector:
   def subscribeAndEnrolIndividual(userId: String)(nino: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit]
-  
+  def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit]
+
 class SubscriptionConnectorImpl @Inject() (registrationClient: RegistrationClient,
                                             registrationDataRepository: RegistrationDataRepository)
                                           (implicit ec: ExecutionContext) extends SubscriptionConnector with Logging:
@@ -46,6 +48,14 @@ class SubscriptionConnectorImpl @Inject() (registrationClient: RegistrationClien
       maybeSafeId    <- registrationDataRepository.getRegistrationData(userId).map(_.safeId)
       subscriptionId <- subscribe(maybeSafeId, userAnswers)
       _              <- enrol(subscriptionId, nino)
+    } yield ()
+  }
+  override def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
+    for {
+      safeId <- Future.successful(Some("SAFE123")) // Dummy value to simulate value returned from GRS
+      ctUtr <- Future.successful("0123456789") // Dummy value to simulate value returned from GRS
+      subscriptionId <- subscribeOrganisation(safeId, userAnswers)
+      _              <- enrolOrganisation(subscriptionId, ctUtr)
     } yield ()
   }
 
@@ -77,6 +87,37 @@ class SubscriptionConnectorImpl @Inject() (registrationClient: RegistrationClien
         }
     }
 
+  private def subscribeOrganisation(
+                                     maybeSafeId: Option[String],
+                                     userAnswers: UserAnswers
+                                   )(implicit hc: HeaderCarrier): Future[String] = {
+
+    for {
+      safeId <- maybeSafeId.fold[Future[String]](Future.failed(new RegistrationDataNotFoundException("Subscription failed: missing safeId"))
+      )(Future.successful)
+
+      details <- buildOrganisationSubscriptionDetails(safeId, userAnswers).fold[Future[OrganisationSubscriptionDetails]](
+          Future.failed(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
+        )(Future.successful)
+
+      subscriptionResult <- registrationClient.subscribe(details)
+
+      subscriptionId <- subscriptionResult match {
+        case Right(SubscriptionSuccessful(id)) => registrationDataRepository.setSubscriptionId(userAnswers.id)(id).map(_ => id)
+
+        case Right(SubscriptionFailed) =>
+          val msg = s"SubscriptionConnector: Unsuccessful response when subscribing userId: ${userAnswers.id}"
+          logger.info(msg)
+          Future.failed(new SubscriptionErrorException(msg))
+
+        case Left(error) =>
+          val msg = s"SubscriptionConnector: Error response when subscribing userId: ${userAnswers.id}, error: $error"
+          logger.info(msg)
+          Future.failed(new SubscriptionErrorException(msg))
+      }
+    } yield subscriptionId
+  }
+
 
   private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId =>
     answers =>
@@ -91,8 +132,20 @@ class SubscriptionConnectorImpl @Inject() (registrationClient: RegistrationClien
       }
   }
 
+  private def buildOrganisationSubscriptionDetails(safeId:String,userAnswers:UserAnswers):Option[OrganisationSubscriptionDetails] = {
+    for {
+      alf <- getAddress(userAnswers)
+      address = alf.address
+      (l1, l2, l3) <- extractLines(address)
+      email        <- getContactEmailAddress(userAnswers)
+      tel          <- getContactNumber(userAnswers)
+    } yield OrganisationSubscriptionDetails(safeId,l1,l2,l3,address.postcode,address.country.code,tel,None,email)
+  }
+
   private val getAddress: UserAnswers => Option[AlfConfirmedAddress] = _.get[AlfConfirmedAddress](AddressPage())
   private val getEmailAddress: UserAnswers => Option[String] = _.get[String](WhatsYourEmailAddressPage)
+  private val getContactEmailAddress: UserAnswers => Option[String] = _.get[String](ContactEmailAddressPage)
+  private val getContactNumber: UserAnswers => Option[String] = _.get[String](ContactNumberPage)
   private val getTelephoneNumber: UserAnswers => Option[String] = _.get[String](WhatsYourContactNumberPage)
 
   private val extractLines: AlfAddress => Option[(String, Option[String], Option[String])] = { address =>
@@ -109,6 +162,31 @@ class SubscriptionConnectorImpl @Inject() (registrationClient: RegistrationClien
 
     registrationClient.enrolIndividual(
       IndividualEnrolmentDetails(subscriptionId, nino)
+    ).flatMap {
+      case Right(EnrolmentSuccessful) =>
+        Future.successful(())
+
+      case Right(_) =>
+        val msg =
+          s"SubscriptionConnector: Unsuccessful response when enrolling subscriptionId: $subscriptionId"
+        logger.info(msg)
+        Future.failed(new EnrolmentErrorException(msg))
+
+      case Left(error) =>
+        val msg =
+          s"SubscriptionConnector: Error response when enrolling subscriptionId: $subscriptionId, error: $error"
+        logger.info(msg)
+        Future.failed(new EnrolmentErrorException(msg))
+    }
+  }
+
+  private def enrolOrganisation(
+                     subscriptionId: String,
+                     ctUtr: String
+                   )(implicit hc: HeaderCarrier): Future[Unit] = {
+
+    registrationClient.enrolOrganisation(
+      OrganisationEnrolmentDetails(subscriptionId, ctUtr)
     ).flatMap {
       case Right(EnrolmentSuccessful) =>
         Future.successful(())
