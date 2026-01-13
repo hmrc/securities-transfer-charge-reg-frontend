@@ -61,6 +61,9 @@ class FakeRegistrationClient(succeeds: Boolean) extends RegistrationClient {
 
   override def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult] =
     Future.successful(Right(EnrolmentSuccessful))
+
+  override def enrolOrganisation(enrolmentDetails: OrganisationEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult] =
+    Future.successful(Right(EnrolmentSuccessful))
 }
 
 

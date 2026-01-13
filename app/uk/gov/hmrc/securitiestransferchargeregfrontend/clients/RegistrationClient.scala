@@ -38,6 +38,7 @@ trait RegistrationClient:
   def subscribe(individualSubscriptionDetails: IndividualSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult]
   def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult]
   def enrolIndividual(enrolmentDetails: IndividualEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult]
+  def enrolOrganisation(enrolmentDetails: OrganisationEnrolmentDetails)(implicit hc: HeaderCarrier): Future[EnrolmentResult]
 
 // DUMMY IMPL until we have a real BE implementation for this.
 class RegistrationClientImpl @Inject()(
@@ -165,13 +166,85 @@ class RegistrationClientImpl @Inject()(
       }
   }
 
-  override def subscribe(organisationSubscriptionDetails: OrganisationSubscriptionDetails)(implicit hc: HeaderCarrier): Future[SubscriptionResult] = Future.successful(Right(SubscriptionSuccessful("SUBSCRIPTION123")))
+  override def subscribe(
+                          organisationSubscriptionDetails: OrganisationSubscriptionDetails
+                        )(implicit hc: HeaderCarrier): Future[SubscriptionResult] = {
+
+    val url = url"${config.subscribeOrganisationBackendUrl}"
+
+    http
+      .post(url)
+      .withBody(Json.toJson(organisationSubscriptionDetails))
+      .execute[HttpResponse]
+      .map(handleResponse)
+      .recover {
+        case NonFatal(e) =>
+          val msg =
+            s"SubscriptionClient.subscribe: exception calling BE: ${e.getMessage}"
+          logger.error(msg, e)
+          Left(SubscriptionServerError(msg))
+      }
+  }
+
+  private def handleResponse(resp: HttpResponse): SubscriptionResult =
+    resp.status match {
+      case OK =>
+        parseSuccessResponse(resp.body)
+      case BAD_REQUEST =>
+        Left(SubscriptionClientError(s"SubscriptionClient.subscribe: 400 from BE. body=${resp.body}"))
+      case status =>
+        Left(
+          SubscriptionServerError(s"SubscriptionClient.subscribe: unexpected status=$status body=${resp.body}"))
+    }
+
+  private def parseSuccessResponse(body: String): SubscriptionResult =
+    Json
+      .parse(body)
+      .validate[OrganisationSubscriptionResponseDto]
+      .fold(
+        errs =>
+          val msg =
+            s"SubscriptionClient.subscribe: Could not parse OK response. errs=$errs body=$body"
+          Left(SubscriptionServerError(msg)),
+        dto =>
+          Right(
+            SubscriptionResponse.SubscriptionSuccessful(dto.subscriptionId)
+          )
+      )
+  
+  
 
   override def enrolIndividual(
                                 enrolmentDetails: IndividualEnrolmentDetails
                               )(implicit hc: HeaderCarrier): Future[EnrolmentResult] = {
 
     val url = url"${config.enrolIndividualBackendUrl}"
+
+    http.post(url)
+      .withBody(Json.toJson(enrolmentDetails): JsValue)
+      .execute[HttpResponse]
+      .map { resp =>
+        resp.status match {
+          case NO_CONTENT | OK =>
+            Right(EnrolmentResponse.EnrolmentSuccessful)
+
+          case BAD_REQUEST =>
+            Left(EnrolmentClientError(s"400 from BE. body=${resp.body}"))
+
+          case status =>
+            Left(EnrolmentServerError(s"unexpected status=$status body=${resp.body}"))
+        }
+      }
+      .recover { case NonFatal(e) =>
+        Left(EnrolmentServerError(s"exception calling BE: ${e.getMessage}"))
+      }
+  }
+
+  override def enrolOrganisation(
+                                enrolmentDetails: OrganisationEnrolmentDetails
+                              )(implicit hc: HeaderCarrier): Future[EnrolmentResult] = {
+
+    val url = url"${config.enrolOrganisationBackendUrl}"
 
     http.post(url)
       .withBody(Json.toJson(enrolmentDetails): JsValue)

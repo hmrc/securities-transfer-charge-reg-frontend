@@ -20,7 +20,10 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.RegistrationCompleteController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
@@ -32,16 +35,17 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContactNumberController @Inject()(
-                                        override val messagesApi: MessagesApi,
-                                        sessionRepository: SessionRepository,
-                                        @Named("organisations") navigator: Navigator,
-                                        auth: OrgAuth,
-                                        formProvider: ContactNumberFormProvider,
-                                        val controllerComponents: MessagesControllerComponents,
-                                        view: ContactNumberView
-                                    )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                         override val messagesApi: MessagesApi,
+                                         sessionRepository: SessionRepository,
+                                         auth: OrgAuth,
+                                         formProvider: ContactNumberFormProvider,
+                                         val controllerComponents: MessagesControllerComponents,
+                                         view: ContactNumberView,
+                                         subscriptionConnector: SubscriptionConnector,
+                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
+
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
@@ -65,8 +69,11 @@ class ContactNumberController @Inject()(
         value =>
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ContactNumberPage, mode, updatedAnswers))
-      )
+            _ <- sessionRepository.set(updatedAnswers)
+            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(request.request.userId)(updatedAnswers)
+          } yield Redirect(RegistrationCompleteController.onPageLoad())
+      ).recover {
+        case _ => Redirect(JourneyRecoveryController.onPageLoad())
+      }
   }
 }
