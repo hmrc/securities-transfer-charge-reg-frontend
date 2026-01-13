@@ -71,7 +71,7 @@ class ContactNumberController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
             _ <- sessionRepository.set(updatedAnswers)
-            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(request.request.userId)(request.userAnswers)
+            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(request.request.userId)(updatedAnswers)
           } yield Redirect(RegistrationCompleteController.onPageLoad())
       ).recover {
         case _ => Redirect(JourneyRecoveryController.onPageLoad())
