@@ -37,7 +37,6 @@ import scala.concurrent.{ExecutionContext, Future}
 class ContactNumberController @Inject()(
                                          override val messagesApi: MessagesApi,
                                          sessionRepository: SessionRepository,
-                                         @Named("organisations") navigator: Navigator,
                                          auth: OrgAuth,
                                          formProvider: ContactNumberFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
