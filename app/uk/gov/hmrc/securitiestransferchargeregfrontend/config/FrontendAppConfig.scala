@@ -54,6 +54,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val grsIncorporatedEntityBaseUrl: String =
     servicesConfig.baseUrl("incorporated-entity-identification-frontend")
 
+  val grsIncorporatedEntityReturnUrl: String =
+    s"$host/register-securities-transfer-charge/org/registration/return"
+    
   val alfInitUrl: String =
     s"$addressLookupBaseUrl/api/init"
 

@@ -17,19 +17,19 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
 import play.api.libs.json.{JsValue, Json}
-import play.api.libs.ws.WSClient
+import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.*
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 import scala.util.Try
-import GrsResult.*
 
-class IncorporatedEntityGrsConnector @Inject()(ws: WSClient,
+class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
                                                appConfig: FrontendAppConfig)
-                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(ws) {
+                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient) {
 
-  val initLimitedCompanyJourney = s"${appConfig.grsIncorporatedEntityBaseUrl}/api/limited-company-journey"
+  val initLimitedCompanyJourney = s"${appConfig.grsIncorporatedEntityBaseUrl}/identify-your-incorporated-business/test-only/create-limited-company-journey"
   val initRegisteredSocietyJourney = s"${appConfig.grsIncorporatedEntityBaseUrl}/api/registered-society-journey"
   
   def configuration(continueUrl: String): JsValue = Json.parse(

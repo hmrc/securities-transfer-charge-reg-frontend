@@ -19,10 +19,13 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 import play.api.Logging
 import play.api.http.Status.CREATED
 import play.api.libs.json.*
+import play.api.libs.ws
 import play.api.libs.ws.*
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
-
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import scala.concurrent.{ExecutionContext, Future}
 
 enum GrsResult:
@@ -31,28 +34,30 @@ enum GrsResult:
 
 
 trait GrsConnector:
-  def initGrsJourney(initUrl: String, continueUrl: String): Future[Result]
-  def retrieveGrsResults(journeyId: String): Future[GrsResult]
+  def initGrsJourney(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[Result]
+  def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult]
   def configuration(continueUrl: String): JsValue
   def retrievalUrl: String
   def parseResponse(body: String): GrsResult
   
 final class GrsException(msg: String) extends RuntimeException(msg)
 
-abstract class AbstractGrsConnector(ws: WSClient)
-                               (implicit ec: ExecutionContext) extends GrsConnector with Logging {
+abstract class AbstractGrsConnector(httpClient: HttpClientV2)
+                                   (implicit ec: ExecutionContext) extends GrsConnector with Logging {
 
-  private type ResponseHandler = PartialFunction[WSResponse, Result]
+  private type ResponseHandler = PartialFunction[HttpResponse, Result]
 
-  override def initGrsJourney(initUrl: String, continueUrl: String): Future[Result] =
+  override def initGrsJourney(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
     callGrsInit(initUrl, continueUrl)
       .map(journeySuccess.orElse(journeyFailure))
 
-  private def callGrsInit(initUrl: String, continueUrl: String): Future[WSResponse] =
-    ws
-      .url(initUrl)
-      .addHttpHeaders("Content-Type" -> "application/json")
-      .post(configuration(continueUrl))
+  private def callGrsInit(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    logger.info(s"Initiating GRS journey using URL: $initUrl")
+    httpClient
+      .post(url"$initUrl")
+      .withBody(configuration(continueUrl))
+      .execute[HttpResponse]
+  }
 
   private def journeySuccess: ResponseHandler =
     case resp if resp.status == CREATED =>
@@ -72,16 +77,15 @@ abstract class AbstractGrsConnector(ws: WSClient)
   }
 
   private val journeyFailure: ResponseHandler = { resp =>
-    failure("Address lookup initiation failed: " + resp.status)
+    failure("GRS initiation failed: " + resp.status)
   }
 
-  override def retrieveGrsResults(journeyId: String): Future[GrsResult] =
+  override def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult] =
     callGrsRetrieve(journeyId)
       .map(resp => parseResponse(resp.body))
 
-  private def callGrsRetrieve(journeyId: String): Future[WSResponse] =
-    ws
-      .url(s"$retrievalUrl/$journeyId")
-      .get()
-  
+  private def callGrsRetrieve(journeyId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
+    httpClient
+      .get(url"$retrievalUrl/$journeyId")
+      .execute[HttpResponse]
 }

@@ -89,3 +89,6 @@ POST       /org/change-contact-number             uk.gov.hmrc.securitiestransfer
 
 GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
 GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)
+
+GET        /org/registration                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsController.onPageLoad()
+GET        /org/registration/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsController.onReturn(journeyId: String)
