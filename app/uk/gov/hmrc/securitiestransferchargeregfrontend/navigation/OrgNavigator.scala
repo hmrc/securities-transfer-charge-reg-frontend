@@ -20,7 +20,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{organisations as organisationsPages, *}
 
@@ -28,7 +28,7 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class OrgNavigator @Inject() extends Navigator {
-
+  
   private val normalRoutes: Page => UserAnswers => Call = {
     
     case _: AddressPage[_] =>
@@ -49,9 +49,10 @@ class OrgNavigator @Inject() extends Navigator {
     case organisationsPages.SelectBusinessTypePage =>
       userAnswers => {
         userAnswers.get(organisationsPages.SelectBusinessTypePage) match {
-          case Some(SelectBusinessType.Partnership) => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
-          case Some(SelectBusinessType.SoleTrader) => orgRoutes.PartnershipKickOutController.onPageLoad()
-          case Some(_) => orgRoutes.GrsController.onPageLoad()
+          case Some(Partnership) => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+          case Some(SoleTrader) => orgRoutes.PartnershipKickOutController.onPageLoad()
+          case Some(LimitedCompany) => orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
+          case Some(RegisteredSociety) => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
           case None => routes.JourneyRecoveryController.onPageLoad()
         }
       }
@@ -75,7 +76,7 @@ class OrgNavigator @Inject() extends Navigator {
     userAnswers
       .get(organisationsPages.TypeOfPartnershipPage)
       .map {
-        case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => orgRoutes.GrsController.onPageLoad()
+        case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => ???
         case _                                                                             => orgRoutes.PartnershipKickOutController.onPageLoad()
       }
       .getOrElse(routes.JourneyRecoveryController.onPageLoad())

@@ -55,8 +55,29 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     servicesConfig.baseUrl("incorporated-entity-identification-frontend")
 
   val grsIncorporatedEntityReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/return"
+    s"$host/register-securities-transfer-charge/org/registration/incorporated-entity/return"
     
+  val initLimitedCompanyJourneyUrl: String =
+    s"${grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
+    
+  val initRegisteredSocietyJourneyUrl: String =
+    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/registered-society-journey"
+
+  val grsPartnershipBaseUrl: String =
+    servicesConfig.baseUrl("partnership-identification-frontend")
+
+  val grsPartnershipReturnUrl: String =
+    s"$host/register-securities-transfer-charge/org/registration/partnership/return"
+    
+  val grsLimitedPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/limited-partnership-journey"
+
+  val grsScottishLimitedPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/scottish-limited-partnership-journey"
+
+  val grsLimitedLiabilityPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/limited-liability-partnership-journey"
+  
   val alfInitUrl: String =
     s"$addressLookupBaseUrl/api/init"
 

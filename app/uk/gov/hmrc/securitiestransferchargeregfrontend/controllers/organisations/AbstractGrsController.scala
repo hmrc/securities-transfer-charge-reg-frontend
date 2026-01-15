@@ -20,11 +20,11 @@ import routes as orgRoutes
 
 import play.api.Logging
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, MessagesControllerComponents, Result}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.GrsSuccess
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{GrsResult, IncorporatedEntityGrsConnector}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
@@ -36,36 +36,16 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.Registration
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-class GrsController @Inject() (val controllerComponents: MessagesControllerComponents,
-                               ieConnector: IncorporatedEntityGrsConnector,
-                               auth: OrgAuth,
-                               @Named("organisations") val navigator: Navigator,
-                               registrationDataRepository: RegistrationDataRepository)
-                              ( implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
-
-  import auth.*
+abstract class AbstractGrsController( val controllerComponents: MessagesControllerComponents,
+                                      registrationDataRepository: RegistrationDataRepository)
+                                    ( implicit ec: ExecutionContext) extends Logging with FrontendBaseController with I18nSupport {
   
-  def onPageLoad: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
-    implicit request =>
-      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      request.userAnswers.get(SelectBusinessTypePage) match {
-        case None => Future.successful(Redirect(routes.JourneyRecoveryController.onPageLoad().url))
-        case Some(LimitedCompany) => ieConnector.initLimitedCompanyJourney
-        case Some(RegisteredSociety) => ieConnector.initRegisteredSocietyJourney
-        case _ => throw new Exception("GRS journey failed")
-      }
-  }
-  
-  def onReturn(journeyId: String): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
-    implicit request =>
-      val userId = request.request.userId
-      ieConnector.retrieveGrsResults(journeyId)
-        .flatMap(processSuccess(userId).orElse(processFailure))
-  }
+  def processResponse(userId: String, result: GrsResult): Future[Result] =
+    processSuccess(userId).orElse(processFailure)(result)
   
   private def processSuccess(userId: String): PartialFunction[GrsResult, Future[Result]] =  {
     case GrsSuccess(utr, safe) =>
-      logger.info(s"GRS journey successful for userId: $userId with UTR: $utr and SafeId: $safe")
+      logger.info(s"GRS journey successful")
       for {
       _ <- registrationDataRepository.setCtUtr(userId)(utr)
       _ <- registrationDataRepository.setSafeId(userId)(safe)
@@ -75,9 +55,9 @@ class GrsController @Inject() (val controllerComponents: MessagesControllerCompo
   }
   
   private def processFailure: PartialFunction[GrsResult, Future[Result]] = {
-    case _ => Future.successful(
-      Redirect(orgRoutes.PartnershipKickOutController.onPageLoad().url)
-    )
+    case GrsFailure(msg) => 
+      logger.info(s"GRS registration failed: $msg")
+      Future.successful(Redirect(orgRoutes.PartnershipKickOutController.onPageLoad().url))
   }
 
 }

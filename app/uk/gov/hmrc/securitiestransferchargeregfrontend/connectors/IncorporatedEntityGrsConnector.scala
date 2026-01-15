@@ -33,19 +33,19 @@ class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
                                                resourceLoader: ResourceLoader)
                                               (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient):
 
-  private val initLimitedCompanyJourneyUrl = s"${appConfig.grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
-  private val initRegisteredSocietyJourneyUrl = s"${appConfig.grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/registered-society-journey"
-
   def retrievalUrl: String = appConfig.grsIncorporatedEntityRetrieveUrl
     
   private def initGrsJourney(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
     super.initGrsJourney(appConfig.grsIncorporatedEntityReturnUrl)(initUrl)
 
-  def initLimitedCompanyJourney(implicit hc: HeaderCarrier): Future[Result] = initGrsJourney(initLimitedCompanyJourneyUrl)
-  def initRegisteredSocietyJourney(implicit hc: HeaderCarrier): Future[Result] = initGrsJourney(initRegisteredSocietyJourneyUrl)
+  def initLimitedCompanyJourney(implicit hc: HeaderCarrier): Future[Result] =
+    initGrsJourney(appConfig.initLimitedCompanyJourneyUrl)
+    
+  def initRegisteredSocietyJourney(implicit hc: HeaderCarrier): Future[Result] =
+    initGrsJourney(appConfig.initRegisteredSocietyJourneyUrl)
   
   private val parseFailure: Throwable => GrsResult =
-    _ => GrsFailure("Failed to parse GRS response for Incorporated Entity")
+    xs => GrsFailure(s"Failed to parse GRS response for Incorporated Entity: ${xs.getLocalizedMessage}")
 
   def parseResponse(body: String): GrsResult =
     Try(Json.parse(body)).fold(parseFailure, parseSuccess)
@@ -55,9 +55,11 @@ class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
       ctUtr     <- (json \ "ctutr").asOpt[String]
       regStatus <- (json \ "registration" \ "registrationStatus").asOpt[String]
       regId     <- (json \ "registration" \ "registeredBusinessPartnerId").asOpt[String]
-      if regStatus == "REGISTERED"
-    } yield GrsSuccess(ctUtr, regId)
-    result.getOrElse(GrsFailure("Incorporated Entity is not registered"))
+    } yield {
+      if (regStatus == REGISTERED) GrsSuccess(ctUtr, regId)
+      else GrsFailure("Incorporated Entity is not registered")
+    }
+    result.getOrElse(GrsFailure("Failed to parse GRS response"))
   }
 
   override def configuration(continueUrl: String): JsValue = {

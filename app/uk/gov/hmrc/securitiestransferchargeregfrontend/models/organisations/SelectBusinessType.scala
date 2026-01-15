@@ -45,6 +45,16 @@ object SelectBusinessType extends Enumerable.Implicits {
       )
   }
 
-  implicit val enumerable: Enumerable[SelectBusinessType] =
+  implicit val enumerable: Enumerable[SelectBusinessType] = {
     Enumerable(values.map(v => v.toString -> v): _*)
+  }
+
+  val isIncorporated: SelectBusinessType => Boolean = {
+    case LimitedCompany | RegisteredSociety => true
+    case _ => false
+  }
+  
+  val isPartnership: SelectBusinessType => Boolean = _ == Partnership
+  
+  
 }

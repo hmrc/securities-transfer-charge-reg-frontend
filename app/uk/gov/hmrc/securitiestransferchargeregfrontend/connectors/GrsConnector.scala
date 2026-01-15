@@ -46,10 +46,11 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
                                    (implicit ec: ExecutionContext) extends GrsConnector with Logging {
 
   private type ResponseHandler = PartialFunction[HttpResponse, Result]
-
+  val REGISTERED = "REGISTERED"
+  
   override def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
     callGrsInit(initUrl, continueUrl)
-      .map(journeySuccess.orElse(journeyFailure))
+      .map(initJourneySuccess.orElse(initJourneyFailure))
 
   private def callGrsInit(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     logger.info(s"Initiating GRS journey using URL: $initUrl")
@@ -59,14 +60,14 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
       .execute[HttpResponse]
   }
 
-  private def journeySuccess: ResponseHandler =
+  private def initJourneySuccess: ResponseHandler =
     case resp if resp.status == CREATED =>
-      parse(resp.body)
+      parseInitJourneyResponse(resp.body)
         .map(Redirect(_)).getOrElse {
           failure(s"Could not find journey URL in GRS response body")
         }
 
-  private val parse: String => Option[String] = { body =>
+  private val parseInitJourneyResponse: String => Option[String] = { body =>
     val json = Json.parse(body).asInstanceOf[JsObject]
     (json \ "journeyStartUrl").asOpt[String]
   }
@@ -76,7 +77,7 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
     throw new GrsException(fullMessage)
   }
 
-  private val journeyFailure: ResponseHandler = { resp =>
+  private val initJourneyFailure: ResponseHandler = { resp =>
     failure("GRS initiation failed: " + resp.status)
   }
 
