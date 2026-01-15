@@ -67,7 +67,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$host/register-securities-transfer-charge/address/return"
     
   val grsIncorporatedEntityRetrieveUrl: String =
-    s"$grsIncorporatedEntityBaseUrl/api/journey"
+    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
 
   val alfOrgContinueUrl: String =
     s"$host/register-securities-transfer-charge/org/address/return"

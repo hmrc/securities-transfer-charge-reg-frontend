@@ -16,45 +16,34 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
-import play.api.libs.json.{JsValue, Json}
+import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.mvc.Result
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import javax.inject.Inject
-import scala.concurrent.ExecutionContext
+import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
 class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
-                                               appConfig: FrontendAppConfig)
-                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient) {
+                                               appConfig: FrontendAppConfig,
+                                               resourceLoader: ResourceLoader)
+                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient):
 
-  val initLimitedCompanyJourney = s"${appConfig.grsIncorporatedEntityBaseUrl}/identify-your-incorporated-business/test-only/create-limited-company-journey"
-  val initRegisteredSocietyJourney = s"${appConfig.grsIncorporatedEntityBaseUrl}/api/registered-society-journey"
-  
-  def configuration(continueUrl: String): JsValue = Json.parse(
-    s"""
-      |{
-      |  "continueUrl" : "$continueUrl",
-      |  "businessVerificationCheck": false,
-      |  "optServiceName" : "Securities Transfer Charge",
-      |  "deskProServiceId" : "STC",
-      |  "signOutUrl" : "/account/sign-out",
-      |  "regime" : "STC",
-      |  "accessibilityUrl" : "/accessibility-statement/my-service",
-      |  "labels": {
-      |    "cy": {
-      |      "optServiceName": "Service name translated into welsh"
-      |    },
-      |    "en": {
-      |      "optServiceName": "Securities Transfer Charge"
-      |    }
-      |  }
-      |}""".stripMargin
-  )
+  private val initLimitedCompanyJourneyUrl = s"${appConfig.grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
+  private val initRegisteredSocietyJourneyUrl = s"${appConfig.grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/registered-society-journey"
 
   def retrievalUrl: String = appConfig.grsIncorporatedEntityRetrieveUrl
     
+  private def initGrsJourney(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
+    super.initGrsJourney(appConfig.grsIncorporatedEntityReturnUrl)(initUrl)
+
+  def initLimitedCompanyJourney(implicit hc: HeaderCarrier): Future[Result] = initGrsJourney(initLimitedCompanyJourneyUrl)
+  def initRegisteredSocietyJourney(implicit hc: HeaderCarrier): Future[Result] = initGrsJourney(initRegisteredSocietyJourneyUrl)
+  
   private val parseFailure: Throwable => GrsResult =
     _ => GrsFailure("Failed to parse GRS response for Incorporated Entity")
 
@@ -70,6 +59,11 @@ class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
     } yield GrsSuccess(ctUtr, regId)
     result.getOrElse(GrsFailure("Incorporated Entity is not registered"))
   }
-}
 
-  
+  override def configuration(continueUrl: String): JsValue = {
+    val raw = resourceLoader.loadString("grs-incorporated-entity-config.json")
+    val parsed = Json.parse(raw).as[JsObject]
+
+    val overrideJson = Json.obj("continueUrl" -> continueUrl)
+    parsed.deepMerge(overrideJson)
+  }

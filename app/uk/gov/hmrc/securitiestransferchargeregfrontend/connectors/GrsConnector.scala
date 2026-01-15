@@ -34,7 +34,7 @@ enum GrsResult:
 
 
 trait GrsConnector:
-  def initGrsJourney(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[Result]
+  def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result]
   def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult]
   def configuration(continueUrl: String): JsValue
   def retrievalUrl: String
@@ -47,7 +47,7 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
 
   private type ResponseHandler = PartialFunction[HttpResponse, Result]
 
-  override def initGrsJourney(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
+  override def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
     callGrsInit(initUrl, continueUrl)
       .map(journeySuccess.orElse(journeyFailure))
 

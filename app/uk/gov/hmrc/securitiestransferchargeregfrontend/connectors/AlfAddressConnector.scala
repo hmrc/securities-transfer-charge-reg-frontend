@@ -98,10 +98,7 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
         "continueUrl" -> returnUrl
       )
     )
-
-    val finalPayload = parsed.deepMerge(overrideJson)
-
-    finalPayload
+    parsed.deepMerge(overrideJson)
   }
 
 
