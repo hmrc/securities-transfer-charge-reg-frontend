@@ -26,25 +26,21 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GrsPartnershipConnector @Inject()(httpClient: HttpClientV2,
+class GrsMinorEntityConnector @Inject()(httpClient: HttpClientV2,
                                         appConfig: FrontendAppConfig,
                                         resourceLoader: ResourceLoader)
                                        (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient, resourceLoader):
 
-  def retrievalUrl: String = appConfig.grsPartnershipRetrieveUrl
+  def retrievalUrl: String = appConfig.grsMinorEntityRetrieveUrl
 
   private def initGrsJourney(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
-    super.initGrsJourney(appConfig.grsPartnershipReturnUrl)(initUrl)
+    super.initGrsJourney(appConfig.grsMinorEntityReturnUrl)(initUrl)
 
-  def initLimitedPartnershipJourney(implicit hc: HeaderCarrier): Future[Result] =
-    initGrsJourney(appConfig.grsLimitedPartnershipJourneyUrl)
+  def initTrustJourney(implicit hc: HeaderCarrier): Future[Result] =
+    initGrsJourney(appConfig.grsTrustJourneyUrl)
 
-  def initScottishLimitedPartnershipJourney(implicit hc: HeaderCarrier): Future[Result] =
-    initGrsJourney(appConfig.grsScottishLimitedPartnershipJourneyUrl)
+  def initUnincorporatedAssociationJourney(implicit hc: HeaderCarrier): Future[Result] =
+    initGrsJourney(appConfig.grsUnincorporatedAssociationJourneyUrl)
 
-  def initLimitedLiabilityPartnershipJourney(implicit hc: HeaderCarrier): Future[Result] =
-    initGrsJourney(appConfig.grsLimitedLiabilityPartnershipJourneyUrl)
-  
   override def configuration(continueUrl: String): JsValue =
-    super.createConfiguration("grs-partnership-config.json")(continueUrl)
-
+    super.createConfiguration("grs-minor-entity-config.json")(continueUrl)

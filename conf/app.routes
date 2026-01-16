@@ -98,3 +98,7 @@ GET        /org/registration/partnership/limited-partnership                uk.g
 GET        /org/registration/partnership/limited-liability-partnership      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.limitedLiabilityPartnershipJourney
 GET        /org/registration/partnership/scottish-limited-partnership       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.scottishLimitedPartnershipJourney
 GET        /org/registration/partnership/return                             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.returnFromJourney(journeyId: String)
+
+GET        /org/registration/minor-entity/trust                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.trustJourney
+GET        /org/registration/minor-entity/unincorporated-association    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.unincorporatedAssociationJourney
+GET        /org/registration/minor-entity/return                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.returnFromJourney(journeyId: String)

@@ -16,7 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
-import play.api.libs.json.{JsObject, JsValue, Json}
+import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
@@ -29,7 +29,7 @@ import scala.concurrent.{ExecutionContext, Future}
 class GrsIncorporatedEntityConnector @Inject()(httpClient: HttpClientV2,
                                                appConfig: FrontendAppConfig,
                                                resourceLoader: ResourceLoader)
-                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient):
+                                              (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient, resourceLoader):
 
   def retrievalUrl: String = appConfig.grsIncorporatedEntityRetrieveUrl
     
@@ -42,10 +42,11 @@ class GrsIncorporatedEntityConnector @Inject()(httpClient: HttpClientV2,
   def initRegisteredSocietyJourney(implicit hc: HeaderCarrier): Future[Result] =
     initGrsJourney(appConfig.grsRegisteredSocietyJourneyUrl)
 
-  override def configuration(continueUrl: String): JsValue = {
-    val raw = resourceLoader.loadString("grs-incorporated-entity-config.json")
-    val parsed = Json.parse(raw).as[JsObject]
-
-    val overrideJson = Json.obj("continueUrl" -> continueUrl)
-    parsed.deepMerge(overrideJson)
+  override def parseUtr(json: JsValue): Option[String] = {
+    val maybeUtr = (json \ "ctutr").asOpt[String]
+    logIfEmptyAndReturn("UTR", maybeUtr)
   }
+  
+  override def configuration(continueUrl: String): JsValue =
+    super.createConfiguration("grs-incorporated-entity-config.json")(continueUrl)
+  

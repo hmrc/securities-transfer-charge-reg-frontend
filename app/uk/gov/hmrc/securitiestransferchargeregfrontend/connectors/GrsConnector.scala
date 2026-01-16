@@ -27,6 +27,7 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
@@ -45,7 +46,8 @@ trait GrsConnector:
   
 final class GrsException(msg: String) extends RuntimeException(msg)
 
-abstract class AbstractGrsConnector(httpClient: HttpClientV2)
+abstract class AbstractGrsConnector(httpClient: HttpClientV2,
+                                    resourceLoader: ResourceLoader)
                                    (implicit ec: ExecutionContext) extends GrsConnector with Logging {
 
   private type ResponseHandler = PartialFunction[HttpResponse, Result]
@@ -105,10 +107,10 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
   }
 
   def parseUtr(json: JsValue): Option[String] = {
-    val maybeUtr = (json \ "ctutr").asOpt[String]
+    val maybeUtr = (json \ "sautr").asOpt[String]
     logIfEmptyAndReturn("UTR", maybeUtr)
   }
-  
+
   def parseRegistrationStatus(json: JsValue): Option[String] = {
     val maybeStatus = (json \ "registration" \ "registrationStatus").asOpt[String]
     logIfEmptyAndReturn("Registration Status", maybeStatus)
@@ -118,7 +120,7 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
     val maybeId = (json \ "registration" \ "registeredBusinessPartnerId").asOpt[String]
     logIfEmptyAndReturn("Registration Id", maybeId)
   }
-  
+
   def parseSuccess(json: JsValue): GrsResult = {
     val result = for {
       utr       <- parseUtr(json)
@@ -126,8 +128,16 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
       regId     <- parseRegistrationId(json)
     } yield {
       if (regStatus == REGISTERED) GrsSuccess(utr, regId)
-      else GrsFailure("Partnership is not registered")
+      else GrsFailure("Organisation is not registered")
     }
     result.getOrElse(GrsFailure("Failed to parse GRS response"))
+  }
+
+  def createConfiguration(filename: String)(continueUrl: String): JsValue = {
+    val raw = resourceLoader.loadString(filename)
+    val parsed = Json.parse(raw).as[JsObject]
+
+    val overrideJson = Json.obj("continueUrl" -> continueUrl)
+    parsed.deepMerge(overrideJson)
   }
 }
