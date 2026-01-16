@@ -54,30 +54,36 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val grsIncorporatedEntityBaseUrl: String =
     servicesConfig.baseUrl("incorporated-entity-identification-frontend")
 
+  val grsIncorporatedEntityRetrieveUrl: String =
+    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
+
   val grsIncorporatedEntityReturnUrl: String =
     s"$host/register-securities-transfer-charge/org/registration/incorporated-entity/return"
-    
-  val initLimitedCompanyJourneyUrl: String =
+
+  val grsLimitedCompanyJourneyUrl: String =
     s"${grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
-    
-  val initRegisteredSocietyJourneyUrl: String =
+
+  val grsRegisteredSocietyJourneyUrl: String =
     s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/registered-society-journey"
 
   val grsPartnershipBaseUrl: String =
     servicesConfig.baseUrl("partnership-identification-frontend")
 
+  val grsPartnershipRetrieveUrl: String =
+    s"$grsPartnershipBaseUrl/partnership-identification/api/journey"
+    
   val grsPartnershipReturnUrl: String =
     s"$host/register-securities-transfer-charge/org/registration/partnership/return"
-    
+
   val grsLimitedPartnershipJourneyUrl: String =
-    s"$grsPartnershipBaseUrl/limited-partnership-journey"
+    s"$grsPartnershipBaseUrl/partnership-identification/api/limited-partnership-journey"
 
   val grsScottishLimitedPartnershipJourneyUrl: String =
-    s"$grsPartnershipBaseUrl/scottish-limited-partnership-journey"
+    s"$grsPartnershipBaseUrl/partnership-identification/api/scottish-limited-partnership-journey"
 
   val grsLimitedLiabilityPartnershipJourneyUrl: String =
-    s"$grsPartnershipBaseUrl/limited-liability-partnership-journey"
-  
+    s"$grsPartnershipBaseUrl/partnership-identification/api/limited-liability-partnership-journey"
+
   val alfInitUrl: String =
     s"$addressLookupBaseUrl/api/init"
 
@@ -87,8 +93,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val alfIndividualsContinueUrl: String =
     s"$host/register-securities-transfer-charge/address/return"
     
-  val grsIncorporatedEntityRetrieveUrl: String =
-    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
 
   val alfOrgContinueUrl: String =
     s"$host/register-securities-transfer-charge/org/address/return"

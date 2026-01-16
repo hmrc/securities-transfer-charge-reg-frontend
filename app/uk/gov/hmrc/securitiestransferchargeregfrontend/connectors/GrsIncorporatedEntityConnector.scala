@@ -28,7 +28,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 import scala.util.Try
 
-class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
+class GrsIncorporatedEntityConnector @Inject()(httpClient: HttpClientV2,
                                                appConfig: FrontendAppConfig,
                                                resourceLoader: ResourceLoader)
                                               (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient):
@@ -39,10 +39,10 @@ class IncorporatedEntityGrsConnector @Inject()(httpClient: HttpClientV2,
     super.initGrsJourney(appConfig.grsIncorporatedEntityReturnUrl)(initUrl)
 
   def initLimitedCompanyJourney(implicit hc: HeaderCarrier): Future[Result] =
-    initGrsJourney(appConfig.initLimitedCompanyJourneyUrl)
+    initGrsJourney(appConfig.grsLimitedCompanyJourneyUrl)
     
   def initRegisteredSocietyJourney(implicit hc: HeaderCarrier): Future[Result] =
-    initGrsJourney(appConfig.initRegisteredSocietyJourneyUrl)
+    initGrsJourney(appConfig.grsRegisteredSocietyJourneyUrl)
   
   private val parseFailure: Throwable => GrsResult =
     xs => GrsFailure(s"Failed to parse GRS response for Incorporated Entity: ${xs.getLocalizedMessage}")

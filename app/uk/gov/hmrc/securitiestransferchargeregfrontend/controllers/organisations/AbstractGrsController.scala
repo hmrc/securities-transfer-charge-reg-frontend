@@ -20,20 +20,12 @@ import routes as orgRoutes
 
 import play.api.Logging
 import play.api.i18n.I18nSupport
-import play.api.mvc.{Action, MessagesControllerComponents, Result}
-import uk.gov.hmrc.http.HeaderCarrier
+import play.api.mvc.{MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{GrsResult, IncorporatedEntityGrsConnector}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
-import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 abstract class AbstractGrsController( val controllerComponents: MessagesControllerComponents,
@@ -47,8 +39,8 @@ abstract class AbstractGrsController( val controllerComponents: MessagesControll
     case GrsSuccess(utr, safe) =>
       logger.info(s"GRS journey successful")
       for {
-      _ <- registrationDataRepository.setCtUtr(userId)(utr)
-      _ <- registrationDataRepository.setSafeId(userId)(safe)
+        _ <- registrationDataRepository.setCtUtr(userId)(utr)
+        _ <- registrationDataRepository.setSafeId(userId)(safe)
     } yield {
       Redirect(orgRoutes.AddressController.onPageLoad().url)
     }

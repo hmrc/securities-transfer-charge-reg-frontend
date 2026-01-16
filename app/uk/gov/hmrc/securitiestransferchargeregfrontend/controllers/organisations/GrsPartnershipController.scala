@@ -20,38 +20,42 @@ import play.api.Logging
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsIncorporatedEntityConnector
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsPartnershipConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
 
-class GrsIncorporatedEntityController @Inject() (controllerComponents: MessagesControllerComponents,
-                                                 connector: GrsIncorporatedEntityConnector,
-                                                 auth: OrgAuth,
-                                                 dataRepository: RegistrationDataRepository)
-                                                (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository)  with Logging:
-  
+class GrsPartnershipController @Inject() (controllerComponents: MessagesControllerComponents,
+                                          connector: GrsPartnershipConnector,
+                                          auth: OrgAuth,
+                                          dataRepository: RegistrationDataRepository)
+                                         (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository)  with Logging:
+
   import auth.*
-  
-  def limitedCompanyJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+
+  def limitedPartnershipJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      connector.initLimitedCompanyJourney
+      connector.initLimitedPartnershipJourney
   }
 
-  def registeredSocietyJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+  def scottishLimitedPartnershipJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      connector.initRegisteredSocietyJourney
+      connector.initScottishLimitedPartnershipJourney
   }
-  
+
+  def limitedLiabilityPartnershipJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+    implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      connector.initLimitedLiabilityPartnershipJourney
+  }
+
   def returnFromJourney(journeyId: String): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
       connector.retrieveGrsResults(journeyId).flatMap { result =>
         super.processResponse(request.request.userId, result)
       }
   }
-  
-  
