@@ -16,18 +16,30 @@
 
 package controllers.organisations
 
-import base.SpecBase
+import base.{Fixtures, SpecBase}
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.when
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
+import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.ContactNumberController
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.{ContactNumberController, RegistrationCompleteController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.ContactNumberPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactNumberView
+
+import scala.concurrent.Future
+
 
 class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
@@ -116,6 +128,111 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val request =
           FakeRequest(POST, contactNumberRoute)
             .withFormUrlEncodedBody(("value", "answer"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(ContactEmailAddressPage, "test@test.com").success.value
+          .set(ContactNumberPage, "07538 511 122").success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[OrganisationSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
+
+      when(fakeRegistrationClient.enrolOrganisation(any[OrganisationEnrolmentDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, contactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual RegistrationCompleteController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey recovery page if enrolment fails" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(ContactEmailAddressPage, "test@test.com").success.value
+          .set(ContactNumberPage, "07538 511 122").success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[OrganisationSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
+
+      when(fakeRegistrationClient.enrolOrganisation(any[OrganisationEnrolmentDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(EnrolmentFailed)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, contactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
+
+        val result = route(application, request).value
+
+        status(result) mustEqual SEE_OTHER
+        redirectLocation(result).value mustEqual JourneyRecoveryController.onPageLoad().url
+      }
+    }
+
+    "must redirect to Journey recovery page if subscription fails" in {
+      val userAnswers =
+        emptyUserAnswers
+          .set(AddressPage(), fakeAddress).success.value
+          .set(ContactEmailAddressPage, "test@test.com").success.value
+          .set(ContactNumberPage, "07538 511 122").success.value
+
+      val fakeRegistrationClient = mock[RegistrationClient]
+
+      when(fakeRegistrationClient.subscribe(any[OrganisationSubscriptionDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(SubscriptionFailed)))
+
+      when(fakeRegistrationClient.enrolOrganisation(any[OrganisationEnrolmentDetails]())(any[HeaderCarrier]()))
+        .thenReturn(Future.successful(Right(EnrolmentSuccessful)))
+
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(
+            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
+          )
+          .build()
+
+      running(application) {
+        val request =
+          FakeRequest(POST, contactNumberRoute)
+            .withFormUrlEncodedBody(("value", "07538 511 122"))
 
         val result = route(application, request).value
 

@@ -65,9 +65,6 @@ class OrgNavigator @Inject() extends Navigator {
     case organisationsPages.ContactEmailAddressPage =>
       _ => orgRoutes.ContactNumberController.onPageLoad(NormalMode)
 
-    case organisationsPages.ContactNumberPage =>
-      _ => ???
-      
     case _ =>
       _ => routes.IndexController.onPageLoad()
   }
