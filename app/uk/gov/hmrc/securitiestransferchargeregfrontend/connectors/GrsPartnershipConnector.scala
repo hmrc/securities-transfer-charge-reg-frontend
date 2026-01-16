@@ -21,12 +21,10 @@ import play.api.mvc.Result
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 class GrsPartnershipConnector @Inject()(httpClient: HttpClientV2,
                                         appConfig: FrontendAppConfig,
@@ -46,25 +44,12 @@ class GrsPartnershipConnector @Inject()(httpClient: HttpClientV2,
 
   def initLimitedLiabilityPartnershipJourney(implicit hc: HeaderCarrier): Future[Result] =
     initGrsJourney(appConfig.grsLimitedLiabilityPartnershipJourneyUrl)
-    
-  private val parseFailure: Throwable => GrsResult =
-    xs => GrsFailure(s"Failed to parse GRS response for Partnership: ${xs.getLocalizedMessage}")
 
-  def parseResponse(body: String): GrsResult =
-    Try(Json.parse(body)).fold(parseFailure, parseSuccess)
-
-  private def parseSuccess(json: JsValue): GrsResult = {
-    val result = for {
-      utr       <- (json \ "sautr").asOpt[String]
-      regStatus <- (json \ "registration" \ "registrationStatus").asOpt[String]
-      regId     <- (json \ "registration" \ "registeredBusinessPartnerId").asOpt[String]
-    } yield {
-      if (regStatus == REGISTERED) GrsSuccess(utr, regId)
-      else GrsFailure("Partnership is not registered")
-    }
-    result.getOrElse(GrsFailure("Failed to parse GRS response"))
+  override def parseUtr(json: JsValue): Option[String] = {
+    val maybeUtr = (json \ "sautr").asOpt[String]
+    logIfEmptyAndReturn("UTR", maybeUtr)
   }
-
+  
   override def configuration(continueUrl: String): JsValue = {
     val raw = resourceLoader.loadString("grs-partnership-config.json")
     val parsed = Json.parse(raw).as[JsObject]

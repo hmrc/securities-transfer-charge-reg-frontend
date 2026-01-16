@@ -26,7 +26,10 @@ import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
+
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.Try
 
 enum GrsResult:
   case GrsSuccess(ctUtr: String, safeId: String)
@@ -89,4 +92,42 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2)
     httpClient
       .get(url"$retrievalUrl/$journeyId")
       .execute[HttpResponse]
+
+  private val parseFailure: Throwable => GrsResult =
+    xs => GrsFailure(s"Failed to parse GRS response: ${xs.getLocalizedMessage}")
+
+  def parseResponse(body: String): GrsResult =
+    Try(Json.parse(body)).fold(parseFailure, parseSuccess)
+
+  protected[connectors] def logIfEmptyAndReturn[A](attributeName: String, maybeAttribute: Option[A]): Option[A] = {
+    if (maybeAttribute.isEmpty) logger.info(s"Failed to find a $attributeName in the GRS response.")
+    maybeAttribute
+  }
+
+  def parseUtr(json: JsValue): Option[String] = {
+    val maybeUtr = (json \ "ctutr").asOpt[String]
+    logIfEmptyAndReturn("UTR", maybeUtr)
+  }
+  
+  def parseRegistrationStatus(json: JsValue): Option[String] = {
+    val maybeStatus = (json \ "registration" \ "registrationStatus").asOpt[String]
+    logIfEmptyAndReturn("Registration Status", maybeStatus)
+  }
+
+  def parseRegistrationId(json: JsValue): Option[String] = {
+    val maybeId = (json \ "registration" \ "registeredBusinessPartnerId").asOpt[String]
+    logIfEmptyAndReturn("Registration Id", maybeId)
+  }
+  
+  def parseSuccess(json: JsValue): GrsResult = {
+    val result = for {
+      utr       <- parseUtr(json)
+      regStatus <- parseRegistrationStatus(json)
+      regId     <- parseRegistrationId(json)
+    } yield {
+      if (regStatus == REGISTERED) GrsSuccess(utr, regId)
+      else GrsFailure("Partnership is not registered")
+    }
+    result.getOrElse(GrsFailure("Failed to parse GRS response"))
+  }
 }
