@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{GrsMinorEntityConnector, GrsPartnershipConnector}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsMinorEntityConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
@@ -33,7 +33,7 @@ class GrsMinorEntityController @Inject() (controllerComponents: MessagesControll
                                          (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository):
 
   import auth.*
-
+  
   def trustJourney: Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)

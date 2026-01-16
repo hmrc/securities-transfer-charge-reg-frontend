@@ -36,24 +36,20 @@ enum GrsResult:
   case GrsSuccess(ctUtr: String, safeId: String)
   case GrsFailure(reason: String)
 
-
-trait GrsConnector:
-  def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result]
-  def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult]
-  def configuration(continueUrl: String): JsValue
-  def retrievalUrl: String
-  def parseResponse(body: String): GrsResult
-  
 final class GrsException(msg: String) extends RuntimeException(msg)
 
 abstract class AbstractGrsConnector(httpClient: HttpClientV2,
                                     resourceLoader: ResourceLoader)
-                                   (implicit ec: ExecutionContext) extends GrsConnector with Logging {
+                                   (implicit ec: ExecutionContext) extends Logging {
 
+  def configuration(continueUrl: String): JsValue
+
+  def retrievalUrl: String
+  
   private type ResponseHandler = PartialFunction[HttpResponse, Result]
   val REGISTERED = "REGISTERED"
   
-  override def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
+  def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
     callGrsInit(initUrl, continueUrl)
       .map(initJourneySuccess.orElse(initJourneyFailure))
 
@@ -68,7 +64,8 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2,
   private def initJourneySuccess: ResponseHandler =
     case resp if resp.status == CREATED =>
       parseInitJourneyResponse(resp.body)
-        .map(Redirect(_)).getOrElse {
+        .map(journeyUrl => Redirect(journeyUrl))
+        .getOrElse {
           failure(s"Could not find journey URL in GRS response body")
         }
 
@@ -86,7 +83,7 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2,
     failure("GRS initiation failed: " + resp.status)
   }
 
-  override def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult] =
+  def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult] =
     callGrsRetrieve(journeyId)
       .map(resp => parseResponse(resp.body))
 

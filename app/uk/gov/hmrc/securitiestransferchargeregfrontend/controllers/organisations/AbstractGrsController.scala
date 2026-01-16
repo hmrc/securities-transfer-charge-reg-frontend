@@ -35,7 +35,7 @@ abstract class AbstractGrsController( val controllerComponents: MessagesControll
   def processResponse(userId: String, result: GrsResult): Future[Result] =
     processSuccess(userId).orElse(processFailure)(result)
   
-  private def processSuccess(userId: String): PartialFunction[GrsResult, Future[Result]] =  {
+  private def processSuccess(userId: String): PartialFunction[GrsResult, Future[Result]] = {
     case GrsSuccess(utr, safe) =>
       logger.info(s"GRS journey successful")
       for {

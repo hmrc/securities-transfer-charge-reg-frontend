@@ -48,6 +48,9 @@ lazy val microservice = (project in file("."))
     Assets / pipelineStages := Seq(concat)
   )
 
+// Get rid of the warnings about flags being set repeatedly
+Compile / scalacOptions := (Compile / scalacOptions).value.distinct
+
 lazy val testSettings: Seq[Def.Setting[_]] = Seq(
   fork := true,
   unmanagedSourceDirectories += baseDirectory.value / "test-utils"
