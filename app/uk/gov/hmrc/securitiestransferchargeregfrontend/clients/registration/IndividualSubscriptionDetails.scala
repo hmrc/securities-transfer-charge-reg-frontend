@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualSubscriptionDetails, IndividualSubscriptionResponseDto}
 
 case class IndividualSubscriptionDetails( safeId: String,
                                           addressLine1: String,

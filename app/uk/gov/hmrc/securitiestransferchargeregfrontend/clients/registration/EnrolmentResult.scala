@@ -14,17 +14,10 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
-enum SubscriptionResponse:
-  case SubscriptionSuccessful(subscriptionId: String)
-  case SubscriptionFailed
+enum EnrolmentResponse:
+  case EnrolmentSuccessful
+  case EnrolmentFailed
 
-type SubscriptionResult = Either[RegistrationServiceError, SubscriptionResponse]
-
-enum SubscriptionStatus:
-  case SubscriptionNotFound
-  case SubscriptionExpired
-  case SubscriptionActive
-  
-type SubscriptionStatusResult = Either[RegistrationServiceError, SubscriptionStatus]
+type EnrolmentResult = Either[RegistrationServiceError, EnrolmentResponse]

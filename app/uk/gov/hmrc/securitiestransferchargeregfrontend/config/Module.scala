@@ -18,7 +18,8 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{RegistrationClient, RegistrationClientImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClient, GrsClientImpl}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{RegistrationClient, RegistrationClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.*
@@ -63,5 +64,8 @@ class Module extends AbstractModule {
     bind(classOf[Navigator])
       .annotatedWith(Names.named("organisations"))
       .to(classOf[OrgNavigator])
+    
+    bind(classOf[GrsClient]).to(classOf[GrsClientImpl]).asEagerSingleton()
   }
+  
 }

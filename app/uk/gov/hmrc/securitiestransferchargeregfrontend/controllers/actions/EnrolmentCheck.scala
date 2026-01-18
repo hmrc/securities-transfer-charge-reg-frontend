@@ -19,13 +19,13 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 import play.api.Logging
 import play.api.mvc.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationClient
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.SubscriptionActive
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcAuthRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.RegistrationClient
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}

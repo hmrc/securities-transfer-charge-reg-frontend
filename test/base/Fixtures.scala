@@ -64,8 +64,7 @@ object Fixtures {
    * By default it uses the fixture values (user, enrolments, affinityGroup, confidenceLevel, maybeNino, maybeName),
    * but you can pass a different Request[A] to change the body type or headers.
    */
-  def fakeStcAuthRequest[A](
-                             request: Request[A],
+  def fakeStcAuthRequest[A]( request: Request[A],
                              userId: String = user,
                              enrolmentsOverride: Enrolments = emptyEnrolments,
                              affinityGroupOverride: AffinityGroup = affinityGroupIndividual
@@ -77,13 +76,12 @@ object Fixtures {
       affinityGroupOverride
     )
 
-  def fakeStcValidIndividualAuthRequest[A](
-                             request: Request[A],
-                             userId: String = user,
-                             ninoOverride: String = nino,
-                             firstNameOverride: String = firstName,
-                             lastNameOverride: String = lastName
-                           ): StcValidIndividualRequest[A] =
+  def fakeStcValidIndividualAuthRequest[A](request: Request[A],
+                                           userId: String = user,
+                                           ninoOverride: String = nino,
+                                           firstNameOverride: String = firstName,
+                                           lastNameOverride: String = lastName
+                                         ): StcValidIndividualRequest[A] =
     StcValidIndividualRequest[A](
       request,
       userId,

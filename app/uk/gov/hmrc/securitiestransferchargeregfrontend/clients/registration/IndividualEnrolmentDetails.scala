@@ -14,19 +14,21 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
 import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualEnrolmentResponseDto}
 
-enum RegistrationResponse:
-  case RegistrationSuccessful(safeId: String)
-  case RegistrationFailed
+case class IndividualEnrolmentDetails(subscriptionId: String, nino: String)
 
-type RegistrationResult = Either[RegistrationServiceError, RegistrationResponse]
+object IndividualEnrolmentDetails {
+  implicit val format: OFormat[IndividualEnrolmentDetails] =
+    Json.format[IndividualEnrolmentDetails]
+}
 
-final case class RegisterIndividualResponseDto(safeId: String)
+final case class IndividualEnrolmentResponseDto(enrolled: Boolean)
 
-object RegisterIndividualResponseDto:
-  given OFormat[RegisterIndividualResponseDto] =
-    Json.format[RegisterIndividualResponseDto]
+object IndividualEnrolmentResponseDto:
+  given OFormat[IndividualEnrolmentResponseDto] =
+    Json.format[IndividualEnrolmentResponseDto]
 

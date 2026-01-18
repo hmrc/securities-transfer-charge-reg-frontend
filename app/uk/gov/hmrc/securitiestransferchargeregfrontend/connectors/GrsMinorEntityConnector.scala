@@ -19,17 +19,17 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 import play.api.libs.json.JsValue
 import play.api.mvc.Result
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-class GrsMinorEntityConnector @Inject()(httpClient: HttpClientV2,
+class GrsMinorEntityConnector @Inject()(grsClient: GrsClient,
                                         appConfig: FrontendAppConfig,
                                         resourceLoader: ResourceLoader)
-                                       (implicit ec: ExecutionContext) extends AbstractGrsConnector(httpClient, resourceLoader):
+                                       (implicit ec: ExecutionContext) extends AbstractGrsConnector(grsClient, resourceLoader):
 
   def retrievalUrl: String = appConfig.grsMinorEntityRetrieveUrl
 

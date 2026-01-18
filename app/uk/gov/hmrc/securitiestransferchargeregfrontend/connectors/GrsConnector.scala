@@ -17,20 +17,16 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
 import play.api.Logging
-import play.api.http.Status.CREATED
 import play.api.libs.json.*
-import play.api.libs.ws
-import play.api.libs.ws.*
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.http.client.HttpClientV2
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsClient
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.Try
 
 enum GrsResult:
   case GrsSuccess(ctUtr: String, safeId: String)
@@ -38,7 +34,7 @@ enum GrsResult:
 
 final class GrsException(msg: String) extends RuntimeException(msg)
 
-abstract class AbstractGrsConnector(httpClient: HttpClientV2,
+abstract class AbstractGrsConnector(grsClient: GrsClient,
                                     resourceLoader: ResourceLoader)
                                    (implicit ec: ExecutionContext) extends Logging {
 
@@ -46,57 +42,18 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2,
 
   def retrievalUrl: String
   
-  private type ResponseHandler = PartialFunction[HttpResponse, Result]
-  val REGISTERED = "REGISTERED"
+  private val REGISTERED = "REGISTERED"
   
   def initGrsJourney(continueUrl: String)(initUrl: String)(implicit hc: HeaderCarrier): Future[Result] =
-    callGrsInit(initUrl, continueUrl)
-      .map(initJourneySuccess.orElse(initJourneyFailure))
-
-  private def callGrsInit(initUrl: String, continueUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
-    logger.info(s"Initiating GRS journey using URL: $initUrl")
-    httpClient
-      .post(url"$initUrl")
-      .withBody(configuration(continueUrl))
-      .execute[HttpResponse]
-  }
-
-  private def initJourneySuccess: ResponseHandler =
-    case resp if resp.status == CREATED =>
-      parseInitJourneyResponse(resp.body)
-        .map(journeyUrl => Redirect(journeyUrl))
-        .getOrElse {
-          failure(s"Could not find journey URL in GRS response body")
-        }
-
-  private val parseInitJourneyResponse: String => Option[String] = { body =>
-    val json = Json.parse(body).asInstanceOf[JsObject]
-    (json \ "journeyStartUrl").asOpt[String]
-  }
-
-  private val failure: String => Nothing = { fullMessage =>
-    logger.error(fullMessage)
-    throw new GrsException(fullMessage)
-  }
-
-  private val initJourneyFailure: ResponseHandler = { resp =>
-    failure("GRS initiation failed: " + resp.status)
-  }
+    grsClient.createGrsJourney(initUrl)(configuration(continueUrl))
+      .flatMap {
+        case GrsInitSuccess(url) => Future.successful(Redirect(url))
+        case GrsInitFailure(msg) => Future.failed(GrsException(msg))
+      }
 
   def retrieveGrsResults(journeyId: String)(implicit hc: HeaderCarrier): Future[GrsResult] =
-    callGrsRetrieve(journeyId)
-      .map(resp => parseResponse(resp.body))
-
-  private def callGrsRetrieve(journeyId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] =
-    httpClient
-      .get(url"$retrievalUrl/$journeyId")
-      .execute[HttpResponse]
-
-  private val parseFailure: Throwable => GrsResult =
-    xs => GrsFailure(s"Failed to parse GRS response: ${xs.getLocalizedMessage}")
-
-  def parseResponse(body: String): GrsResult =
-    Try(Json.parse(body)).fold(parseFailure, parseSuccess)
+    grsClient.retrieveGrsResponse(retrievalUrl)(journeyId)
+      .map(json => parseGrsRetrievalData(json))
 
   protected[connectors] def logIfEmptyAndReturn[A](attributeName: String, maybeAttribute: Option[A]): Option[A] = {
     if (maybeAttribute.isEmpty) logger.info(s"Failed to find a $attributeName in the GRS response.")
@@ -118,7 +75,7 @@ abstract class AbstractGrsConnector(httpClient: HttpClientV2,
     logIfEmptyAndReturn("Registration Id", maybeId)
   }
 
-  def parseSuccess(json: JsValue): GrsResult = {
+  def parseGrsRetrievalData(json: JsValue): GrsResult = {
     val result = for {
       utr       <- parseUtr(json)
       regStatus <- parseRegistrationStatus(json)
