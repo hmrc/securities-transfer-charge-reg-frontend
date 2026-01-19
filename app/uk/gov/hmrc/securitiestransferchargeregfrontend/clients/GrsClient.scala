@@ -59,9 +59,14 @@ class GrsClientImpl @Inject() (httpClient: HttpClientV2)
   
   def retrieveGrsResponse(retrievalUrl: String)(journeyId: String)(implicit hc: HeaderCarrier): Future[JsValue] =
     callGrsRetrieve(retrievalUrl, journeyId)
-      .map(resp => resp.json)
-    
-    
+      .flatMap(resp => Try(Json.parse(resp.body).asInstanceOf[JsObject]) match {
+        case Success(json) => Future.successful(json)
+        case Failure(xs)   =>
+          logger.warn("GRS journey response could not be parsed as JSON")
+          Future.failed(xs)
+      })
+
+
   private def callGrsInit(initUrl: String, payload: JsValue)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     logger.info(s"Initiating GRS journey using URL: $initUrl")
     httpClient
@@ -73,7 +78,7 @@ class GrsClientImpl @Inject() (httpClient: HttpClientV2)
   private val parseInitJourneyResponse: String => Option[String] = { body =>
     Try(Json.parse(body).asInstanceOf[JsObject]) match {
       case Success(json) => (json \ "journeyStartUrl").asOpt[String]
-      case Failure(xs)   =>
+      case Failure(_)   =>
         logger.warn("GRS Initialisation response could not be parsed as JSON")
         None
     }

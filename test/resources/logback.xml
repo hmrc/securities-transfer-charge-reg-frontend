@@ -22,7 +22,7 @@
 
     <logger name="connector" level="DEBUG"/>
 
-    <root level="INFO">
+    <root level="ERROR">
         <appender-ref ref="FILE"/>
         <appender-ref ref="STDOUT"/>
     </root>

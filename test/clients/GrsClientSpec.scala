@@ -17,37 +17,40 @@
 package clients
 
 import base.SpecBase
-import controllers.actions.FakeFailingAuthConnector
-import org.scalatestplus.mockito.MockitoSugar
-import play.api.mvc.BodyParsers
-import play.api.test.FakeRequest
-import play.api.test.Helpers.{redirectLocation, running, status}
-import uk.gov.hmrc.auth.core.MissingBearerToken
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedIdentifierAction
+import com.fasterxml.jackson.core.JsonParseException
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
-import play.api.libs.json.{JsString, JsValue, Json}
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{CREATED, OK}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsClientImpl
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.http.HttpReads.Implicits.*
+import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
+import play.api.test.Helpers.{redirectLocation, running, status}
+import uk.gov.hmrc.auth.core.MissingBearerToken
+import uk.gov.hmrc.http.HttpReads.Implicits.*
+import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsClientImpl
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedIdentifierAction
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GrsClientSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
-  def httpClient: HttpClientV2 = mock[HttpClientV2]
-  def httpResponse: HttpResponse = mock[HttpResponse]
+  private def httpClient: HttpClientV2 = mock[HttpClientV2]
+  private def httpResponse: HttpResponse = mock[HttpResponse]
 
-  val journeyCreationUrl = "http://localhost/journey/create"
-  val journeyUrl = "/we/are/going/on/a/journey"
-  val configuration: JsValue = JsString("My test config")
-  val successJson = Json.obj("journeyStartUrl" -> JsString(journeyUrl))
-  
+  private val journeyCreationUrl = "http://localhost/journey/create"
+  private val journeyUrl = "/we/are/going/on/a/journey"
+  private val configuration: JsValue = JsString("My test config")
+  private val successJson = Json.obj("journeyStartUrl" -> JsString(journeyUrl))
+
+  private val journeyRetrievalUrl = "http://localhost/journey/retrieve"
+  private val journeyRetrievalId = "808-42"
+  private val validJourneyRetrieval = Json.obj("this" -> JsString("is valid json"))
+  private val invalidJourneyRetrieval = "NOT JSON"
+
   implicit val hc: HeaderCarrier = mock[HeaderCarrier]
   implicit val ec: ExecutionContext = ExecutionContext.global
   
@@ -65,7 +68,18 @@ class GrsClientSpec extends SpecBase with MockitoSugar with ScalaFutures {
     when(builder.execute[HttpResponse]).thenReturn(Future.successful(resp))
     http
   }
-                          
+
+  def journeyResultTestSetup(body: String = validJourneyRetrieval.toString): HttpClientV2 = {
+
+    val http = httpClient
+    val resp = httpResponse
+    val builder = mock[RequestBuilder]
+    when(resp.body).thenReturn(body)
+
+    when(http.get(url"$journeyRetrievalUrl/$journeyRetrievalId")).thenReturn(builder)
+    when(builder.execute[HttpResponse]).thenReturn(Future.successful(resp))
+    http
+  }
   
   "The GRS Client" - {
 
@@ -101,6 +115,19 @@ class GrsClientSpec extends SpecBase with MockitoSugar with ScalaFutures {
           case GrsInitFailure(_) => succeed
           case _ => fail("Journey creation should not have succeeded when init create HTTP response code was not CREATED.")
         }
+      }
+    }
+    "when getting the result from the GRS journey" - {
+      
+      "should return a successful future when the response is valid JSON" in {
+        val http = journeyResultTestSetup()
+        val outcome = new GrsClientImpl(http).retrieveGrsResponse(journeyRetrievalUrl)(journeyRetrievalId)
+        outcome.futureValue.toString mustEqual validJourneyRetrieval.toString
+      }
+      "should return a failed future when the response is not valid JSON" in {
+        val http = journeyResultTestSetup(invalidJourneyRetrieval)
+        val outcome = new GrsClientImpl(http).retrieveGrsResponse(journeyRetrievalUrl)(journeyRetrievalId)
+        outcome.failed.futureValue mustBe a[JsonParseException]
       }
     }
   }
