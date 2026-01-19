@@ -154,7 +154,6 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
 
         val sent = captor.getValue
 
-        // Assertions
         sent.affinityGroup mustBe "Individual"
         sent.credentialId  mustBe Fixtures.credId
         sent.registrationStarted mustBe started
