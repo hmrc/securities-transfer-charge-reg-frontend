@@ -23,15 +23,25 @@ import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 
 import scala.concurrent.{ExecutionContext, Future}
 
 enum GrsResult:
-  case GrsSuccess(ctUtr: String, safeId: String)
+  case GrsSuccess(utr: String, safeId: String)
   case GrsFailure(reason: String)
 
+object GrsResult extends Logging:
+  def success(utr: String, safeId: String): GrsResult = {
+    logger.info("GRS journey data successfully retrieved")
+    GrsSuccess(utr, safeId)
+  }
+  
+  def failure(reason: String): GrsResult = {
+    logger.warn(s"GRS journey data retieval failed: $reason")
+    GrsFailure(reason)
+  }
+  
 final class GrsException(msg: String) extends RuntimeException(msg)
 
 abstract class AbstractGrsConnector(grsClient: GrsClient,
@@ -81,10 +91,10 @@ abstract class AbstractGrsConnector(grsClient: GrsClient,
       regStatus <- parseRegistrationStatus(json)
       regId     <- parseRegistrationId(json)
     } yield {
-      if (regStatus == REGISTERED) GrsSuccess(utr, regId)
-      else GrsFailure("Organisation is not registered")
+      if (regStatus == REGISTERED) GrsResult.success(utr, regId)
+      else GrsResult.failure("Organisation is not registered")
     }
-    result.getOrElse(GrsFailure("Failed to parse GRS response"))
+    result.getOrElse(GrsResult.failure("Failed to parse GRS response"))
   }
 
   def createConfiguration(filename: String)(continueUrl: String): JsValue = {
