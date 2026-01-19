@@ -28,10 +28,21 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{Gr
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
+import scala.util.{Try, Success, Failure}
 
 enum GrsInitResult:
   case GrsInitSuccess(journeyUrl: String)
   case GrsInitFailure(reason: String)
+  
+object GrsInitResult extends Logging:
+  def failure(reason: String): GrsInitResult = {
+    logger.warn(s"GRS Initialisation failure: $reason")
+    GrsInitFailure(reason)
+  }
+  def success(journeyUrl: String): GrsInitResult = {
+    logger.info(s"GRS Initialisation succeeded: redirect URL is $journeyUrl")
+    GrsInitSuccess(journeyUrl)
+  }
 
 trait GrsClient:
   def createGrsJourney(journeyCreationUrl: String)(configuration: JsValue)(implicit hc: HeaderCarrier): Future[GrsInitResult]
@@ -40,7 +51,7 @@ trait GrsClient:
 class GrsClientImpl @Inject() (httpClient: HttpClientV2)
                               (implicit ec: ExecutionContext) extends GrsClient with Logging:
   
-  private type ResponseHandler = PartialFunction[HttpResponse, GrsInitResult]
+  private type InitResponseHandler = PartialFunction[HttpResponse, GrsInitResult]
 
   def createGrsJourney(journeyCreationUrl: String)(configuration: JsValue)(implicit hc: HeaderCarrier): Future[GrsInitResult] =
     callGrsInit(journeyCreationUrl, configuration)
@@ -60,20 +71,24 @@ class GrsClientImpl @Inject() (httpClient: HttpClientV2)
   }
 
   private val parseInitJourneyResponse: String => Option[String] = { body =>
-    val json = Json.parse(body).asInstanceOf[JsObject]
-    (json \ "journeyStartUrl").asOpt[String]
+    Try(Json.parse(body).asInstanceOf[JsObject]) match {
+      case Success(json) => (json \ "journeyStartUrl").asOpt[String]
+      case Failure(xs)   =>
+        logger.warn("GRS Initialisation response could not be parsed as JSON")
+        None
+    }
   }
   
-  private val initJourneySuccessHandler: ResponseHandler =
+  private val initJourneySuccessHandler: InitResponseHandler =
     case resp if resp.status == CREATED =>
       parseInitJourneyResponse(resp.body)
-        .map(journeyUrl => GrsInitSuccess(journeyUrl))
+        .map(journeyUrl => GrsInitResult.success(journeyUrl))
         .getOrElse {
-          GrsInitFailure("Could not find journey URL in GRS response body")
+          GrsInitResult.failure("Could not find journey URL in GRS response body")
         }
 
-  private val initJourneyFailureHandler: ResponseHandler =
-    resp => GrsInitFailure("GRS initiation failed: " + resp.status)
+  private val initJourneyFailureHandler: InitResponseHandler =
+    resp => GrsInitResult.failure("Unexpected HTTP return code: " + resp.status)
 
   private def callGrsRetrieve(retrievalUrl: String, journeyId: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val grsRetrievalUrl = url"$retrievalUrl/$journeyId"

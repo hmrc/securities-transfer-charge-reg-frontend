@@ -1,10 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+
+    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/securities-transfer-charge-reg-frontend</file>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%date{ISO8601} level=[%level] logger=[%logger] thread=[%thread] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
         </encoder>
     </appender>
-    <root level="OFF">
-        <appender-ref ref="CONSOLE"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%date{ISO8601} level=[%level] message=[%message] %replace(exception=[%xException]){'^exception=\[\]$',''}%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.google.inject" level="WARN"/>
+
+    <logger name="uk.gov" level="WARN"/>
+
+    <logger name="uk.gov.hmrc.securitiestransferchargeregfrontend" level="DEBUG"/>
+
+    <logger name="connector" level="DEBUG"/>
+
+    <root level="INFO">
+        <appender-ref ref="FILE"/>
+        <appender-ref ref="STDOUT"/>
     </root>
 </configuration>
