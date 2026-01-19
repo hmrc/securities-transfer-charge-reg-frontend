@@ -23,10 +23,12 @@ trait ValidIndividualData:
   def nino: String
   def firstName: String
   def lastName: String
+  def credId: String
 
 case class StcValidIndividualRequest[A] (request: Request[A],
                                          userId: String,
                                          nino: String,
                                          firstName: String,
-                                         lastName: String) extends WrappedRequest[A](request) with ValidIndividualData
+                                         lastName: String,
+                                         credId:String) extends WrappedRequest[A](request) with ValidIndividualData
 

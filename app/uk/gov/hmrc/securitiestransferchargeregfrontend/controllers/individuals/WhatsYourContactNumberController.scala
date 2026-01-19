@@ -70,7 +70,7 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
           for {
             updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
             _               <- sessionRepository.set(updatedAnswers)
-            _               <- subscribe(updatedAnswers)
+            _               <- subscribe(updatedAnswers)(innerRequest)
           } yield {
             Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
           }
