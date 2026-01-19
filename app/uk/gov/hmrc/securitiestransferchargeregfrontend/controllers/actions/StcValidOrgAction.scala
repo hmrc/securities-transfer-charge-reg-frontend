@@ -48,7 +48,6 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
 
     authorised().retrieve(retrievals) {
       case maybeInternalId ~ enrolments ~ maybeAffinityGroup =>
-        logger.info("AUTH has passed.")
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
           _             <- retrievalFilter.enrolledFilter(enrolments)

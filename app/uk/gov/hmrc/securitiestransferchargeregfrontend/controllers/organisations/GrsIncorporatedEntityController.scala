@@ -31,7 +31,7 @@ class GrsIncorporatedEntityController @Inject() (controllerComponents: MessagesC
                                                  connector: GrsIncorporatedEntityConnector,
                                                  auth: OrgAuth,
                                                  dataRepository: RegistrationDataRepository)
-                                                (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository)  with Logging:
+                                                (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository)  with Logging:
   
   import auth.*
   

@@ -24,15 +24,11 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.http.Status.{CREATED, OK}
 import play.api.libs.json.{JsString, JsValue, Json}
 import play.api.libs.ws.writeableOf_JsValue
-import play.api.test.Helpers.{redirectLocation, running, status}
-import uk.gov.hmrc.auth.core.MissingBearerToken
 import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClientImpl, GrsClient}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedIdentifierAction
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClient, GrsClientImpl}
 
 import scala.concurrent.{ExecutionContext, Future}
 

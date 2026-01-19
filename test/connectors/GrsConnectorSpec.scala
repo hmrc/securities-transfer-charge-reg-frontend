@@ -14,8 +14,6 @@
  * limitations under the License.
  */
 
-package connectors
-
 /*
  * Copyright 2026 HM Revenue & Customs
  *
@@ -35,45 +33,31 @@ package connectors
 package connectors
 
 import base.SpecBase
-import com.fasterxml.jackson.core.JsonParseException
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.http.Status.{CREATED, OK, SEE_OTHER}
+import play.api.http.Status.SEE_OTHER
 import play.api.libs.json.{JsObject, JsString, JsValue, Json}
-import play.api.libs.ws.writeableOf_JsValue
-import play.api.test.Helpers.{redirectLocation, running, status}
-import uk.gov.hmrc.auth.core.MissingBearerToken
-import uk.gov.hmrc.http.HttpReads.Implicits.*
-import uk.gov.hmrc.http.client.{HttpClientV2, RequestBuilder}
-import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClient, GrsInitResult}
+import play.api.test.Helpers.{defaultAwaitTimeout, redirectLocation, status}
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.GrsInitResult.{GrsInitFailure, GrsInitSuccess}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClient, GrsInitResult}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.AuthenticatedIdentifierAction
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
-import play.api.test.Helpers.defaultAwaitTimeout
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class GrsConnectorSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
-  private def httpClient: HttpClientV2 = mock[HttpClientV2]
-  private def httpResponse: HttpResponse = mock[HttpResponse]
-
   private val journeyContinueUrl = "http://localhost/journey/continue"
   private val journeyInitUrl = "http://localhost/journey/init"
   private val journeyUrl = "http://we/are/going/on/a/journey"
   private val configurationJson: JsValue = Json.obj("this" -> JsString("is valid json"))
-  private val successJson = Json.obj("journeyStartUrl" -> JsString(journeyUrl))
 
   private val journeyRetrievalUrl = "http://localhost/journey/retrieve"
   private val journeyRetrievalId = "808-42"
-  private val validJourneyRetrieval = Json.obj("this" -> JsString("is valid json"))
-  private val invalidJourneyRetrieval = "NOT JSON"
 
   private val validGrsResponse = Json.parse(
     """

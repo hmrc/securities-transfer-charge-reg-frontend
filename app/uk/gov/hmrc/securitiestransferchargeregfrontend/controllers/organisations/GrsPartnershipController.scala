@@ -31,7 +31,7 @@ class GrsPartnershipController @Inject() (controllerComponents: MessagesControll
                                           connector: GrsPartnershipConnector,
                                           auth: OrgAuth,
                                           dataRepository: RegistrationDataRepository)
-                                         (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository)  with Logging:
+                                         (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository)  with Logging:
 
   import auth.*
 

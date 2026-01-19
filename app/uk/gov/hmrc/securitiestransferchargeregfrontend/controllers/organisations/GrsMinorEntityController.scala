@@ -30,7 +30,7 @@ class GrsMinorEntityController @Inject() (controllerComponents: MessagesControll
                                           connector: GrsMinorEntityConnector,
                                           auth: OrgAuth,
                                           dataRepository: RegistrationDataRepository)
-                                         (implicit ec: ExecutionContext) extends AbstractGrsController(controllerComponents, dataRepository):
+                                         (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository):
 
   import auth.*
   

@@ -28,16 +28,15 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.Registration
 
 import scala.concurrent.{ExecutionContext, Future}
 
-abstract class AbstractGrsController( val controllerComponents: MessagesControllerComponents,
-                                      registrationDataRepository: RegistrationDataRepository)
-                                    ( implicit ec: ExecutionContext) extends Logging with FrontendBaseController with I18nSupport {
+class BaseGrsController(val controllerComponents: MessagesControllerComponents,
+                        registrationDataRepository: RegistrationDataRepository)
+                       (implicit ec: ExecutionContext) extends Logging with FrontendBaseController with I18nSupport:
   
   def processResponse(userId: String, result: GrsResult): Future[Result] =
     processSuccess(userId).orElse(processFailure)(result)
   
   private def processSuccess(userId: String): PartialFunction[GrsResult, Future[Result]] = {
     case GrsSuccess(utr, safe) =>
-      logger.info(s"GRS journey successful")
       for {
         _ <- registrationDataRepository.setCtUtr(userId)(utr)
         _ <- registrationDataRepository.setSafeId(userId)(safe)
@@ -47,9 +46,7 @@ abstract class AbstractGrsController( val controllerComponents: MessagesControll
   }
   
   private def processFailure: PartialFunction[GrsResult, Future[Result]] = {
-    case GrsFailure(msg) => 
-      logger.info(s"GRS registration failed: $msg")
+    case GrsFailure(_) => 
       Future.successful(Redirect(orgRoutes.PartnershipKickOutController.onPageLoad().url))
   }
 
-}
