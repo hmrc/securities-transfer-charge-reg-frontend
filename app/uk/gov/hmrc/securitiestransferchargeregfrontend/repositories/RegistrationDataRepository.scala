@@ -30,15 +30,22 @@ import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
 
-case class RegistrationData(id: String, safeId: Option[String] = None, subscriptionId: Option[String] = None, lastUpdated: Instant = Instant.now)
+case class RegistrationData(id: String, safeId: Option[String] = None, subscriptionId: Option[String] = None,
+                            lastUpdated: Instant = Instant.now, startedAt: Option[Instant]=None)
+
 object RegistrationData {
   implicit val format: Format[RegistrationData] = play.api.libs.json.Json.format[RegistrationData]
 }
 
 trait RegistrationDataRepository {
   def getRegistrationData(id: String): Future[RegistrationData]
+
   def setSafeId(id: String)(safeId: String): Future[Unit]
+
   def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit]
+
+  def setStartedAt(id: String): Future[Unit]
+
   def clear(id: String): Future[Unit]
 }
 
@@ -97,6 +104,20 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
     current <- get(id)
     updated = current.copy(subscriptionId = Some(subscriptionId), lastUpdated = clock.instant())
     _      <- set(updated)
+  } yield ()
+
+  override def setStartedAt(id: String): Future[Unit] = for {
+    current <- get(id)
+    _ <- current.startedAt match {
+      case Some(_) => Future.unit
+      case None =>
+        val now = clock.instant()
+        val updated = current.copy(
+          startedAt   = Some(now),
+          lastUpdated = now
+        )
+        set(updated).map(_ => ())
+    }
   } yield ()
 
   override def clear(id: String): Future[Unit] =

@@ -25,7 +25,6 @@ import uk.gov.hmrc.http.client.HttpClientV2
 import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.IndividualRegistrationDetails.format
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.RegistrationSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 
 import javax.inject.Inject

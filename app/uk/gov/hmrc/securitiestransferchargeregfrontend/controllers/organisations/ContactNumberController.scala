@@ -26,12 +26,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.ContactNumberPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactNumberView
 
-import javax.inject.{Inject, Named}
+import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContactNumberController @Inject()(
@@ -61,6 +60,8 @@ class ContactNumberController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
+      
+      val innerRequest = request.request
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -70,7 +71,7 @@ class ContactNumberController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
             _ <- sessionRepository.set(updatedAnswers)
-            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(request.request.userId)(updatedAnswers)
+            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId)(updatedAnswers)(innerRequest.credId)
           } yield Redirect(RegistrationCompleteController.onPageLoad())
       ).recover {
         case _ => Redirect(JourneyRecoveryController.onPageLoad())
