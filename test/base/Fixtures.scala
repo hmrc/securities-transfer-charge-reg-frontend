@@ -47,11 +47,13 @@ object Fixtures {
   val firstName = "First"
   val lastName = "Last"
   val safeId = "SAFE-123"
+  val utr = "1234567890"
   val subscriptionId = "SUBS-123"
   val registrationData: RegistrationData = RegistrationData(
     id = Fixtures.user,
     safeId = Some(Fixtures.safeId),
-    subscriptionId = Some(Fixtures.subscriptionId)
+    subscriptionId = Some(Fixtures.subscriptionId),
+    ctUtr = Some(Fixtures.utr)
   )
   
   val credId = "cred-123"

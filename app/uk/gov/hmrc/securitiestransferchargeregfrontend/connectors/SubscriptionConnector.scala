@@ -58,9 +58,10 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   }
 
   override def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(credId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val regData = registrationDataRepository.getRegistrationData(userId)
     for {
-      safeId <- Future.successful(Some("SAFE123")) // Dummy value to simulate value returned from GRS
-      ctUtr <- Future.successful("0123456789") // Dummy value to simulate value returned from GRS
+      safeId <- regData.map(_.safeId)
+      ctUtr <- regData.map(_.ctUtr)
       subscriptionId <- subscribeOrganisation(safeId, userAnswers)
       _ <- enrolOrganisation(subscriptionId, ctUtr)
       startedAt <- registrationDataRepository.getRegistrationData(userId).map(_.startedAt)
@@ -188,26 +189,30 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
     }
   }
 
-  private def enrolOrganisation(
-                                 subscriptionId: String,
-                                 ctUtr: String
+  private def enrolOrganisation( subscriptionId: String,
+                                 maybeUtr: Option[String]
                                )(implicit hc: HeaderCarrier): Future[Unit] = {
 
-    registrationClient
-      .enrolOrganisation(OrganisationEnrolmentDetails(subscriptionId, ctUtr))
-      .map {
-        case Right(EnrolmentSuccessful) => ()
-        case Right(_) =>
-          val msg =
-            s"SubscriptionConnector: Unsuccessful response when enrolling subscriptionId: $subscriptionId"
-          logger.info(msg)
-          throw new EnrolmentErrorException(msg)
-        case Left(error) =>
-          val msg =
-            s"SubscriptionConnector: Error response when enrolling subscriptionId: $subscriptionId, error: $error"
-          logger.info(msg)
-          throw new EnrolmentErrorException(msg)
-      }
+    maybeUtr.map { ctUtr =>
+      registrationClient
+        .enrolOrganisation(OrganisationEnrolmentDetails(subscriptionId, ctUtr))
+        .map {
+          case Right(EnrolmentSuccessful) => ()
+          case Right(_) =>
+            val msg =
+              s"SubscriptionConnector: Unsuccessful response when enrolling subscriptionId: $subscriptionId"
+            logger.info(msg)
+            throw new EnrolmentErrorException(msg)
+          case Left(error) =>
+            val msg =
+              s"SubscriptionConnector: Error response when enrolling subscriptionId: $subscriptionId, error: $error"
+            logger.info(msg)
+            throw new EnrolmentErrorException(msg)
+        }
+    }.getOrElse(
+        Future.failed(
+          new EnrolmentErrorException(s"SubscriptionConnector: Missing UTR when enrolling subscriptionId: $subscriptionId"))
+      )
   }
 
 
