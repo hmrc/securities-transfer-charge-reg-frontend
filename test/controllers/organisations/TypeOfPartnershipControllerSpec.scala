@@ -17,8 +17,6 @@
 package controllers.organisations
 
 import base.SpecBase
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
@@ -28,12 +26,14 @@ import play.api.inject.bind
 import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView
 
 import scala.concurrent.Future

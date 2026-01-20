@@ -60,6 +60,8 @@ class ContactNumberController @Inject()(
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
+      
+      val innerRequest = request.request
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -69,7 +71,7 @@ class ContactNumberController @Inject()(
           for {
             updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
             _ <- sessionRepository.set(updatedAnswers)
-            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(request.request.userId)(updatedAnswers)
+            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId)(updatedAnswers)(innerRequest.credId)
           } yield Redirect(RegistrationCompleteController.onPageLoad())
       ).recover {
         case _ => Redirect(JourneyRecoveryController.onPageLoad())
