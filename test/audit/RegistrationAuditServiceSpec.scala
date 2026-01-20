@@ -19,26 +19,38 @@ package audit
 import base.{Fixtures, SpecBase}
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.{any, eq as meq}
-import org.mockito.Mockito.{times, verify}
+import org.mockito.Mockito.{reset, times, verify}
+import org.scalatest.BeforeAndAfterEach
 import org.scalatest.matchers.must.Matchers
 import org.scalatestplus.mockito.MockitoSugar
-import play.api.inject.bind
-import play.api.test.Helpers.*
+import play.api.libs.json.Writes
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.audit.http.connector.AuditConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
-
-import java.time.{Instant, LocalDate}
-import scala.concurrent.ExecutionContext
-import play.api.libs.json.Writes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.{IndividualDetailsPayload, OrganisationDetailsPayload, RegistrationAuditModel, RegistrationAuditService}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.*
 
-class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Matchers {
+import java.time.{Instant, LocalDate}
+import scala.concurrent.ExecutionContext
+import scala.concurrent.ExecutionContext.Implicits.global
+
+class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Matchers with BeforeAndAfterEach {
+
+  implicit val hc: HeaderCarrier = HeaderCarrier()
+  val mockAuditConnector: AuditConnector = mock[AuditConnector]
+  val service = new RegistrationAuditService(
+    auditConnector = mockAuditConnector
+  )
+  val started: Option[Instant] = Some(Instant.parse("2025-01-01T10:00:00Z"))
+
+  override def afterEach(): Unit = {
+    reset(mockAuditConnector)
+    super.afterEach()
+  }
 
   private def mkValidIndividualData(
                                      testUserId: String = Fixtures.user,
@@ -77,147 +89,99 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
   "RegistrationAuditService" - {
 
     "builds and sends Organisation audit model" in {
-      val mockAuditConnector: AuditConnector = mock[AuditConnector]
-      val app = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[AuditConnector].toInstance(mockAuditConnector)
-        )
-        .build()
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
+      service.auditOrganisationRegistrationComplete(
+        registrationStarted = started,
+        userAnswers = uaForOrganisation(emptyUserAnswers),
+        credId = Fixtures.credId
+      )
 
-      running(app) {
-        val service  = app.injector.instanceOf[RegistrationAuditService]
-        val started  = Some(Instant.parse("2025-01-01T10:00:00Z"))
+      val captor: ArgumentCaptor[RegistrationAuditModel[OrganisationDetailsPayload]] =
+        ArgumentCaptor.forClass(classOf[RegistrationAuditModel[OrganisationDetailsPayload]])
 
-        service.auditOrganisationRegistrationComplete(
-          registrationStarted = started,
-          userAnswers = uaForOrganisation(emptyUserAnswers),
-          credId = Fixtures.credId
-        )
+      verify(mockAuditConnector, times(1))
+        .sendExplicitAudit(
+          meq("RegistrationSubmission"),
+          captor.capture()
+        )(meq(hc), any[ExecutionContext], any[Writes[RegistrationAuditModel[OrganisationDetailsPayload]]])
 
-        val captor: ArgumentCaptor[RegistrationAuditModel[OrganisationDetailsPayload]] =
-          ArgumentCaptor.forClass(classOf[RegistrationAuditModel[OrganisationDetailsPayload]])
+      val sent = captor.getValue
 
-        verify(mockAuditConnector, times(1))
-          .sendExplicitAudit(
-            meq("RegistrationSubmission"),
-            captor.capture()
-          )(meq(hc), any[ExecutionContext], any[Writes[RegistrationAuditModel[OrganisationDetailsPayload]]])
+      sent.affinityGroup mustBe "Organisation"
+      sent.credentialId mustBe Fixtures.credId
+      sent.registrationStarted mustBe started
 
-        val sent = captor.getValue
+      val details = sent.userEnteredDetails
+      details.operateInTheUk mustBe true
+      details.businessType mustBe "partnership"
+      details.typeOfPartnerShip mustBe Some("limitedPartnership")
+      details.contactDetails.addressLine1 must not be empty
+      details.contactDetails.postCode mustBe fakeAddress.address.postcode
+      details.contactDetails.country mustBe fakeAddress.address.country.code
+      details.contactDetails.email mustBe "test@test.com"
+      details.contactDetails.telephoneNumber mustBe "07538 511 122"
 
-        sent.affinityGroup mustBe "Organisation"
-        sent.credentialId  mustBe Fixtures.credId
-        sent.registrationStarted mustBe started
-
-        val details = sent.userEnteredDetails
-        details.operateInTheUk mustBe true
-        details.businessType    mustBe "partnership"
-        details.typeOfPartnerShip mustBe Some("limitedPartnership")
-        details.contactDetails.addressLine1 must not be empty
-        details.contactDetails.postCode     mustBe fakeAddress.address.postcode
-        details.contactDetails.country      mustBe fakeAddress.address.country.code
-        details.contactDetails.email        mustBe "test@test.com"
-        details.contactDetails.telephoneNumber mustBe "07538 511 122"
-      }
     }
 
     "builds and sends Individual audit model" in {
-      val mockAuditConnector: AuditConnector = mock[AuditConnector]
-      val app = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[AuditConnector].toInstance(mockAuditConnector)
-        )
-        .build()
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
+      service.auditIndividualRegistrationComplete(
+        registrationStarted = started,
+        data = mkValidIndividualData(),
+        userAnswers = uaForIndividual(emptyUserAnswers)
+      )
 
-      running(app) {
-        val service  = app.injector.instanceOf[RegistrationAuditService]
-        val started  = Some(Instant.parse("2025-01-01T10:00:00Z"))
+      val captor: ArgumentCaptor[RegistrationAuditModel[IndividualDetailsPayload]] =
+        ArgumentCaptor.forClass(classOf[RegistrationAuditModel[IndividualDetailsPayload]])
 
-        service.auditIndividualRegistrationComplete(
-          registrationStarted = started,
-          data = mkValidIndividualData(),
-          userAnswers = uaForIndividual(emptyUserAnswers)
-        )
+      verify(mockAuditConnector, times(1))
+        .sendExplicitAudit(
+          meq("RegistrationSubmission"),
+          captor.capture()
+        )(meq(hc), any[ExecutionContext], any[Writes[RegistrationAuditModel[IndividualDetailsPayload]]])
 
-        val captor: ArgumentCaptor[RegistrationAuditModel[IndividualDetailsPayload]] =
-          ArgumentCaptor.forClass(classOf[RegistrationAuditModel[IndividualDetailsPayload]])
+      val sent = captor.getValue
 
-        verify(mockAuditConnector, times(1))
-          .sendExplicitAudit(
-            meq("RegistrationSubmission"),
-            captor.capture()
-          )(meq(hc), any[ExecutionContext], any[Writes[RegistrationAuditModel[IndividualDetailsPayload]]])
+      sent.affinityGroup mustBe "Individual"
+      sent.credentialId mustBe Fixtures.credId
+      sent.registrationStarted mustBe started
 
-        val sent = captor.getValue
+      val details = sent.userEnteredDetails
+      details.firstName mustBe Fixtures.firstName
+      details.lastName mustBe Fixtures.lastName
+      details.nino mustBe Fixtures.nino
+      details.dateOfBirth mustBe LocalDate.now().minusYears(20).toString
+      details.contactDetails.addressLine1 must not be empty
+      details.contactDetails.postCode mustBe fakeAddress.address.postcode
+      details.contactDetails.country mustBe fakeAddress.address.country.code
+      details.contactDetails.email mustBe "test@test.com"
+      details.contactDetails.telephoneNumber mustBe "07538 511 122"
 
-        sent.affinityGroup mustBe "Individual"
-        sent.credentialId  mustBe Fixtures.credId
-        sent.registrationStarted mustBe started
-
-        val details = sent.userEnteredDetails
-        details.firstName   mustBe Fixtures.firstName
-        details.lastName    mustBe Fixtures.lastName
-        details.nino        mustBe Fixtures.nino
-        details.dateOfBirth mustBe LocalDate.now().minusYears(20).toString
-        details.contactDetails.addressLine1 must not be empty
-        details.contactDetails.postCode     mustBe fakeAddress.address.postcode
-        details.contactDetails.country      mustBe fakeAddress.address.country.code
-        details.contactDetails.email        mustBe "test@test.com"
-        details.contactDetails.telephoneNumber mustBe "07538 511 122"
-      }
     }
 
     "does not send Organisation audit model when builder returns None" in {
-      val mockAuditConnector: AuditConnector = mock[AuditConnector]
-      val app = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[AuditConnector].toInstance(mockAuditConnector)
-        )
-        .build()
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
+      service.auditOrganisationRegistrationComplete(
+        registrationStarted = started,
+        userAnswers = emptyUserAnswers,
+        credId = Fixtures.credId
+      )
 
-      running(app) {
-        val service = app.injector.instanceOf[RegistrationAuditService]
+      verify(mockAuditConnector, times(0))
+        .sendExplicitAudit(any[String], any())(any[HeaderCarrier], any[ExecutionContext], any())
 
-        service.auditOrganisationRegistrationComplete(
-          registrationStarted = Some(Instant.now()),
-          userAnswers = emptyUserAnswers,
-          credId = Fixtures.credId
-        )
-
-        verify(mockAuditConnector, times(0))
-          .sendExplicitAudit(any[String], any())(any[HeaderCarrier], any[ExecutionContext], any())
-      }
     }
 
     "does not send Individual audit model when builder returns None" in {
-      val mockAuditConnector: AuditConnector = mock[AuditConnector]
-      val app = applicationBuilder(userAnswers = Some(emptyUserAnswers))
-        .overrides(
-          bind[AuditConnector].toInstance(mockAuditConnector)
-        )
-        .build()
 
-      implicit val hc: HeaderCarrier = HeaderCarrier()
+      service.auditIndividualRegistrationComplete(
+        registrationStarted = started,
+        data = mkValidIndividualData(),
+        userAnswers = emptyUserAnswers
+      )
 
-      running(app) {
-        val service  = app.injector.instanceOf[RegistrationAuditService]
-        val validInd = mkValidIndividualData()
-
-        service.auditIndividualRegistrationComplete(
-          registrationStarted = Some(Instant.now()),
-          data = validInd,
-          userAnswers = emptyUserAnswers
-        )
-
-        verify(mockAuditConnector, times(0))
-          .sendExplicitAudit(any[String], any())(any[HeaderCarrier], any[ExecutionContext], any())
-      }
+      verify(mockAuditConnector, times(0))
+        .sendExplicitAudit(any[String], any())(any[HeaderCarrier], any[ExecutionContext], any())
     }
   }
 }
