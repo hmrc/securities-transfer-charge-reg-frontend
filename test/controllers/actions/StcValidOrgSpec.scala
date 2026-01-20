@@ -40,7 +40,7 @@ import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AffinityGroup, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, CredentialRole, Enrolments, User, Assistant}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -53,15 +53,17 @@ class StcValidOrgSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup]
+  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole]
 
   def buildRetrieval(maybeInternalId: Option[String] = Some(Fixtures.user),
                      enrolments: Enrolments = Fixtures.emptyEnrolments,
-                     maybeAffinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation)) =
-   
+                     maybeAffinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
+                     maybeCredentialRole: Option[CredentialRole] = Some(User)) =
+   new ~(
     new~(
       new~(maybeInternalId, enrolments),
-      maybeAffinityGroup
+        maybeAffinityGroup),
+      maybeCredentialRole
     )
 
   def testSetup(application: Application, retrievals: RetrievalType): StcValidOrgAction = {
@@ -156,6 +158,19 @@ class StcValidOrgSpec extends SpecBase {
 
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include(appConfig.registerUrl)
+      }
+    }
+
+    "must redirect to any assistant user to the assistant KO page" in {
+      val application = applicationBuilder().build()
+      val appConfig = application.injector.instanceOf[FrontendAppConfig]
+
+      running(application) {
+        val action = testSetup(application, buildRetrieval(maybeCredentialRole = Some(Assistant)))
+        val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
+
+        status(result) mustBe SEE_OTHER
+        redirectLocation(result).get must include(appConfig.assistantKickOutUrl)
       }
     }
 
