@@ -26,6 +26,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepos
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.http.HeaderCarrier
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
@@ -39,11 +41,13 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
 
   def onPageLoad: Action[AnyContent] = validOrg.async {
     implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       super.pageLoad(config.alfOrgContinueUrl)
   }
 
   def onReturn(addressId: String): Action[AnyContent] = (validOrg andThen getData).async {
     implicit request =>
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       val userId = request.request.userId
       super.alfReturn(addressId, userId)
   }
