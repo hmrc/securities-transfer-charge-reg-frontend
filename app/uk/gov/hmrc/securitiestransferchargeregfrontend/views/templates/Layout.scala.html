@@ -63,6 +63,7 @@
         serviceUrl = Some(IndexController.onPageLoad().url),
         signOutUrl = if(showSignOut) Some(authRoutes.AuthController.signOut().url) else None
     ),
+    serviceName = Some(""),
     banners = Banners(
         displayHmrcBanner = showHmrcBanner,
         phaseBanner = Some(alphaBanner(appConfig.feedbackUrl))
