@@ -23,7 +23,6 @@ import play.api.test.Helpers.*
 import play.api.test.{FakeRequest, Helpers}
 import repositories.FakeRegistrationDataRepository
 import uk.gov.hmrc.auth.core.{Enrolment, EnrolmentIdentifier, Enrolments}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.RegistrationClient
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects

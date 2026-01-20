@@ -23,16 +23,20 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.RegForSecuritiesTransferChargePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.RegForSecuritiesTransferChargeView
 
 import javax.inject.{Inject, Named}
+import scala.concurrent.ExecutionContext
 
 class RegForSecuritiesTransferChargeController @Inject()(
                                                           auth: OrgAuth,
                                                           @Named("organisations") navigator: Navigator,
                                                           val controllerComponents: MessagesControllerComponents,
-                                                          view: RegForSecuritiesTransferChargeView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                                          view: RegForSecuritiesTransferChargeView,
+                                                          registrationRepository: RegistrationDataRepository
+
+                                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
 
@@ -41,8 +45,10 @@ class RegForSecuritiesTransferChargeController @Inject()(
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = validOrg {
+  def onSubmit(): Action[AnyContent] = validOrg.async {
     implicit request =>
-      Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
+      registrationRepository.setStartedAt(request.userId).map { _ =>
+        Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
+      }
   }
 }

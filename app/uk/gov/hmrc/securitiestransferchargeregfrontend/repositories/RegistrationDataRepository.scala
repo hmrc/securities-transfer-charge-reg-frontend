@@ -35,7 +35,8 @@ case class RegistrationData(id: String,
                             safeId: Option[String] = None,
                             subscriptionId: Option[String] = None,
                             ctUtr: Option[String] = None,
-                            lastUpdated: Instant = Instant.now)
+                            lastUpdated: Instant = Instant.now,
+                            startedAt: Option[Instant] = None)
 
 object RegistrationData {
   implicit val format: Format[RegistrationData] = Json.format[RegistrationData]
@@ -45,6 +46,8 @@ trait RegistrationDataRepository {
   def getRegistrationData(id: String): Future[RegistrationData]
   def setSafeId(id: String)(safeId: String): Future[Unit]
   def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit]
+  def setStartedAt(id: String): Future[Unit]
+
   def setCtUtr(id: String)(ctUtr: String): Future[Unit]
   def clear(id: String): Future[Unit]
 }
@@ -110,7 +113,21 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
     updated = updateFn(current).copy(lastUpdated = clock.instant())
     _      <- set(updated)
   } yield ()
-  
+
+  override def setStartedAt(id: String): Future[Unit] = for {
+    current <- get(id)
+    _ <- current.startedAt match {
+      case Some(_) => Future.unit
+      case None =>
+        val now = clock.instant()
+        val updated = current.copy(
+          startedAt   = Some(now),
+          lastUpdated = now
+        )
+        set(updated).map(_ => ())
+    }
+  } yield ()
+
   override def clear(id: String): Future[Unit] =
     collection
       .deleteOne(byId(id))

@@ -21,7 +21,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.Enro
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.{SubscriptionActive, SubscriptionNotFound}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{EnrolmentResult, IndividualEnrolmentDetails, IndividualRegistrationDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient, RegistrationResult, SubscriptionResult, SubscriptionStatusResult}
 
 import scala.concurrent.Future

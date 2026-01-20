@@ -35,28 +35,31 @@ object Fixtures {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
   val user = "user-123"
-  val emptyEnrolments = Enrolments(Set())
+  val emptyEnrolments: Enrolments = Enrolments(Set())
   val stcEnrolmentKey = "HMRC-STC-ORG"
-  val stcEnrolment = Enrolment(stcEnrolmentKey, Seq(), "Activated")
+  val stcEnrolment: Enrolment = Enrolment(stcEnrolmentKey, Seq(), "Activated")
   val alreadyEnrolled: Enrolments = Enrolments(Set(stcEnrolment))
   val affinityGroupIndividual: AffinityGroup.Individual.type = AffinityGroup.Individual
   val affinityGroupOrganisation: AffinityGroup.Organisation.type = AffinityGroup.Organisation
   val confidenceLevel250: ConfidenceLevel = ConfidenceLevel.L250
   val nino = "AA123456A"
-  val someValidNino = Some(nino)
+  val someValidNino: Option[String] = Some(nino)
   val firstName = "First"
   val lastName = "Last"
   val safeId = "SAFE-123"
   val subscriptionId = "SUBS-123"
-  val registrationData = RegistrationData(
+  val registrationData: RegistrationData = RegistrationData(
     id = Fixtures.user,
     safeId = Some(Fixtures.safeId),
     subscriptionId = Some(Fixtures.subscriptionId)
   )
-  val someValidName = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
+  
+  val credId = "cred-123"
+  val providerType = "GovernmentGateway"
+  val someValidName: Option[ItmpName] = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
   
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues
-  val fakeIdentifierRequest = IdentifierRequest[AnyContent](FakeRequest(), user)
+  val fakeIdentifierRequest: IdentifierRequest[AnyContent] = IdentifierRequest[AnyContent](FakeRequest(), user)
   val requestFactory = FakeRequestFactory(RequestFactory.plain)
 
   /**
@@ -76,27 +79,32 @@ object Fixtures {
       affinityGroupOverride
     )
 
-  def fakeStcValidIndividualAuthRequest[A](request: Request[A],
-                                           userId: String = user,
-                                           ninoOverride: String = nino,
-                                           firstNameOverride: String = firstName,
-                                           lastNameOverride: String = lastName
-                                         ): StcValidIndividualRequest[A] =
+  def fakeStcValidIndividualAuthRequest[A](
+                             request: Request[A],
+                             userId: String = user,
+                             ninoOverride: String = nino,
+                             firstNameOverride: String = firstName,
+                             lastNameOverride: String = lastName,
+                             credId:String = credId
+                           ): StcValidIndividualRequest[A] =
     StcValidIndividualRequest[A](
       request,
       userId,
       ninoOverride,
       firstNameOverride,
-      lastNameOverride
+      lastNameOverride,
+      credId
     )
     
   def fakeStcValidOrgAuthRequest[A](
                              request: Request[A],
                              userId: String = user,
+                             credId:String = credId
                            ): StcValidOrgRequest[A] =
       StcValidOrgRequest(
       request,
-      userId
+      userId,
+        credId
       )
 
   // simple stub AuthConnector that returns a preconfigured value for any retrieval
@@ -138,10 +146,10 @@ object Fixtures {
   import play.api.mvc.Results.Ok
   
   class FakeAlfConnector extends AlfAddressConnector {
-    val fakeAlfAddress = AlfAddress(
+    val fakeAlfAddress: AlfAddress = AlfAddress(
       List("1 high street", "bobbins on sea"), "ZZ1 1ZZ", Country("GB", "United Kingdom")
     )
-    val fakeAlfConfirmedAddress = AlfConfirmedAddress(
+    val fakeAlfConfirmedAddress: AlfConfirmedAddress = AlfConfirmedAddress(
       "foo", Some("bar"), fakeAlfAddress
     )
 

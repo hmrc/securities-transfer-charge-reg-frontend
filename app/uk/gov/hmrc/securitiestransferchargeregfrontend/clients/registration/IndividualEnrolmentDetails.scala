@@ -17,7 +17,6 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
 import play.api.libs.json.{Json, OFormat}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualEnrolmentResponseDto}
 
 case class IndividualEnrolmentDetails(subscriptionId: String, nino: String)
 

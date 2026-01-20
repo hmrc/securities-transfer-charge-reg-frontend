@@ -18,9 +18,11 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditService
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
@@ -37,30 +39,32 @@ class SubscriptionErrorException(msg: String) extends RuntimeException(msg)
 class EnrolmentErrorException(msg: String) extends RuntimeException(msg)
 
 trait SubscriptionConnector:
-  def subscribeAndEnrolIndividual(userId: String)(nino: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit]
+  def subscribeAndEnrolIndividual(userId: String)(nino: String)(userAnswers: UserAnswers)(data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit]
 
-  def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit]
+  def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(credId: String)(implicit hc: HeaderCarrier): Future[Unit]
 
 class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient,
-                                          registrationDataRepository: RegistrationDataRepository)
+                                          registrationDataRepository: RegistrationDataRepository, registrationAuditService: RegistrationAuditService,
+                                         )
                                          (implicit ec: ExecutionContext) extends SubscriptionConnector with Logging:
 
 
-  override def subscribeAndEnrolIndividual(userId: String)(nino: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
+  override def subscribeAndEnrolIndividual(userId: String)(nino: String)(userAnswers: UserAnswers)(data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      maybeSafeId <- registrationDataRepository.getRegistrationData(userId).map(_.safeId)
-      subscriptionId <- subscribe(maybeSafeId, userAnswers)
+      registration <- registrationDataRepository.getRegistrationData(userId)
+      subscriptionId <- subscribe(registration.safeId, userAnswers)
       _ <- enrol(subscriptionId, nino)
-    } yield ()
+    } yield registrationAuditService.auditIndividualRegistrationComplete(registration.startedAt,data,userAnswers)
   }
 
-  override def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
+  override def subscribeAndEnrolOrganisation(userId: String)(userAnswers: UserAnswers)(credId: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
       safeId <- Future.successful(Some("SAFE123")) // Dummy value to simulate value returned from GRS
       ctUtr <- Future.successful("0123456789") // Dummy value to simulate value returned from GRS
       subscriptionId <- subscribeOrganisation(safeId, userAnswers)
       _ <- enrolOrganisation(subscriptionId, ctUtr)
-    } yield ()
+      startedAt <- registrationDataRepository.getRegistrationData(userId).map(_.startedAt)
+    } yield registrationAuditService.auditOrganisationRegistrationComplete(startedAt,userAnswers,credId)
   }
 
   private def subscribe(maybeSafeId: Option[String], userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] =

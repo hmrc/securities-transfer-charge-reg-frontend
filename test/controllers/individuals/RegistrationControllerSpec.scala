@@ -53,7 +53,6 @@ class RegistrationControllerSpec extends SpecBase {
 
       running(application) {
         val mcc = application.injector.instanceOf[MessagesControllerComponents]
-        val appConfig = application.injector.instanceOf[uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig]
         val redirects = application.injector.instanceOf[Redirects]
         val auth = application.injector.instanceOf[Auth]
 
