@@ -38,7 +38,7 @@ object GrsResult extends Logging:
   }
   
   def failure(reason: String): GrsResult = {
-    logger.warn(s"GRS journey data retieval failed: $reason")
+    logger.warn(s"GRS journey data retrieval failed: $reason")
     GrsFailure(reason)
   }
   
