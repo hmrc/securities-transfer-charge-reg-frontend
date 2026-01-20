@@ -92,3 +92,16 @@ GET        /org/registration-complete             uk.gov.hmrc.securitiestransfer
 
 GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
 GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)
+
+GET        /org/registration/incorporated-entity/limited-company                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsIncorporatedEntityController.limitedCompanyJourney
+GET        /org/registration/incorporated-entity/registered-society                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsIncorporatedEntityController.registeredSocietyJourney
+GET        /org/registration/incorporated-entity/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsIncorporatedEntityController.returnFromJourney(journeyId: String)
+
+GET        /org/registration/partnership/limited-partnership                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.limitedPartnershipJourney
+GET        /org/registration/partnership/limited-liability-partnership      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.limitedLiabilityPartnershipJourney
+GET        /org/registration/partnership/scottish-limited-partnership       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.scottishLimitedPartnershipJourney
+GET        /org/registration/partnership/return                             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsPartnershipController.returnFromJourney(journeyId: String)
+
+GET        /org/registration/minor-entity/trust                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.trustJourney
+GET        /org/registration/minor-entity/unincorporated-association    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.unincorporatedAssociationJourney
+GET        /org/registration/minor-entity/return                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.returnFromJourney(journeyId: String)

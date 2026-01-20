@@ -14,17 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
-enum SubscriptionResponse:
-  case SubscriptionSuccessful(subscriptionId: String)
-  case SubscriptionFailed
+import play.api.libs.json.{Json, OFormat}
 
-type SubscriptionResult = Either[RegistrationServiceError, SubscriptionResponse]
+case class IndividualRegistrationDetails(
+  firstName: String,
+  middleName: Option[String] = None,
+  lastName: String,
+  dateOfBirth: String,
+  nino: String
+)
 
-enum SubscriptionStatus:
-  case SubscriptionNotFound
-  case SubscriptionExpired
-  case SubscriptionActive
-  
-type SubscriptionStatusResult = Either[RegistrationServiceError, SubscriptionStatus]
+object IndividualRegistrationDetails {
+  implicit val format: OFormat[IndividualRegistrationDetails] =
+    Json.format[IndividualRegistrationDetails]
+}

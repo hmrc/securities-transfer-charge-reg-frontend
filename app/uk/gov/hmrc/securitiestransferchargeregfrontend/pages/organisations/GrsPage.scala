@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,20 +14,12 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
-import play.api.libs.json.{Json, OFormat}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
-case class IndividualEnrolmentDetails(subscriptionId: String, nino: String)
+case object GrsPage extends Page {
 
-object IndividualEnrolmentDetails {
-  implicit val format: OFormat[IndividualEnrolmentDetails] =
-    Json.format[IndividualEnrolmentDetails]
+  override def toString: String = "grsPage"
 }
-
-final case class IndividualEnrolmentResponseDto(enrolled: Boolean)
-
-object IndividualEnrolmentResponseDto:
-  given OFormat[IndividualEnrolmentResponseDto] =
-    Json.format[IndividualEnrolmentResponseDto]
 

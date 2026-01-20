@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
 sealed trait RegistrationServiceError
 

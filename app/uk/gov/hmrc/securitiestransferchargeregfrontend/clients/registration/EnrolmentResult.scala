@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.clients
+package uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration
 
 enum EnrolmentResponse:
   case EnrolmentSuccessful

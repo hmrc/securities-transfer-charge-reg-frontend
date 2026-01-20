@@ -29,23 +29,26 @@ import java.time.{Clock, Instant}
 import java.util.concurrent.TimeUnit
 import javax.inject.{Inject, Singleton}
 import scala.concurrent.{ExecutionContext, Future}
+import play.api.libs.json.Json
 
-case class RegistrationData(id: String, safeId: Option[String] = None, subscriptionId: Option[String] = None,
-                            lastUpdated: Instant = Instant.now, startedAt: Option[Instant]=None)
+case class RegistrationData(id: String,
+                            safeId: Option[String] = None,
+                            subscriptionId: Option[String] = None,
+                            ctUtr: Option[String] = None,
+                            lastUpdated: Instant = Instant.now,
+                            startedAt: Option[Instant] = None)
 
 object RegistrationData {
-  implicit val format: Format[RegistrationData] = play.api.libs.json.Json.format[RegistrationData]
+  implicit val format: Format[RegistrationData] = Json.format[RegistrationData]
 }
 
 trait RegistrationDataRepository {
   def getRegistrationData(id: String): Future[RegistrationData]
-
   def setSafeId(id: String)(safeId: String): Future[Unit]
-
   def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit]
-
   def setStartedAt(id: String): Future[Unit]
 
+  def setCtUtr(id: String)(ctUtr: String): Future[Unit]
   def clear(id: String): Future[Unit]
 }
 
@@ -70,6 +73,8 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
 
   implicit val instantFormat: Format[Instant] = MongoJavatimeFormats.instantFormat
 
+  val emptyRegistrationData: String => RegistrationData = RegistrationData(_)
+  
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
   private def get(id: String): Future[RegistrationData] =
@@ -78,7 +83,7 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
       .headOption()
       .flatMap {
         case Some(data) => Future.successful(data)
-        case None       => Future.successful(RegistrationData(id))
+        case None       => Future.successful(emptyRegistrationData(id))
       }
 
   private def set(data: RegistrationData): Future[Boolean] = {
@@ -94,15 +99,18 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
 
   override def getRegistrationData(id: String): Future[RegistrationData] = get(id)
 
-  override def setSafeId(id: String)(safeId: String): Future[Unit] = for {
-    current <- get(id)
-    updated = current.copy(safeId = Some(safeId), lastUpdated = clock.instant())
-    _      <- set(updated)
-  } yield ()
+  override def setSafeId(id: String)(safeId: String): Future[Unit] =
+    setElement(id, _.copy(safeId = Some(safeId)))
 
-  override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] = for {
+  override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] =
+    setElement(id, _.copy(subscriptionId = Some(subscriptionId)))
+
+  override def setCtUtr(id: String)(ctUtr: String): Future[Unit] =
+    setElement(id, _.copy(ctUtr = Some(ctUtr)))
+    
+  private def setElement(id: String, updateFn: RegistrationData => RegistrationData): Future[Unit] = for {
     current <- get(id)
-    updated = current.copy(subscriptionId = Some(subscriptionId), lastUpdated = clock.instant())
+    updated = updateFn(current).copy(lastUpdated = clock.instant())
     _      <- set(updated)
   } yield ()
 

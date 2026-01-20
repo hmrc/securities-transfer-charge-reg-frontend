@@ -17,11 +17,11 @@
 package controllers.actions
 
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.EnrolmentResponse.EnrolmentSuccessful
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.SubscriptionStatus.{SubscriptionActive, SubscriptionNotFound}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.RegistrationResponse.{RegistrationFailed, RegistrationSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.{SubscriptionActive, SubscriptionNotFound}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{EnrolmentResult, IndividualEnrolmentDetails, IndividualRegistrationDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient, RegistrationResult, SubscriptionResult, SubscriptionStatusResult}
 
 import scala.concurrent.Future
 

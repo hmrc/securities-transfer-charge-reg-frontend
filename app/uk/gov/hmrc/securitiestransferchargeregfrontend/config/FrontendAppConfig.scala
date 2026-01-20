@@ -49,6 +49,70 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
   val assistantKickOutUrl: String = configuration.get[String]("microservice.redirects.assistant-ko-url")
 
+  /*
+   * GRS Incorporated Entity
+   */
+  val grsIncorporatedEntityBaseUrl: String =
+    servicesConfig.baseUrl("incorporated-entity-identification-frontend")
+
+  val grsIncorporatedEntityRetrieveUrl: String =
+    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
+
+  val grsIncorporatedEntityReturnUrl: String =
+    s"$host/register-securities-transfer-charge/org/registration/incorporated-entity/return"
+
+  val grsLimitedCompanyJourneyUrl: String =
+    s"${grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
+
+  val grsRegisteredSocietyJourneyUrl: String =
+    s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/registered-society-journey"
+
+  /*
+   * GRS Partnership
+   */
+     
+  val grsPartnershipBaseUrl: String =
+    servicesConfig.baseUrl("partnership-identification-frontend")
+
+  val grsPartnershipRetrieveUrl: String =
+    s"$grsPartnershipBaseUrl/partnership-identification/api/journey"
+    
+  val grsPartnershipReturnUrl: String =
+    s"$host/register-securities-transfer-charge/org/registration/partnership/return"
+
+  val grsLimitedPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/partnership-identification/api/limited-partnership-journey"
+
+  val grsScottishLimitedPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/partnership-identification/api/scottish-limited-partnership-journey"
+
+  val grsLimitedLiabilityPartnershipJourneyUrl: String =
+    s"$grsPartnershipBaseUrl/partnership-identification/api/limited-liability-partnership-journey"
+
+  /*
+   * GRS Minor Entity
+   */
+
+  val grsMinorEntityBaseUrl: String =
+    servicesConfig.baseUrl("minor-entity-identification-frontend")
+    
+  val grsMinorEntityRetrieveUrl: String =
+    s"$grsMinorEntityBaseUrl/minor-entity-identification/api/journey"
+
+  val grsMinorEntityReturnUrl: String =
+    s"$host/register-securities-transfer-charge/org/registration/minor-entity/return"
+
+  val grsTrustJourneyUrl: String =
+    s"$grsMinorEntityBaseUrl/minor-entity-identification/api/trusts-journey"
+
+  val grsUnincorporatedAssociationJourneyUrl: String =
+    s"$grsMinorEntityBaseUrl/minor-entity-identification/api/unincorporated-association-journey"
+
+
+  /*
+   * Address Lookup
+   */
+  
   private val addressLookupBaseUrl: String =
     servicesConfig.baseUrl("address-lookup-frontend")
 
@@ -64,6 +128,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val alfOrgContinueUrl: String =
     s"$host/register-securities-transfer-charge/org/address/return"
 
+  /*
+   * securities-transfer-charge-registration microservice
+   */
   private val registrationBackendBaseUrl: String =
     servicesConfig.baseUrl("securities-transfer-charge-registration")
 
@@ -84,6 +151,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
 
   val enrolOrganisationBackendUrl: String =
     s"$registrationBackendBaseUrl/securities-transfer-charge-registration/enrolment/organisation"
+  
   private val exitSurveyBaseUrl: String = configuration.get[Service]("microservice.services.feedback-frontend").baseUrl
   val exitSurveyUrl: String             = s"$exitSurveyBaseUrl/feedback/securities-transfer-charge-reg-frontend"
 

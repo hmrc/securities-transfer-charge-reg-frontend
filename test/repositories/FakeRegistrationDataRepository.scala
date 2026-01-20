@@ -32,5 +32,7 @@ class FakeRegistrationDataRepository(data: RegistrationData = Fixtures.registrat
 
   override def clear(id: String): Future[Unit] = Future.successful(())
 
+  override def setCtUtr(id: String)(ctUtr: String): Future[Unit] = Future.successful(())
+
   override def setStartedAt(id: String): Future[Unit] = Future.successful(())
 }

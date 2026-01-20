@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
+import play.api.Logging
 import play.api.mvc.{ActionBuilder, AnyContent, BodyParsers, Request, Result}
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
@@ -38,7 +39,7 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
                                       config: FrontendAppConfig,
                                       retrievalFilter: RetrievalFilter,
                                       val parser: BodyParsers.Default )
-                                    ( implicit val executionContext: ExecutionContext) extends StcValidOrgAction with AuthorisedFunctions:
+                                    ( implicit val executionContext: ExecutionContext) extends StcValidOrgAction with Logging with AuthorisedFunctions:
 
   private[actions] val retrievals = internalId and allEnrolments and affinityGroup and credentialRole and credentials
 
@@ -47,7 +48,6 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
 
     authorised().retrieve(retrievals) {
       case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ maybeCredentialRole ~ maybeCredentials =>
-
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
           _             <- retrievalFilter.enrolledFilter(enrolments)
@@ -59,8 +59,10 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
         maybeRequest.fold(identity, block)
 
     } recover {
-    case _: NoActiveSession =>
+    case nasx: NoActiveSession =>
+      logger.warn(s"No active session found: ${nasx.getLocalizedMessage}")
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-    case _: AuthorisationException =>
+    case ae: AuthorisationException =>
+      logger.warn(s"Auth error: ${ae.getLocalizedMessage}")
       Redirect(routes.UnauthorisedController.onPageLoad())
     }

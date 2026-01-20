@@ -20,7 +20,7 @@ import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{organisations as organisationsPages, *}
 
@@ -28,7 +28,7 @@ import javax.inject.{Inject, Singleton}
 
 @Singleton
 class OrgNavigator @Inject() extends Navigator {
-
+  
   private val normalRoutes: Page => UserAnswers => Call = {
     
     case _: AddressPage[_] =>
@@ -40,8 +40,8 @@ class OrgNavigator @Inject() extends Navigator {
     case organisationsPages.UkOrNotPage =>
       userAnswers => {
         userAnswers.get(organisationsPages.UkOrNotPage) match {
-          case Some(true) => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
-          case Some(false) => orgRoutes.UkOrNotKickOutController.onPageLoad()
+          case Some(true)   => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+          case Some(false)  => orgRoutes.UkOrNotKickOutController.onPageLoad()
           case None => routes.JourneyRecoveryController.onPageLoad()
         }
       }
@@ -49,10 +49,13 @@ class OrgNavigator @Inject() extends Navigator {
     case organisationsPages.SelectBusinessTypePage =>
       userAnswers => {
         userAnswers.get(organisationsPages.SelectBusinessTypePage) match {
-          case Some(SelectBusinessType.Partnership) => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
-          case Some(SelectBusinessType.SoleTrader) => orgRoutes.PartnershipKickOutController.onPageLoad()
-          case Some(_) => orgRoutes.AddressController.onPageLoad()
-          case None => routes.JourneyRecoveryController.onPageLoad()
+          case Some(LimitedCompany)             => orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
+          case Some(Partnership)                => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+          case Some(SoleTrader)                 => orgRoutes.PartnershipKickOutController.onPageLoad()
+          case Some(Trust)                      => orgRoutes.GrsMinorEntityController.trustJourney
+          case Some(RegisteredSociety)          => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
+          case Some(UnincorporatedAssociation)  => orgRoutes.GrsMinorEntityController.unincorporatedAssociationJourney
+          case None                             => routes.JourneyRecoveryController.onPageLoad()
         }
       }
   
@@ -72,8 +75,10 @@ class OrgNavigator @Inject() extends Navigator {
     userAnswers
       .get(organisationsPages.TypeOfPartnershipPage)
       .map {
-        case GeneralPartnership | ScottishPartnership => orgRoutes.PartnershipKickOutController.onPageLoad()
-        case ScottishLimitedPartnership | LimitedPartnership | LimitedLiabilityPartnership => orgRoutes.AddressController.onPageLoad()
+        case ScottishLimitedPartnership   => orgRoutes.GrsPartnershipController.scottishLimitedPartnershipJourney
+        case LimitedPartnership           => orgRoutes.GrsPartnershipController.limitedPartnershipJourney
+        case LimitedLiabilityPartnership  => orgRoutes.GrsPartnershipController.limitedLiabilityPartnershipJourney
+        case _                            => orgRoutes.PartnershipKickOutController.onPageLoad()
       }
       .getOrElse(routes.JourneyRecoveryController.onPageLoad())
 

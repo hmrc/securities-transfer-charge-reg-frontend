@@ -21,6 +21,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualRegistrationDetails, RegistrationClient, RegistrationResponse}
 
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
