@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters
 
 import play.api.mvc.Result
-import uk.gov.hmrc.auth.core.retrieve.ItmpName
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ItmpName}
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, CredentialRole, Enrolments, Assistant, User}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -68,6 +68,12 @@ class RetrievalFilter @Inject() (appConfig: FrontendAppConfig, redirects: Redire
     case Some(User)       => Right(())
     case Some(Assistant)  => Left(redirectToAssistantKOPageF)
     case _                => Left(retrievalError("CredentialRole"))
+
+  val providerIdPresentFilter: RetrievalFilterFunction[Option[Credentials], String] = {
+    case Some(Credentials(providerId, _)) => Right(providerId)
+    case _ => Left(retrievalError("credentials.providerId"))
+  }
+
 
 object RetrievalFilter:
 

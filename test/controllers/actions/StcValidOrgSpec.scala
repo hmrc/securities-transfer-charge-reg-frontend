@@ -39,7 +39,7 @@ import play.api.Application
 import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, CredentialRole, Enrolments, User, Assistant}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -53,17 +53,20 @@ class StcValidOrgSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole]
+  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ Option[CredentialRole] ~ Option[Credentials]
 
   def buildRetrieval(maybeInternalId: Option[String] = Some(Fixtures.user),
                      enrolments: Enrolments = Fixtures.emptyEnrolments,
                      maybeAffinityGroup: Option[AffinityGroup] = Some(AffinityGroup.Organisation),
-                     maybeCredentialRole: Option[CredentialRole] = Some(User)) =
-   new ~(
-    new~(
-      new~(maybeInternalId, enrolments),
-        maybeAffinityGroup),
-      maybeCredentialRole
+                     maybeCredentialRole: Option[CredentialRole] = Some(User),
+                     maybeCredentials: Option[Credentials] = Some(Credentials(Fixtures.credId, Fixtures.providerType))) =
+    new ~(
+      new ~(
+        new~(
+          new~(maybeInternalId, enrolments),
+            maybeAffinityGroup),
+          maybeCredentialRole),
+      maybeCredentials
     )
 
   def testSetup(application: Application, retrievals: RetrievalType): StcValidOrgAction = {
@@ -172,6 +175,23 @@ class StcValidOrgSpec extends SpecBase {
         status(result) mustBe SEE_OTHER
         redirectLocation(result).get must include(appConfig.assistantKickOutUrl)
       }
+    }
+
+    "must fail with an UnauthorisedException if no credentials are found" in {
+      val application = applicationBuilder().build()
+
+      running(application) {
+        val action = testSetup(application, buildRetrieval(maybeCredentials = None))
+
+        val thrown = recoverToExceptionIf[UnauthorizedException] {
+          action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
+        }
+
+        thrown.map { ex =>
+          ex.getMessage must include("Retrieval Error:")
+        }
+      }
+
     }
 
   }

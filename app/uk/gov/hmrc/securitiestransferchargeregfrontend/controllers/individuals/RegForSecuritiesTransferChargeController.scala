@@ -23,24 +23,29 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.RegForSecuritiesTransferChargePage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.RegForSecuritiesTransferChargeView
 
 import javax.inject.{Inject, Named}
+import scala.concurrent.ExecutionContext
 
 class RegForSecuritiesTransferChargeController @Inject()(auth: IndividualAuth,
-                                                         @Named("individuals") navigator: Navigator,                                                         val controllerComponents: MessagesControllerComponents,
-                                                         view: RegForSecuritiesTransferChargeView
-                                                       ) extends FrontendBaseController with I18nSupport {
+                                                         @Named("individuals") navigator: Navigator, val controllerComponents: MessagesControllerComponents,
+                                                         view: RegForSecuritiesTransferChargeView,
+                                                         registrationRepository: RegistrationDataRepository
+                                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
-  
+
   def onPageLoad: Action[AnyContent] = validIndividual {
     implicit request =>
       Ok(view())
   }
 
-  def onSubmit(): Action[AnyContent] = validIndividual {
+  def onSubmit(): Action[AnyContent] = validIndividual.async {
     implicit request =>
-      Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
+      registrationRepository.setStartedAt(request.userId).map { _ =>
+        Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
+      }
   }
 }

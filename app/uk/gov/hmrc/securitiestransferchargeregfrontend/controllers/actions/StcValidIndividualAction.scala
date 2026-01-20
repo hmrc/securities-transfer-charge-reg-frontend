@@ -40,13 +40,13 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
                                               val parser: BodyParsers.Default )
                                             ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions:
 
-  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName
+  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName and credentials
 
   override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] =
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
-      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName =>
+      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName ~ maybeCredentials=>
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
@@ -55,8 +55,9 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
           _             <- retrievalFilter.confidenceLevelFilter(confidenceLevel)
           nino          <- retrievalFilter.ninoPresentFilter(maybeNino)
           ns            <- retrievalFilter.namePresentFilter(maybeName)
+          providerId <- retrievalFilter.providerIdPresentFilter(maybeCredentials)
           (first, last)  = ns
-        } yield StcValidIndividualRequest(request, internalId, nino, first, last)
+        } yield StcValidIndividualRequest(request, internalId, nino, first, last,providerId)
 
         maybeRequest.fold(identity, block)
 

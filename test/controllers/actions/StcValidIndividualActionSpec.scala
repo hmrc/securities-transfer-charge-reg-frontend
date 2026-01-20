@@ -23,7 +23,7 @@ import play.api.Application
 import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import uk.gov.hmrc.auth.core.retrieve.{ItmpName, ~}
+import uk.gov.hmrc.auth.core.retrieve.{Credentials, ItmpName, ~}
 import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolments}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -37,26 +37,30 @@ class StcValidIndividualActionSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ ConfidenceLevel ~ Option[String] ~ Option[ItmpName]
+  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ ConfidenceLevel ~ Option[String] ~ Option[ItmpName] ~ Option[Credentials]
 
   def buildRetrieval(maybeInternalId: Option[String] = Some(Fixtures.user),
                      enrolments: Enrolments = Fixtures.emptyEnrolments,
                      maybeAffinityGroup: Option[AffinityGroup] = Some(Fixtures.affinityGroupIndividual),
                      confidenceLevel: ConfidenceLevel = Fixtures.confidenceLevel250,
                      maybeNino: Option[String] = Fixtures.someValidNino,
-                     maybeName: Option[ItmpName] = Fixtures.someValidName ) =
-    new~(
-      new~(
-        new~(
-          new~(
-            new~(maybeInternalId, enrolments),
-            maybeAffinityGroup
+                     maybeName: Option[ItmpName] = Fixtures.someValidName,
+                     maybeCredentials:Option[Credentials]= Some(Credentials(Fixtures.credId,Fixtures.providerType))) =
+    new ~(
+      new ~(
+        new ~(
+          new ~(
+            new ~(
+              new ~(maybeInternalId, enrolments),
+              maybeAffinityGroup
+            ),
+            confidenceLevel
           ),
-          confidenceLevel
+          maybeNino
         ),
-        maybeNino
+        maybeName
       ),
-      maybeName
+      maybeCredentials
     )
 
   def testSetup(application: Application, retrievals: RetrievalType): StcValidIndividualAction = {
@@ -94,6 +98,7 @@ class StcValidIndividualActionSpec extends SpecBase {
         stcRequest.nino mustBe Fixtures.someValidNino.get
         stcRequest.firstName mustBe Fixtures.firstName
         stcRequest.lastName mustBe Fixtures.lastName
+        stcRequest.credId mustBe Fixtures.credId
       }
     }
 
@@ -206,6 +211,23 @@ class StcValidIndividualActionSpec extends SpecBase {
       running(application) {
         val invalidName = ItmpName(Some("First"), None, None)
         val action = testSetup(application, buildRetrieval(maybeName = Some(invalidName)))
+
+        val thrown = recoverToExceptionIf[UnauthorizedException] {
+          action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
+        }
+
+        thrown.map { ex =>
+          ex.getMessage must include("Retrieval Error:")
+        }
+      }
+    }
+
+    "must fail with an UnauthorisedException if no credentials are found" in {
+      val application = applicationBuilder().build()
+
+      running(application) {
+
+        val action = testSetup(application, buildRetrieval(maybeCredentials = None))
 
         val thrown = recoverToExceptionIf[UnauthorizedException] {
           action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
