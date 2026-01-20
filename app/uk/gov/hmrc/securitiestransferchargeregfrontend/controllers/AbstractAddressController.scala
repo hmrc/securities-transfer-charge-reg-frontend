@@ -19,6 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.*
+import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
@@ -39,7 +40,7 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
    * Creates an address journey and redirects to the to it.
    * If the journey fails to initialise, the user is sent to an error page.
    */
-  def pageLoad(returnUrl: String): Future[Result] = {
+  def pageLoad(returnUrl: String)(implicit hc: HeaderCarrier): Future[Result] = {
       alf.initAlfJourneyRequest(returnUrl)
   }
 
@@ -47,7 +48,7 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def alfReturn(addressId: String, userId: String): Future[Result] = {
+  def alfReturn(addressId: String, userId: String)(implicit hc: HeaderCarrier): Future[Result] = {
     logger.info("Address lookup frontend has returned control to STC service")
     for {
       address <- alf.alfRetrieveAddress(addressId)
