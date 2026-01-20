@@ -40,20 +40,21 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
                                       val parser: BodyParsers.Default )
                                     ( implicit val executionContext: ExecutionContext) extends StcValidOrgAction with AuthorisedFunctions:
 
-  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and credentials
+  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and credentialRole and credentials
 
   override def invokeBlock[A](request: Request[A], block: StcValidOrgRequest[A] => Future[Result]): Future[Result] =
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
     authorised().retrieve(retrievals) {
-      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ maybeCredentials=>
+      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ maybeCredentialRole ~ maybeCredentials =>
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
           _             <- retrievalFilter.enrolledFilter(enrolments)
           _             <- retrievalFilter.isOrgFilter(maybeAffinityGroup)
-          providerId <- retrievalFilter.providerIdPresentFilter(maybeCredentials)
-        } yield StcValidOrgRequest(request, internalId,providerId)
+          _             <- retrievalFilter.isAdminUserFilter(maybeCredentialRole)
+          providerId    <- retrievalFilter.providerIdPresentFilter(maybeCredentials)
+        } yield StcValidOrgRequest(request, internalId, providerId)
 
         maybeRequest.fold(identity, block)
 

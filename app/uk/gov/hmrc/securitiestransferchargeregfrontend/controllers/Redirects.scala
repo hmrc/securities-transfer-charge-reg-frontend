@@ -40,6 +40,6 @@ class Redirects @Inject()(appConfig: FrontendAppConfig)  {
   def redirectToRegisterF: Future[Result] = toFuture(Redirect(appConfig.registerUrl))
   def redirectToService: Result = Redirect(appConfig.stcServiceUrl)
   def redirectToServiceF: Future[Result] = toFuture(redirectToService)
-
+  def redirectToAssistantKOPageF: Future[Result] = toFuture(Redirect(appConfig.assistantKickOutUrl))
 
 }
