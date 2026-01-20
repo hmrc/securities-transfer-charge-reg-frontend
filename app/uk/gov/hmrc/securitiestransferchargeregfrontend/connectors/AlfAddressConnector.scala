@@ -22,6 +22,9 @@ import play.api.libs.json.*
 import play.api.libs.ws.*
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
+import uk.gov.hmrc.http.{HeaderCarrier, HttpResponse, StringContextOps}
+import uk.gov.hmrc.http.client.HttpClientV2
+import uk.gov.hmrc.http.HttpReads.Implicits.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.AlfConfirmedAddress
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
@@ -29,33 +32,33 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.ResourceLoader
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
-
 trait AlfAddressConnector {
-  def initAlfJourneyRequest(returnUrl: String): Future[Result]
-  def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress]
+  def initAlfJourneyRequest(returnUrl: String)(implicit hc: HeaderCarrier): Future[Result]
+  def alfRetrieveAddress(key: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress]
 }
 
-class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
-                                      config: FrontendAppConfig,
-                                      resourceLoader: ResourceLoader)
-                                    ( implicit ec: ExecutionContext) extends AlfAddressConnector with Logging {
+class AlfAddressConnectorImpl @Inject() ( http: HttpClientV2,
+                                          config: FrontendAppConfig,
+                                          resourceLoader: ResourceLoader)
+                                        ( implicit ec: ExecutionContext) extends AlfAddressConnector with Logging {
 
-  private type ResponseHandler = PartialFunction[WSResponse, Result]
+  private type ResponseHandler = PartialFunction[HttpResponse, Result]
   private[connectors] final class AlfException(msg: String) extends RuntimeException(msg)
 
-  def initAlfJourneyRequest(returnUrl: String): Future[Result] = {
+  def initAlfJourneyRequest(returnUrl: String)(implicit hc: HeaderCarrier): Future[Result] = {
     callAlfInit(returnUrl).map(journeySuccess.orElse(journeyFailure)(_))
   }
 
-  def alfRetrieveAddress(key: String): Future[AlfConfirmedAddress] = {
+  def alfRetrieveAddress(key: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress] = {
     callAlfRetrieve(key).map(retrievalSuccess)
   }
 
-  private def callAlfInit(returnUrl: String): Future[WSResponse] = {
-    ws
-      .url(config.alfInitUrl)
-      .addHttpHeaders("Content-Type" -> "application/json")
-      .post(payload(returnUrl))
+  private def callAlfInit(returnUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+    http
+      .post(url"${config.alfInitUrl}")
+      .withBody(payload(returnUrl))
+      .setHeader("Content-Type" -> "application/json")
+      .execute[HttpResponse]
   }
 
   private def journeySuccess: ResponseHandler = {
@@ -75,14 +78,14 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
     failure("Address lookup initiation failed")
   }
   
-  private def callAlfRetrieve(key: String): Future[WSResponse] = {
+  private def callAlfRetrieve(key: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     val retrieveAddress = s"${config.alfRetrieveUrl}?id=$key"
-    ws
-      .url(retrieveAddress)
-      .get()
+    http
+      .get(url"$retrieveAddress")
+      .execute[HttpResponse]
   }
 
-  private def retrievalSuccess[A](resp: WSResponse): AlfConfirmedAddress = {
+  private def retrievalSuccess[A](resp: HttpResponse): AlfConfirmedAddress = {
     resp.json.validate[AlfConfirmedAddress].getOrElse {
       failure("Could not retrieve the address from ALF")
     }
@@ -98,12 +101,8 @@ class AlfAddressConnectorImpl @Inject() ( ws: WSClient,
         "continueUrl" -> returnUrl
       )
     )
-
-    val finalPayload = parsed.deepMerge(overrideJson)
-
-    finalPayload
+    parsed.deepMerge(overrideJson)
   }
-
 
 }
 
