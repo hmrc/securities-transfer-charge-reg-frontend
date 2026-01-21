@@ -30,13 +30,101 @@ class DateOfBirthRegFormProviderSpec extends DateBehaviours {
 
   ".value" - {
 
-    val validData = datesBetween(
-      min = LocalDate.now(ZoneOffset.UTC).minusYears(100),
-      max = LocalDate.now(ZoneOffset.UTC).minusYears(18)
-    )
+    val today = LocalDate.now(ZoneOffset.UTC)
+
+    val validData = datesBetween(min = today.minusYears(150), max = today.minusYears(18))
 
     behave like dateField(form, "value", validData)
 
-    behave like mandatoryDateField(form, "value", "dateOfBirthReg.error.required.all")
+    behave like mandatoryDateField(
+      form,
+      "value",
+      "dateOfBirthReg.error.required.all"
+    )
+
+    "reject dates in the future" in {
+      val futureDate = today.plusDays(1)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> futureDate.getDayOfMonth.toString,
+          "value.month" -> futureDate.getMonthValue.toString,
+          "value.year" -> futureDate.getYear.toString
+        )
+      )
+
+      result.errors.map(_.message) must contain("dateOfBirthReg.error.futureDate")
+    }
+
+    "reject dates where age is under 18" in {
+      val under18Date = today.minusYears(18).plusDays(1)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> under18Date.getDayOfMonth.toString,
+          "value.month" -> under18Date.getMonthValue.toString,
+          "value.year" -> under18Date.getYear.toString
+        )
+      )
+
+      result.errors.map(_.message) must contain("dateOfBirthReg.error.under18")
+    }
+
+    "accept dates where age is exactly 18" in {
+      val exactly18 = today.minusYears(18)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> exactly18.getDayOfMonth.toString,
+          "value.month" -> exactly18.getMonthValue.toString,
+          "value.year" -> exactly18.getYear.toString
+        )
+      )
+
+      result.errors mustBe empty
+    }
+
+    "accept dates where age is exactly 150" in {
+      val exactly150 = today.minusYears(150)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> exactly150.getDayOfMonth.toString,
+          "value.month" -> exactly150.getMonthValue.toString,
+          "value.year" -> exactly150.getYear.toString
+        )
+      )
+
+      result.errors mustBe empty
+    }
+
+    "accept dates where age is 150 years and some days" in {
+      val oneFiftyAndSomeDays = today.minusYears(150).minusDays(200)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> oneFiftyAndSomeDays.getDayOfMonth.toString,
+          "value.month" -> oneFiftyAndSomeDays.getMonthValue.toString,
+          "value.year" -> oneFiftyAndSomeDays.getYear.toString
+        )
+      )
+
+      result.errors mustBe empty
+    }
+
+    "reject dates where age is over 150 (151+)" in {
+      val over150 = today.minusYears(151)
+
+      val result = form.bind(
+        Map(
+          "value.day" -> over150.getDayOfMonth.toString,
+          "value.month" -> over150.getMonthValue.toString,
+          "value.year" -> over150.getYear.toString
+        )
+      )
+
+      result.errors.map(_.message) must contain("dateOfBirthReg.error.pastDate")
+    }
   }
 }
+
