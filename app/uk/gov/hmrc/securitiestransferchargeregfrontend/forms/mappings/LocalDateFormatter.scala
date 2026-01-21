@@ -22,7 +22,7 @@ import play.api.i18n.Messages
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.DateHelper.formatDateToString
 
-import java.time.{LocalDate, Month}
+import java.time.{LocalDate, Month, Period}
 import scala.util.{Failure, Success, Try}
 
 private[mappings] class LocalDateFormatter(
@@ -93,24 +93,30 @@ private[mappings] class LocalDateFormatter(
     }
   }
 
-  private def noMissingField(key: String, data: Map[String, String]) = {
-    val today = DateHelper.today
-    val todayMinus18Years = today.minusYears(18)
-    val minDate = today.minusYears(150)
-    val maxDate = today
+  private def noMissingField(
+                              key: String,
+                              data: Map[String, String]
+                            ): Either[List[FormError], LocalDate] = {
 
-    formatDate(key, data).left
-      .map(_.map(
-        e => e.copy(key = key, args = e.args ++ args)
-      ))
-      .flatMap {
-        case validDate if validDate.isAfter(maxDate) =>
-          Left(List(FormError(key, futureDateKey, List(formatDateToString(maxDate)) ++ args)))
-        case validDate if validDate.isBefore(minDate) =>
-          Left(List(FormError(key, pastDateKey, List(formatDateToString(minDate)) ++ args)))
-        case validDate if validDate.isAfter(todayMinus18Years) =>
-          Left(List(FormError(key, under18DateKey, args)))
-        case validDate => Right(validDate)
+    val today = DateHelper.today
+
+    def ageInYears(dob: LocalDate): Int =
+      Period.between(dob, today).getYears
+
+    formatDate(key, data)
+      .left
+      .map(_.toList.map(e => e.copy(key = key, args = e.args ++ args)))
+      .flatMap { dob =>
+        val age = ageInYears(dob)
+        val max = 150
+        val min = 18
+
+        List(
+          Option.when(dob.isAfter(today))(FormError(key, futureDateKey, List(formatDateToString(today)))),
+          Option.when(age < min)(FormError(key, under18DateKey)),
+          Option.when(age > max)(FormError(key, pastDateKey,List(formatDateToString(today.minusYears(max)))))
+        ).collectFirst { case Some(err) => Left(List(err)) }
+          .getOrElse(Right(dob))
       }
   }
 
