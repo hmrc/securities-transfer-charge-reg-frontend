@@ -1,7 +1,7 @@
 
 # securities-transfer-charge-reg-frontend
 
-This is a placeholder README.md for a new repository
+This is the front-end used by users to register to use the Securities Transfer Charge service.
 
 ### License
 
