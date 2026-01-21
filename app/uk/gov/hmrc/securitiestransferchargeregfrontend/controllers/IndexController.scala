@@ -20,17 +20,15 @@ import play.api.i18n.I18nSupport
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IdentifierAction
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.IndexView
 
 import javax.inject.Inject
 
 class IndexController @Inject()(
                                  val controllerComponents: MessagesControllerComponents,
                                  identify: IdentifierAction,
-                                 view: IndexView
                                ) extends FrontendBaseController with I18nSupport {
 
   def onPageLoad(): Action[AnyContent] = identify { implicit request =>
-    Ok(view())
+    Redirect(routes.RegistrationController.routingLogic(), MOVED_PERMANENTLY)
   }
 }
