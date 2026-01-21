@@ -42,7 +42,7 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
   def onPageLoad: Action[AnyContent] = validOrg.async {
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
-      super.pageLoad(config.alfOrgContinueUrl)
+      super.pageLoad(config.organisationsAlfConfigFileLocation, config.alfOrgContinueUrl)
   }
 
   def onReturn(addressId: String): Action[AnyContent] = (validOrg andThen getData).async {
