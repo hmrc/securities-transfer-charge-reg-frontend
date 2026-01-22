@@ -17,6 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
+import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
@@ -38,7 +39,7 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
                                               config: FrontendAppConfig,
                                               retrievalFilter: RetrievalFilter,
                                               val parser: BodyParsers.Default )
-                                            ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions:
+                                            ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions with Logging:
 
   private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName and credentials
 
@@ -52,7 +53,6 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
           internalId    <- internalIdPresentFilter(maybeInternalId)
           _             <- retrievalFilter.enrolledFilter(enrolments)
           _             <- retrievalFilter.isIndividualFilter(maybeAffinityGroup)
-          _             <- retrievalFilter.confidenceLevelFilter(confidenceLevel)
           nino          <- retrievalFilter.ninoPresentFilter(maybeNino)
           ns            <- retrievalFilter.namePresentFilter(maybeName)
           providerId <- retrievalFilter.providerIdPresentFilter(maybeCredentials)
@@ -64,6 +64,7 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
       } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-      case _: AuthorisationException =>
+      case ae: AuthorisationException =>
+        logger.info(s"AuthorisationException caught in StcValidIndividualAction: ${ae.getMessage}")
         Redirect(routes.UnauthorisedController.onPageLoad())
     }
