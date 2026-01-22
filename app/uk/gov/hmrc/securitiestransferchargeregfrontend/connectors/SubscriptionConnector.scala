@@ -110,23 +110,24 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
       logInfoAndFail(new SubscriptionErrorException(msg))
   }
 
-  type SubscriptionData = Option[(String, String, Option[String], Option[String], String, String, String, Option[String], String)]
-  private val buildSubscriptionData: String => UserAnswers => SubscriptionData = { safeId => answers =>
+  private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers =>
     for {
-      alf           <- getAddress(answers)
-      address       =  alf.address
-      (l1, l2, l3)  <- extractLines(address)
-      email         <- getEmailAddress(answers)
-      tel           <- getTelephoneNumber(answers)
-    } yield (safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
+      alf          <- getAddress(answers)
+      address      =  alf.address
+      (l1, l2, l3) <- extractLines(address)
+      email        <- getEmailAddress(answers)
+      tel          <- getTelephoneNumber(answers)
+    } yield IndividualSubscriptionDetails(safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
   }
-  
-  private val   buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers =>
-    buildSubscriptionData(safeId)(answers).map(IndividualSubscriptionDetails.apply.tupled)
-  }
-  
+
   private val buildOrganisationSubscriptionDetails: String => UserAnswers => Option[OrganisationSubscriptionDetails] = { safeId => answers =>
-    buildSubscriptionData(safeId)(answers).map(OrganisationSubscriptionDetails.apply.tupled)
+    for {
+      alf          <- getAddress(answers)
+      address      =  alf.address
+      (l1, l2, l3) <- extractLines(address)
+      email        <- getContactEmailAddress(answers)
+      tel          <- getContactNumber(answers)
+    } yield OrganisationSubscriptionDetails(safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
   }
 
   private def enrol( subscriptionId: String,
