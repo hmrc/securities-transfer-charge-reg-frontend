@@ -60,7 +60,7 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
   def onSubmit(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
     implicit request =>
       val innerRequest = request.request
-      val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)(innerRequest.nino)
+      val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -70,13 +70,13 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
           for {
             updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
             _               <- sessionRepository.set(updatedAnswers)
-            _               <- subscribe(updatedAnswers)(innerRequest)
+            _               <- subscribe(updatedAnswers, innerRequest)
           } yield {
             Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
           }
       ).recover {
         case _: RegistrationDataNotFoundException => Redirect(rootRoutes.JourneyRecoveryController.onPageLoad())
-        // THIS IS WRONG, we need another page.
+        // ToDo: THIS IS WRONG, we need another page.
         case _ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
       }
   }
