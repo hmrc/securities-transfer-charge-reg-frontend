@@ -19,6 +19,7 @@ package controllers.individuals
 import base.{Fixtures, SpecBase}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
+import org.scalatest.RecoverMethods.recoverToExceptionIf
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
@@ -41,12 +42,13 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{Registratio
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import java.time.LocalDate
-import scala.concurrent.Future
+import scala.concurrent.{ExecutionContext, Future}
 
 
 
 class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
+  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
@@ -145,8 +147,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
 
         val resultF = route(application, request).value
 
-        whenReady(resultF.failed) { ex =>
-          ex mustBe a[SubscriptionErrorException]
+        recoverToExceptionIf[SubscriptionErrorException](resultF).futureValue
         }
       }
     }
@@ -179,9 +180,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
 
         val resultF = route(application, request).value
 
-        whenReady(resultF.failed) { ex =>
-          ex mustBe a[EnrolmentErrorException]
-        }
+        recoverToExceptionIf[EnrolmentErrorException](resultF).futureValue
       }
     }
 
@@ -270,4 +269,3 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
       }
     }
   }
-}

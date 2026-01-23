@@ -38,6 +38,9 @@ class ErrorHandler @Inject()(
                                       message: String
                                     )(implicit rh: RequestHeader): Future[Html] =
 
+    Future.successful(view(pageTitle, heading, message))
+    
+  override def internalServerErrorTemplate(implicit rh: RequestHeader): Future[Html] = {
     val messages = messagesApi.preferred(rh)
     Future.successful(
       view(
@@ -46,4 +49,5 @@ class ErrorHandler @Inject()(
         messages("internalError.p1")
       )
     )
+  }
 }
