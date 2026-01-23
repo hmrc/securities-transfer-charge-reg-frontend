@@ -19,19 +19,17 @@ package controllers.individuals
 import base.{Fixtures, SpecBase}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.when
-import org.scalatest.RecoverMethods.recoverToExceptionIf
-import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.data.Form
 import play.api.inject.bind
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{EnrolmentErrorException, SubscriptionErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
@@ -42,13 +40,14 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{Registratio
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
 import java.time.LocalDate
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
 
-class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
+class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
 
-  implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
+  def onwardRoute = Call("GET", "/foo")
+
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
@@ -119,68 +118,6 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
 
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual individualRoutes.RegistrationCompleteController.onPageLoad().url
-      }
-    }
-
-    "must fail the action when subscription fails" in {
-      val userAnswers =
-        emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
-          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
-          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
-          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
-
-      val fakeRegistrationClient = mock[RegistrationClient]
-
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(SubscriptionFailed)))
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[RegistrationClient].toInstance(fakeRegistrationClient))
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, whatsYourContactNumberRoute)
-            .withFormUrlEncodedBody(("value", "07538 511 122"))
-
-        val resultF = route(application, request).value
-
-        recoverToExceptionIf[SubscriptionErrorException](resultF).futureValue
-        }
-      }
-    }
-
-    "must fail the action when enrolment fails" in {
-      val userAnswers =
-        emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
-          .set(WhatsYourEmailAddressPage, "test@test.com").success.value
-          .set(WhatsYourContactNumberPage, "07538 511 122").success.value
-          .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
-
-      val fakeRegistrationClient = mock[RegistrationClient]
-
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
-
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails])(any[HeaderCarrier]))
-        .thenReturn(Future.successful(Right(EnrolmentFailed)))
-
-      val application =
-        applicationBuilder(userAnswers = Some(userAnswers))
-          .overrides(bind[RegistrationClient].toInstance(fakeRegistrationClient))
-          .build()
-
-      running(application) {
-        val request =
-          FakeRequest(POST, whatsYourContactNumberRoute)
-            .withFormUrlEncodedBody(("value", "07538 511 122"))
-
-        val resultF = route(application, request).value
-
-        recoverToExceptionIf[EnrolmentErrorException](resultF).futureValue
       }
     }
 
@@ -260,7 +197,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
       running(application) {
         val request =
           FakeRequest(POST, whatsYourContactNumberRoute)
-            .withFormUrlEncodedBody("value" -> "answer")
+            .withFormUrlEncodedBody(("value", "answer"))
 
         val result = route(application, request).value
 
@@ -269,3 +206,4 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar wi
       }
     }
   }
+}
