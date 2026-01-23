@@ -155,6 +155,7 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
       details.contactDetails.postCode mustBe fakeAddress.address.postcode
       details.contactDetails.country mustBe fakeAddress.address.country.code
       details.contactDetails.email mustBe "test@test.com"
+      details.contactDetails.uprn mustBe Some("990091234505")
       details.contactDetails.telephoneNumber mustBe "07538 511 122"
 
     }

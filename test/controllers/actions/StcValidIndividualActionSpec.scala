@@ -24,7 +24,7 @@ import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ItmpName, ~}
-import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments, UnsupportedAffinityGroup}
+import uk.gov.hmrc.auth.core.{AuthConnector, Enrolments, UnsupportedAffinityGroup}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
