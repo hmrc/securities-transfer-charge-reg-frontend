@@ -24,7 +24,7 @@ import play.api.mvc.{AnyContentAsEmpty, Results}
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ItmpName, ~}
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, Enrolments}
+import uk.gov.hmrc.auth.core.{AffinityGroup, AuthConnector, ConfidenceLevel, Enrolments, UnsupportedAffinityGroup}
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -32,30 +32,21 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filte
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcValidIndividualRequest
 
 import scala.concurrent.{ExecutionContext, Future}
-
 class StcValidIndividualActionSpec extends SpecBase {
 
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.Implicits.global
 
-  type RetrievalType = Option[String] ~ Enrolments ~ Option[AffinityGroup] ~ ConfidenceLevel ~ Option[String] ~ Option[ItmpName] ~ Option[Credentials]
+  type RetrievalType = Option[String] ~ Enrolments ~ Option[String] ~ Option[ItmpName] ~ Option[Credentials]
 
   def buildRetrieval(maybeInternalId: Option[String] = Some(Fixtures.user),
                      enrolments: Enrolments = Fixtures.emptyEnrolments,
-                     maybeAffinityGroup: Option[AffinityGroup] = Some(Fixtures.affinityGroupIndividual),
-                     confidenceLevel: ConfidenceLevel = Fixtures.confidenceLevel250,
                      maybeNino: Option[String] = Fixtures.someValidNino,
                      maybeName: Option[ItmpName] = Fixtures.someValidName,
                      maybeCredentials:Option[Credentials]= Some(Credentials(Fixtures.credId,Fixtures.providerType))) =
     new ~(
       new ~(
         new ~(
-          new ~(
-            new ~(
-              new ~(maybeInternalId, enrolments),
-              maybeAffinityGroup
-            ),
-            confidenceLevel
-          ),
+          new ~(maybeInternalId, enrolments),
           maybeNino
         ),
         maybeName
@@ -63,12 +54,12 @@ class StcValidIndividualActionSpec extends SpecBase {
       maybeCredentials
     )
 
-  def testSetup(application: Application, retrievals: RetrievalType): StcValidIndividualAction = {
+  def testSetup(application: Application,
+                retrievals: RetrievalType)(
+                authConnector: AuthConnector = new FakeAuthConnectorSuccess(retrievals)): StcValidIndividualAction = {
 
     val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
-    val authConnector = new FakeAuthConnectorSuccess(retrievals)
-
+    
     val bodyParsers = application.injector.instanceOf[play.api.mvc.BodyParsers.Default]
     val filters = application.injector.instanceOf[RetrievalFilter]
 
@@ -81,7 +72,7 @@ class StcValidIndividualActionSpec extends SpecBase {
 
       val application = applicationBuilder().build()
       running(application) {
-        val action = testSetup(application, buildRetrieval())
+        val action = testSetup(application, buildRetrieval())()
 
         var captured: Option[StcValidIndividualRequest[AnyContentAsEmpty.type]] = None
 
@@ -107,7 +98,7 @@ class StcValidIndividualActionSpec extends SpecBase {
 
       running(application) {
 
-        val action = testSetup(application, buildRetrieval(maybeInternalId = None))
+        val action = testSetup(application, buildRetrieval(maybeInternalId = None))()
 
         val thrown = recoverToExceptionIf[UnauthorizedException] {
           action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
@@ -124,7 +115,7 @@ class StcValidIndividualActionSpec extends SpecBase {
       val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
       running(application) {
-        val action = testSetup(application, buildRetrieval(enrolments = Fixtures.alreadyEnrolled))
+        val action = testSetup(application, buildRetrieval(enrolments = Fixtures.alreadyEnrolled))()
         val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
 
         status(result) mustBe SEE_OTHER
@@ -132,59 +123,19 @@ class StcValidIndividualActionSpec extends SpecBase {
       }
     }
 
-    "must fail with an UnauthorisedException if no affinity group is found" in {
-      val application = applicationBuilder().build()
-
-      running(application) {
-        val action = testSetup(application, buildRetrieval(maybeAffinityGroup = None))
-
-        val thrown = recoverToExceptionIf[UnauthorizedException] {
-          action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
-        }
-
-        thrown.map { ex =>
-          ex.getMessage must include("Retrieval Error:")
-        }
-      }
-
-    }
-
     "must redirect to registration start if no an affinity group other than Individual is found" in {
       val application = applicationBuilder().build()
       val appConfig = application.injector.instanceOf[FrontendAppConfig]
 
       running(application) {
-        val action = testSetup(application, buildRetrieval(maybeAffinityGroup = Some(AffinityGroup.Agent)))
+        val authConnector = FakeAuthConnectorFailing(new UnsupportedAffinityGroup("Not an Individual"))
+        
+        val action = testSetup(application, buildRetrieval())(authConnector)
         val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include(appConfig.registerUrl)
-      }
-    }
-
-    "must redirect to IV Uplift if a confidence level below 250 is found" in {
-      val application = applicationBuilder().build()
-      val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
-      running(application) {
-        val action = testSetup(application, buildRetrieval(confidenceLevel = ConfidenceLevel.L50))
-        val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include(appConfig.ivUpliftUrl)
-      }
-    }
-
-    "must redirect to IV Uplift if no NINO is found" in {
-      val application = applicationBuilder().build()
-      val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
-      running(application) {
-        val action = testSetup(application, buildRetrieval(maybeNino = None))
-        val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
-
-        status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include(appConfig.ivUpliftUrl)
+        val actual = redirectLocation(result).get
+        appConfig.registerUrl must include(actual)
       }
     }
 
@@ -193,7 +144,7 @@ class StcValidIndividualActionSpec extends SpecBase {
 
       running(application) {
 
-        val action = testSetup(application, buildRetrieval(maybeName = None))
+        val action = testSetup(application, buildRetrieval(maybeName = None))()
 
         val thrown = recoverToExceptionIf[UnauthorizedException] {
           action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
@@ -210,7 +161,7 @@ class StcValidIndividualActionSpec extends SpecBase {
 
       running(application) {
         val invalidName = ItmpName(Some("First"), None, None)
-        val action = testSetup(application, buildRetrieval(maybeName = Some(invalidName)))
+        val action = testSetup(application, buildRetrieval(maybeName = Some(invalidName)))()
 
         val thrown = recoverToExceptionIf[UnauthorizedException] {
           action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))
@@ -227,7 +178,7 @@ class StcValidIndividualActionSpec extends SpecBase {
 
       running(application) {
 
-        val action = testSetup(application, buildRetrieval(maybeCredentials = None))
+        val action = testSetup(application, buildRetrieval(maybeCredentials = None))()
 
         val thrown = recoverToExceptionIf[UnauthorizedException] {
           action.invokeBlock(FakeRequest(), _ => Future.successful(Results.Ok))

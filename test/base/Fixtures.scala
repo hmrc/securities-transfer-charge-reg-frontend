@@ -127,7 +127,7 @@ object Fixtures {
     override def authorise[A](predicate: Predicate, retrieval: Retrieval[A])(implicit hc: HeaderCarrier, ec: ExecutionContext): Future[A] =
       Future.failed(ex)
   }
-  
+
   // Fake StcAuthAction for tests - always invokes the provided block with the fixed StcAuthRequest.
   // Build an adapted StcAuthRequest[B] from the incoming request to avoid unsafe casting.
   class FakeStcAuthAction[A](fixedRequest: StcAuthRequest[A]) extends StcAuthAction {
