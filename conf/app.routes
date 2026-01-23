@@ -105,3 +105,5 @@ GET        /org/registration/partnership/return                             uk.g
 GET        /org/registration/minor-entity/trust                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.trustJourney
 GET        /org/registration/minor-entity/unincorporated-association    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.unincorporatedAssociationJourney
 GET        /org/registration/minor-entity/return                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.returnFromJourney(journeyId: String)
+
+GET        /internal-error                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.InternalErrorController.onPageLoad()

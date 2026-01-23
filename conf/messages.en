@@ -174,3 +174,7 @@ contactNumber.error.required = Enter a phone number
 contactNumber.error.invalid = Enter a telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 contactNumber.error.length = Your contact number must be 25 characters or less
 
+
+internalError.title = There is a problem with the service
+internalError.heading = There is a problem with the service
+internalError.p1 = Try again later.

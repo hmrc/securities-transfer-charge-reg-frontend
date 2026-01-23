@@ -76,8 +76,7 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
           }
       ).recover {
         case _: RegistrationDataNotFoundException => Redirect(rootRoutes.JourneyRecoveryController.onPageLoad())
-        // ToDo: THIS IS WRONG, we need another page.
-        case _ => Redirect(individualRoutes.UpdateDobKickOutController.onPageLoad())
+        case _ => Redirect(rootRoutes.InternalErrorController.onPageLoad())
       }
   }
 
