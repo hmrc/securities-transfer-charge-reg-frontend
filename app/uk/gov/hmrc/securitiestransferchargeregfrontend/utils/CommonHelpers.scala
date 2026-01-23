@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.utils
 
+import play.api.Logger
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage, UkOrNotPage}
 
 import java.time.LocalDate
+import scala.concurrent.Future
 
 object CommonHelpers {
 
@@ -34,10 +36,15 @@ object CommonHelpers {
    val getUkOrNot: UserAnswers => Option[Boolean] = _.get[Boolean](UkOrNotPage)
 
    val extractLines: AlfAddress => Option[(String, Option[String], Option[String])] = { address =>
-    val lines = address.lines
-    lines.headOption.map { h =>
+     val lines = address.lines
+     lines.headOption.map { h =>
       (h, lines.lift(1), lines.lift(2))
-    }
-  }
+     }
+   }
+
+   def logInfoAndFail[A, E <: Throwable](logger: Logger): E => Future[A] = e => {
+     logger.info(e.getMessage)
+     Future.failed(e)
+   }
 
 }
