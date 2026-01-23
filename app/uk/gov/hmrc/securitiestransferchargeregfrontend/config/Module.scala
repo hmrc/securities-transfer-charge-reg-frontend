@@ -18,10 +18,12 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.config
 
 import com.google.inject.AbstractModule
 import com.google.inject.name.Names
+import play.api.http.HttpErrorHandler
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.{GrsClient, GrsClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{RegistrationClient, RegistrationClientImpl}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.handlers.ErrorHandler
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.*
 
@@ -66,6 +68,7 @@ class Module extends AbstractModule {
       .to(classOf[OrgNavigator])
     
     bind(classOf[GrsClient]).to(classOf[GrsClientImpl]).asEagerSingleton()
+    bind(classOf[HttpErrorHandler]).to(classOf[ErrorHandler])
   }
   
 }
