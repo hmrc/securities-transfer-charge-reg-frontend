@@ -128,6 +128,9 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val alfOrgContinueUrl: String =
     s"$host/register-securities-transfer-charge/org/address/return"
 
+  val individualsAlfConfigFileLocation: String = configuration.get[String]("alf.individuals-config-file")
+  val organisationsAlfConfigFileLocation: String = configuration.get[String]("alf.organisations-config-file")
+  
   /*
    * securities-transfer-charge-registration microservice
    */

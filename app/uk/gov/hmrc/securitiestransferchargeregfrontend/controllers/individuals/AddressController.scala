@@ -36,10 +36,10 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
                                   (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
-
+  
   def onPageLoad: Action[AnyContent] = validIndividual.async {
     implicit request =>
-      super.pageLoad(config.alfIndividualsContinueUrl)
+      super.pageLoad(config.individualsAlfConfigFileLocation, config.alfIndividualsContinueUrl)
   }
 
   def onReturn(addressId: String): Action[AnyContent] = (validIndividual andThen getData).async {

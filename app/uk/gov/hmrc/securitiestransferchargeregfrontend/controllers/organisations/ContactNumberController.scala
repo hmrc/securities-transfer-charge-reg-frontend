@@ -68,10 +68,11 @@ class ContactNumberController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         value =>
+          val subscribeAndEnrol = subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId, innerRequest.credId)
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-            _ <- subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId)(updatedAnswers)(innerRequest.credId)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
+            _               <- sessionRepository.set(updatedAnswers)
+            _               <- subscribeAndEnrol(updatedAnswers)
           } yield Redirect(RegistrationCompleteController.onPageLoad())
       ).recover {
         case _ => Redirect(JourneyRecoveryController.onPageLoad())

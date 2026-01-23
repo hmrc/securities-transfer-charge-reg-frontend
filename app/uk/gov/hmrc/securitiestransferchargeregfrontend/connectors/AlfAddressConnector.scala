@@ -33,7 +33,7 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 trait AlfAddressConnector {
-  def initAlfJourneyRequest(returnUrl: String)(implicit hc: HeaderCarrier): Future[Result]
+  def initAlfJourneyRequest(configFileLocation: String, returnUrl: String)(implicit hc: HeaderCarrier): Future[Result]
   def alfRetrieveAddress(key: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress]
 }
 
@@ -45,18 +45,18 @@ class AlfAddressConnectorImpl @Inject() ( http: HttpClientV2,
   private type ResponseHandler = PartialFunction[HttpResponse, Result]
   private[connectors] final class AlfException(msg: String) extends RuntimeException(msg)
 
-  def initAlfJourneyRequest(returnUrl: String)(implicit hc: HeaderCarrier): Future[Result] = {
-    callAlfInit(returnUrl).map(journeySuccess.orElse(journeyFailure)(_))
+  def initAlfJourneyRequest(configFileLocation: String, returnUrl: String)(implicit hc: HeaderCarrier): Future[Result] = {
+    callAlfInit(configFileLocation, returnUrl).map(journeySuccess.orElse(journeyFailure)(_))
   }
 
   def alfRetrieveAddress(key: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress] = {
     callAlfRetrieve(key).map(retrievalSuccess)
   }
 
-  private def callAlfInit(returnUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
+  private def callAlfInit(configFileLocation: String, returnUrl: String)(implicit hc: HeaderCarrier): Future[HttpResponse] = {
     http
       .post(url"${config.alfInitUrl}")
-      .withBody(payload(returnUrl))
+      .withBody(payload(configFileLocation, returnUrl))
       .setHeader("Content-Type" -> "application/json")
       .execute[HttpResponse]
   }
@@ -92,8 +92,8 @@ class AlfAddressConnectorImpl @Inject() ( http: HttpClientV2,
   }
 
 
-  private def payload(returnUrl: String): JsValue = {
-    val raw = resourceLoader.loadString("alf.json")
+  private def payload(configFileLocation: String, returnUrl: String): JsValue = {
+    val raw = resourceLoader.loadString(configFileLocation)
     val parsed = Json.parse(raw).as[JsObject]
     
     val overrideJson = Json.obj(

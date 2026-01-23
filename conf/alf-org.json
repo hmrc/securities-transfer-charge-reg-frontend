@@ -37,7 +37,7 @@
         "town": true,
         "postcode": true
       },
-      "showOrganisationName": false
+      "showOrganisationName": true
     },
     "timeoutConfig": {
       "timeoutAmount": 900,
@@ -53,24 +53,24 @@
         "phaseBannerHtml": ""
       },
       "countryPickerLabels": {
-        "title": "Your address",
-        "heading": "Your address",
-        "countryLabel": "Which country do you live in?",
+        "title": "Your company address",
+        "heading": "Your company address",
+        "countryLabel": "Which country is your company registered in?",
         "submitLabel": "Continue"
       },
       "lookupPageLabels": {
-        "title": "Find your address",
-        "heading": "Find your address",
+        "title": "Find your company\u2019s address",
+        "heading": "Find your company\u2019s address",
         "filterLabel": "Property name or number (optional)",
-        "postcodeLabel": "Postcode",
+        "postcodeLabel": "What is your company\u2019s registered postcode?",
         "submitLabel": "Continue",
         "noResultsFoundMessage": "Sorry, we couldn't find anything for that postcode.",
         "resultLimitExceededMessage": "There were too many results. Please add additional details to limit the number of results.",
         "manualAddressLinkText": "Enter the address manually"
       },
       "selectPageLabels": {
-        "title": "Select your address",
-        "heading": "Select your address",
+        "title": "Select your company\u2019s address",
+        "heading": "Select your company\u2019s address",
         "headingWithPostcode": "Addresses found for postcode {postcode}",
         "proposalListLabel": "Please select one of the following addresses",
         "submitLabel": "Continue",
@@ -78,8 +78,8 @@
         "editAddressLinkText": "Enter address manually"
       },
       "confirmPageLabels": {
-        "title": "Confirm your address",
-        "heading": "Confirm your address",
+        "title": "Confirm your company\u2019s address",
+        "heading": "Confirm your company\u2019s address",
         "infoSubheading": "Your selected address",
         "submitLabel": "Confirm Address",
         "changeLinkText": "Edit address"
@@ -89,8 +89,8 @@
         "heading": "Enter your address",
         "organisationLabel": "Organisation (optional)",
         "line1Label": "Address line 1",
-        "line2Label": "Address line 2",
-        "line3Label": "County",
+        "line2Label": "Address line 2 (optional)",
+        "line3Label": "Address line 3 (optional)",
         "townLabel": "Town or city",
         "postcodeLabel": "Postcode",
         "countryLabel": "Country",
