@@ -57,10 +57,11 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
-    implicit request =>
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (validIndividual andThen getData andThen requireData).async { implicit request =>
+
       val innerRequest = request.request
-      val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
+      val subscribe    = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
       form.bindFromRequest().fold(
         formWithErrors =>
@@ -68,16 +69,14 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
 
         value =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
-            _               <- sessionRepository.set(updatedAnswers)
-            _               <- subscribe(updatedAnswers, innerRequest)
-          } yield {
-            Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
-          }
-      ).recover {
-        case _: RegistrationDataNotFoundException => Redirect(rootRoutes.JourneyRecoveryController.onPageLoad())
-        case _ => Redirect(rootRoutes.InternalErrorController.onPageLoad())
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
+            _              <- sessionRepository.set(updatedAnswers)
+            _              <- subscribe(updatedAnswers, innerRequest)
+          } yield Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
+      ).recoverWith {
+        case _: RegistrationDataNotFoundException =>
+          Future.successful(Redirect(rootRoutes.JourneyRecoveryController.onPageLoad()))
       }
-  }
+    }
 
 }
