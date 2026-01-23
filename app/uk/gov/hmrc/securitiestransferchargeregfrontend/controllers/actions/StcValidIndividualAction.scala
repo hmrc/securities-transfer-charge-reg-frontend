@@ -17,11 +17,12 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
+import play.api.Logging
 import play.api.mvc.*
 import play.api.mvc.Results.Redirect
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -38,32 +39,33 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
                                               config: FrontendAppConfig,
                                               retrievalFilter: RetrievalFilter,
                                               val parser: BodyParsers.Default )
-                                            ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions:
+                                            ( implicit val executionContext: ExecutionContext) extends StcValidIndividualAction with AuthorisedFunctions with Logging:
 
-  private[actions] val retrievals = internalId and allEnrolments and affinityGroup and confidenceLevel and nino and itmpName and credentials
+  private[actions] val retrievals = internalId and allEnrolments and nino and itmpName and credentials
 
   override def invokeBlock[A](request: Request[A], block: StcValidIndividualRequest[A] => Future[Result]): Future[Result] =
     implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
 
-    authorised().retrieve(retrievals) {
-      case maybeInternalId ~ enrolments ~ maybeAffinityGroup ~ confidenceLevel ~ maybeNino ~ maybeName ~ maybeCredentials=>
+    authorised(AffinityGroup.Individual and ConfidenceLevel.L250).retrieve(retrievals) {
+      case maybeInternalId ~ enrolments ~ maybeNino ~ maybeName ~ maybeCredentials=>
 
         val maybeRequest = for {
           internalId    <- internalIdPresentFilter(maybeInternalId)
           _             <- retrievalFilter.enrolledFilter(enrolments)
-          _             <- retrievalFilter.isIndividualFilter(maybeAffinityGroup)
-          _             <- retrievalFilter.confidenceLevelFilter(confidenceLevel)
           nino          <- retrievalFilter.ninoPresentFilter(maybeNino)
           ns            <- retrievalFilter.namePresentFilter(maybeName)
           providerId <- retrievalFilter.providerIdPresentFilter(maybeCredentials)
           (first, last)  = ns
-        } yield StcValidIndividualRequest(request, internalId, nino, first, last,providerId)
+        } yield StcValidIndividualRequest(request, internalId, nino, first, last, providerId)
 
         maybeRequest.fold(identity, block)
 
       } recover {
       case _: NoActiveSession =>
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
-      case _: AuthorisationException =>
+      case _: UnsupportedAffinityGroup =>
+        Redirect(routes.RegistrationController.routingLogic())
+      case ae: AuthorisationException =>
+        logger.info(s"AuthorisationException caught in StcValidIndividualAction: ${ae.getMessage}")
         Redirect(routes.UnauthorisedController.onPageLoad())
     }

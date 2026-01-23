@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filt
 
 import play.api.mvc.Result
 import uk.gov.hmrc.auth.core.retrieve.{Credentials, ItmpName}
-import uk.gov.hmrc.auth.core.{AffinityGroup, ConfidenceLevel, CredentialRole, Enrolments, Assistant, User}
+import uk.gov.hmrc.auth.core.*
 import uk.gov.hmrc.http.UnauthorizedException
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.Redirects
@@ -49,12 +49,7 @@ class RetrievalFilter @Inject() (appConfig: FrontendAppConfig, redirects: Redire
     case Some(_)                                        => Left(redirectToRegisterF)
     case None                                           => Left(retrievalError("AffinityGroup"))
 
-  val isIndividualFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] = affinityCheckFilter(AffinityGroup.Individual)
   val isOrgFilter: RetrievalFilterFunction[Option[AffinityGroup], Unit] = affinityCheckFilter(AffinityGroup.Organisation)
-
-  val confidenceLevelFilter: RetrievalFilterFunction[ConfidenceLevel, Unit] = confidenceLevel =>
-    if (confidenceLevel >= ConfidenceLevel.L250) Right(())
-    else Left(redirectToIVUpliftF)
 
   val ninoPresentFilter: RetrievalFilterFunction[Option[String], String] =
     case Some(nino) => Right(nino)
