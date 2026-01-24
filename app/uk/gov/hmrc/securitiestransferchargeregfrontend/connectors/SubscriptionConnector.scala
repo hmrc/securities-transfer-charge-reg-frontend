@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.Enro
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers.*
 
@@ -46,26 +46,35 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   
   private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
   private def noSafeId[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing safeId"))
+  private def noDetails[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
+  private def noUtr[A] : Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
-      subscriptionId  <- regData.safeId.fold(noSafeId)(subscribe(_, userAnswers))
+      safeId          <- getSafeId(regData)
+      subscriptionId  <- subscribe(safeId, userAnswers)
       _               <- enrol(subscriptionId, data.nino)
-    } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt,data,userAnswers)
+    } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
   }
   
   override def subscribeAndEnrolOrganisation(userId: String, credId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
-    lazy val noUtr = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
-      subscriptionId  <- regData.safeId.fold(noSafeId)(subscribeOrganisation(_, userAnswers))
-      _               <- regData.ctUtr.fold(noUtr)(enrolOrganisation(subscriptionId, _))
+      safeId          <- getSafeId(regData)
+      utr             <- getUtr(regData) 
+      subscriptionId  <- subscribeOrganisation(safeId, userAnswers)
+      _               <- enrolOrganisation(subscriptionId, utr)
     } yield registrationAuditService.auditOrganisationRegistrationComplete(regData.startedAt, userAnswers, credId)
   }
   
+  private val getSafeId: RegistrationData => Future[String] = data =>
+    data.safeId.fold(noSafeId)(Future.successful)
+
+  private val getUtr: RegistrationData => Future[String] = data =>
+    data.ctUtr.fold(noUtr)(Future.successful)
+  
   private def subscribe(safeId: String, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] = {
-    val noDetails = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
     buildSubscriptionDetails(safeId)(userAnswers)
       .fold(noDetails)(registrationClient
         .subscribe(_)
@@ -75,8 +84,6 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   private def subscribeOrganisation(safeId: String,
                                     userAnswers: UserAnswers)
                                    (implicit hc: HeaderCarrier): Future[String] = {
-    
-    lazy val noDetails = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
     buildOrganisationSubscriptionDetails(safeId)(userAnswers)
       .fold(noDetails)(registrationClient
         .subscribe(_)
