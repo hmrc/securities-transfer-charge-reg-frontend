@@ -21,8 +21,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.IndividualsNavigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, Page}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 
 class IndividualsNavigatorSpec extends SpecBase {
 
@@ -42,12 +42,33 @@ class IndividualsNavigatorSpec extends SpecBase {
         navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("id")) mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
       }
 
+      "must go from the CheckYourDetailsPage to DateOfBirthRegController when user answers Yes" in {
+        val answers = emptyUserAnswers
+          .set(CheckYourDetailsPage, true).success.value
+        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
+      }
+      
       "must go from the CheckYourDetailsPage to UpdateDetailsKickOutPage when user answers No" in {
         val answers = emptyUserAnswers
           .set(CheckYourDetailsPage, false).success.value
         navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe individualRoutes.UpdateDetailsKickOutController.onPageLoad()
       }
 
+      "must go from the CheckYourDetailsPage to JourneyRecovery when user answers not defined" in {
+        val answers = emptyUserAnswers
+        navigator.nextPage(CheckYourDetailsPage, NormalMode, answers) mustBe routes.JourneyRecoveryController.onPageLoad()
+      }
+
+      "must go from the DateOfBirth to Address" in {
+        val answers = emptyUserAnswers
+        navigator.nextPage(DateOfBirthRegPage, NormalMode, answers) mustBe individualRoutes.AddressController.onPageLoad()
+      }
+
+      "must go from the Address to WhatsYourEmailAddressController" in {
+        val answers = emptyUserAnswers
+        navigator.nextPage(AddressPage(), NormalMode, answers) mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+      }
+      
       "must go from the WhatsYourEmailAddressPage to WhatsYourContactNumberPage" in {
         navigator.nextPage(
           WhatsYourEmailAddressPage,
