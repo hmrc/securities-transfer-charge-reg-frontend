@@ -19,6 +19,7 @@ package utils
 import org.scalatest.freespec.AnyFreeSpec
 import org.scalatest.matchers.must.Matchers
 import play.api.i18n.Lang
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dateTimeFormat
 
 import java.time.LocalDate
@@ -44,5 +45,12 @@ class DateTimeFormatsSpec extends AnyFreeSpec with Matchers {
       val result = LocalDate.of(2023, 1, 1).format(formatter)
       result mustEqual "1 January 2023"
     }
+
+    "format LocalDate as dd-MM-yyyy" in {
+      val dob = LocalDate.of(1990, 12, 1)
+      val fmt = DateTimeFormats.dobFormatter
+      dob.format(fmt) mustBe "01-12-1990"
+    }
   }
+
 }

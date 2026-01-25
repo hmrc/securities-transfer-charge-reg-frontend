@@ -29,6 +29,7 @@ case class ContactDetails(addressLine1: String,
                           addressLine3: Option[String],
                           postCode: String,
                           country: String,
+                          uprn:Option[String]=None,
                           telephoneNumber: String,
                           mobileNumber: Option[String],
                           email: String)
@@ -49,8 +50,7 @@ case class IndividualDetailsPayload(
                                      lastName: String,
                                      dateOfBirth: String,
                                      nino: String,
-                                     contactDetails: ContactDetails
-
+                                     contactDetails: ContactDetails,
                                    ) extends RegistrationDetailsPayload
 
 object RegistrationDetailsPayload {
@@ -62,6 +62,7 @@ object RegistrationDetailsPayload {
       alf <- getAddress(userAnswers)
       dob <- getDateOfBirth(userAnswers)
       address = alf.address
+      uprn = alf.id.map(_.filter(_.isDigit))
       (l1, l2, l3) <- extractLines(address)
       email <- getEmailAddress(userAnswers)
       tel <- getTelephoneNumber(userAnswers)
@@ -74,9 +75,10 @@ object RegistrationDetailsPayload {
         addressLine3 = l3,
         postCode = address.postcode,
         country = address.country.code,
+        uprn=uprn,
         telephoneNumber = tel,
         mobileNumber = None,
-        email = email
+        email = email,
       ))
 
   def fromOrganisation(
@@ -87,6 +89,7 @@ object RegistrationDetailsPayload {
       businessType <- userAnswers.get(SelectBusinessTypePage).map(_.toString)
       alf <- getAddress(userAnswers)
       address = alf.address
+      uprn = alf.id.map(_.filter(_.isDigit))
       (l1, l2, l3) <- extractLines(address)
       email <- getContactEmailAddress(userAnswers)
       tel <- getContactNumber(userAnswers)
@@ -100,6 +103,7 @@ object RegistrationDetailsPayload {
         addressLine3 = l3,
         postCode = address.postcode,
         country = address.country.code,
+        uprn = uprn,
         telephoneNumber = tel,
         mobileNumber = None,
         email = email
