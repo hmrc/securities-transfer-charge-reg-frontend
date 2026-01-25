@@ -84,9 +84,9 @@ trait SpecBase
   val affinityGroup: AffinityGroup.Individual.type = AffinityGroup.Individual
   val confidenceLevel: ConfidenceLevel = ConfidenceLevel.L250
 
-  val fakeAddress = AlfConfirmedAddress(
+  val fakeAddress: AlfConfirmedAddress = AlfConfirmedAddress(
     auditRef = "ref",
-    id = Some("id"),
+    id = Some("GB990091234505"),
     address = AlfAddress(
       lines = List(
         "1 Test House",

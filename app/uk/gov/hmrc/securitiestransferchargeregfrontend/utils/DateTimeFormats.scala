@@ -24,6 +24,8 @@ import java.util.Locale
 object DateTimeFormats {
 
   private val dateTimeFormatter = DateTimeFormatter.ofPattern("d MMMM yyyy")
+  
+  val dobFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy")
 
   private val localisedDateTimeFormatters = Map(
     "en" -> dateTimeFormatter,
