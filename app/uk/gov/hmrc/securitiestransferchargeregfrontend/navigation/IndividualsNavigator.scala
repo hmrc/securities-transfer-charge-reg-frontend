@@ -40,8 +40,12 @@ class IndividualsNavigator @Inject() extends Navigator {
         }
 
     case individualsPages.DateOfBirthRegPage =>
-      _ => individualRoutes.AddressController.onPageLoad()
-
+      userAnswers =>
+        userAnswers.get(individualsPages.CheckYourDetailsPage) match {
+          case Some(_)  => individualRoutes.AddressController.onPageLoad()
+          case None     => individualRoutes.UpdateDobKickOutController.onPageLoad()
+        }
+      
     case _: AddressPage[_] =>
       _ => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
 

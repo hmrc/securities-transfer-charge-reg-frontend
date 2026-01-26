@@ -70,14 +70,16 @@ class DateOfBirthRegController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         dateOfBirth =>
-          val result = for {
-            updated  <- updateUserAnswers(dateOfBirth)
+          val updatedAnswers: Future[UserAnswers] = for {
             _        <- registerUser(dateOfBirth.format(dobFormatter))
-          } yield {
-              Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
+            updated  <- updateUserAnswers(dateOfBirth)
+          } yield updated
+
+          updatedAnswers.recover {
+            case _ => request.userAnswers
           }
-          result.recoverWith {
-            case _ => Future.successful(Redirect(routes.UpdateDobKickOutController.onPageLoad()))
+          .map { answers =>
+            Redirect(navigator.nextPage(DateOfBirthRegPage, mode, answers))
           }
       )
   }
