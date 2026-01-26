@@ -22,15 +22,16 @@ import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditService
+import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.{OrganisationDetailsPayload, RegistrationAuditService}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient, SubscriptionResult, SubscriptionServerError}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient, SubscriptionResult, SubscriptionServerError}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationDataNotFoundException, SubscriptionConnector, SubscriptionConnectorImpl, SubscriptionErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 
 import java.time.Instant
@@ -49,7 +50,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
   private val testTelephoneNumber = "01234567890"
   private val testAuditRef = "test-audit-ref"
   private val testNino = "AA123456A"
-
+  private val testCredId = "test-cred-id"
+  
   private val testAddress: AlfAddress = AlfAddress(
     lines = List("Line 1", "Line 2"),
     postcode = "TE1 1ST",
@@ -70,13 +72,24 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
     startedAt = Some(Instant.now)
   )
 
-  private def testUserAnswers(email: Option[String] = Some(testEmail),
-                              tel: Option[String] = Some(testTelephoneNumber),
-                              address: Option[AlfConfirmedAddress] = Some(testAlfConfirmedAddress)): UserAnswers = {
+  private def testUserAnswersForIndividuals(email: Option[String] = Some(testEmail),
+                                            tel: Option[String] = Some(testTelephoneNumber),
+                                            address: Option[AlfConfirmedAddress] = Some(testAlfConfirmedAddress)): UserAnswers = {
     val answers = UserAnswers.empty(testId)
     for {
       a1 <- email.fold(Success(answers))(answers.set(WhatsYourEmailAddressPage, _))
       a2 <- tel.fold(Success(a1))(a1.set(WhatsYourContactNumberPage, _))
+      a3 <- address.fold(Success(a2))(a2.set(AddressPage(), _))
+    } yield a3
+  }.get
+
+  private def testUserAnswersForOrganisation( email: Option[String] = Some(testEmail),
+                                              tel: Option[String] = Some(testTelephoneNumber),
+                                              address: Option[AlfConfirmedAddress] = Some(testAlfConfirmedAddress)): UserAnswers = {
+    val answers = UserAnswers.empty(testId)
+    for {
+      a1 <- email.fold(Success(answers))(answers.set(ContactEmailAddressPage, _))
+      a2 <- tel.fold(Success(a1))(a1.set(ContactNumberPage, _))
       a3 <- address.fold(Success(a2))(a2.set(AddressPage(), _))
     } yield a3
   }.get
@@ -90,8 +103,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
   }
    
 
-  def testSetup(regData: Option[RegistrationData] = Some(testRegData),
-                subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId))): SubscriptionConnector = {
+  def testSetupForIndividuals(regData: Option[RegistrationData] = Some(testRegData),
+                              subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId))): SubscriptionConnector = {
     val regClient = mock[RegistrationClient]
     val regRepo = mock[RegistrationDataRepository]
     val regAudit = mock[RegistrationAuditService]
@@ -104,13 +117,27 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
     new SubscriptionConnectorImpl(regClient, regRepo, regAudit)
   }
 
+  def testSetupForOrganisations(regData: Option[RegistrationData] = Some(testRegData),
+                              subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId))): SubscriptionConnector = {
+    val regClient = mock[RegistrationClient]
+    val regRepo = mock[RegistrationDataRepository]
+    val regAudit = mock[RegistrationAuditService]
+
+    when(regRepo.getRegistrationData(testId)).thenReturn(regData.fold(Future.failed(new RegistrationDataNotFoundException("No registration data found")))(Future.successful))
+    when(regRepo.setSubscriptionId(testId)(testSubscriptionId)).thenReturn(Future.successful(()))
+    when(regClient.subscribe(any[OrganisationSubscriptionDetails])(any[HeaderCarrier])).thenReturn(Future.successful(subscriptionResult))
+    when(regClient.enrolOrganisation(any[OrganisationEnrolmentDetails])(any[HeaderCarrier])).thenReturn(Future.successful(Right(EnrolmentSuccessful)))
+    doNothing().when(regAudit).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String])(any[HeaderCarrier])
+    new SubscriptionConnectorImpl(regClient, regRepo, regAudit)
+  }
+
   "The Subscription Connector" - {
 
     "when subscribing and enrolling individuals" - {
 
       "fail if getting the registration data fails" in {
-        val connector = testSetup(regData = None)
-        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswers(), testValidIndividualData)
+        val connector = testSetupForIndividuals(regData = None)
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
 
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
@@ -119,8 +146,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
 
       "fail if the registration data has no safe id" in {
         val regData = testRegData.copy(safeId = None)
-        val connector = testSetup(regData = Some(regData))
-        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswers(), testValidIndividualData)
+        val connector = testSetupForIndividuals(regData = Some(regData))
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
         
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
@@ -128,8 +155,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       }
 
       "fail if the user answers has no address" in {
-        val uaNoAddress = testUserAnswers(address = None)
-        val connector = testSetup()
+        val uaNoAddress = testUserAnswersForIndividuals(address = None)
+        val connector = testSetupForIndividuals()
         val result = connector.subscribeAndEnrolIndividual(testId)(uaNoAddress, testValidIndividualData)
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
@@ -137,8 +164,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       }
 
       "fail if the user answers has no email address" in {
-        val uaNoEmail = testUserAnswers(email = None)
-        val connector = testSetup()
+        val uaNoEmail = testUserAnswersForIndividuals(email = None)
+        val connector = testSetupForIndividuals()
         val result = connector.subscribeAndEnrolIndividual(testId)(uaNoEmail, testValidIndividualData)
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
@@ -146,8 +173,8 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       }
 
       "fail if the user answers has no telephone number" in {
-        val uaNoTel = testUserAnswers(tel = None)
-        val connector = testSetup()
+        val uaNoTel = testUserAnswersForIndividuals(tel = None)
+        val connector = testSetupForIndividuals()
         val result = connector.subscribeAndEnrolIndividual(testId)(uaNoTel, testValidIndividualData)
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
@@ -155,27 +182,101 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       }
 
       "fail if the registration client returns SubscriptionFailed" in {
-        val connector = testSetup(subscriptionResult = Right(SubscriptionFailed))
-        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswers(), testValidIndividualData)
+        val connector = testSetupForIndividuals(subscriptionResult = Right(SubscriptionFailed))
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
         whenReady(result.failed) { ex =>
           ex mustBe a[SubscriptionErrorException]
         }
       }
 
       "fail if the registration client returns a RegistrationServiceError" in {
-        val connector = testSetup(subscriptionResult = Left(SubscriptionServerError("Error")))
-        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswers(), testValidIndividualData)
+        val connector = testSetupForIndividuals(subscriptionResult = Left(SubscriptionServerError("Error")))
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
         whenReady(result.failed) { ex =>
           ex mustBe a[SubscriptionErrorException]
         }
       }
 
       "succeed if all data is present and the registration client returns SubscriptionSuccessful" in {
-        val connector = testSetup()
-        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswers(), testValidIndividualData)
+        val connector = testSetupForIndividuals()
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
 
         whenReady(result) { result =>
           result mustBe ()
+        }
+      }
+
+    }
+    "when subscribing and enrolling organisations" - {
+
+      "fail if getting the registration data fails" in {
+        val connector = testSetupForOrganisations(regData = None)
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+
+        whenReady(result.failed) { ex =>
+          ex mustBe a[RegistrationDataNotFoundException]
+        }
+      }
+
+      "fail if the registration data has no safe id" in {
+        val regData = testRegData.copy(safeId = None)
+        val connector = testSetupForOrganisations(regData = Some(regData))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+
+        whenReady(result.failed) { ex =>
+          ex mustBe a[RegistrationDataNotFoundException]
+        }
+      }
+
+      "fail if the user answers has no address" in {
+        val uaNoAddress = testUserAnswersForOrganisation(address = None)
+        val connector = testSetupForOrganisations()
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)((uaNoAddress))
+        whenReady(result.failed) { ex =>
+          ex mustBe a[RegistrationDataNotFoundException]
+        }
+      }
+
+      "fail if the user answers has no email address" in {
+        val uaNoEmail = testUserAnswersForOrganisation(email = None)
+        val connector = testSetupForOrganisations()
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)((uaNoEmail))
+        whenReady(result.failed) { ex =>
+          ex mustBe a[RegistrationDataNotFoundException]
+        }
+      }
+
+      "fail if the user answers has no telephone number" in {
+        val uaNoTel = testUserAnswersForOrganisation(tel = None)
+        val connector = testSetupForOrganisations()
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(uaNoTel)
+        whenReady(result.failed) { ex =>
+          ex mustBe a[RegistrationDataNotFoundException]
+        }
+      }
+
+      "fail if the registration client returns SubscriptionFailed" in {
+        val connector = testSetupForOrganisations(subscriptionResult = Right(SubscriptionFailed))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+        whenReady(result.failed) { ex =>
+          ex mustBe a[SubscriptionErrorException]
+        }
+      }
+
+      "fail if the registration client returns a RegistrationServiceError" in {
+        val connector = testSetupForOrganisations(subscriptionResult = Left(SubscriptionServerError("Error")))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+        whenReady(result.failed) { ex =>
+          ex mustBe a[SubscriptionErrorException]
+        }
+      }
+
+      "succeed if all data is present and the registration client returns SubscriptionSuccessful" in {
+        val connector = testSetupForOrganisations()
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+
+        whenReady(result) { result =>
+          result mustBe()
         }
       }
 

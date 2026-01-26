@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.Enro
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers.*
 
@@ -43,58 +43,52 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
                                           registrationDataRepository: RegistrationDataRepository,
                                           registrationAuditService: RegistrationAuditService)
                                          (implicit ec: ExecutionContext) extends SubscriptionConnector with Logging:
-
+  
+  private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
+  private def noSafeId[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing safeId"))
+  private def noDetails[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
+  private def noUtr[A] : Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
-      subscriptionId  <- subscribe(regData.safeId, userAnswers)
+      safeId          <- getSafeId(regData)
+      subscriptionId  <- subscribe(safeId, userAnswers)
       _               <- enrol(subscriptionId, data.nino)
-    } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt,data,userAnswers)
+    } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
   }
-
+  
   override def subscribeAndEnrolOrganisation(userId: String, credId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
-      subscriptionId  <- subscribeOrganisation(regData.safeId, userAnswers)
-      _               <- enrolOrganisation(subscriptionId, regData.ctUtr)
+      safeId          <- getSafeId(regData)
+      utr             <- getUtr(regData) 
+      subscriptionId  <- subscribeOrganisation(safeId, userAnswers)
+      _               <- enrolOrganisation(subscriptionId, utr)
     } yield registrationAuditService.auditOrganisationRegistrationComplete(regData.startedAt, userAnswers, credId)
   }
   
-  private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
+  private val getSafeId: RegistrationData => Future[String] = data =>
+    data.safeId.fold(noSafeId)(Future.successful)
+
+  private val getUtr: RegistrationData => Future[String] = data =>
+    data.ctUtr.fold(noUtr)(Future.successful)
   
-  private def subscribe(maybeSafeId: Option[String], userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] = {
-    val maybeResult = for {
-      safeId  <- maybeSafeId
-      details <- buildSubscriptionDetails(safeId)(userAnswers)
-    } yield {
-      registrationClient
-        .subscribe(details)
-        .flatMap(subscriptionResultHandler(userAnswers.id))
-    }
-    maybeResult.getOrElse {
-      logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing safeId or subscription details"))
-    }
+  private def subscribe(safeId: String, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] = {
+    buildSubscriptionDetails(safeId)(userAnswers)
+      .fold(noDetails)(registrationClient
+        .subscribe(_)
+        .flatMap(subscriptionResultHandler(userAnswers.id)))
   }
 
-  private def subscribeOrganisation(
-    maybeSafeId: Option[String],
-    userAnswers: UserAnswers)(
-    implicit hc: HeaderCarrier): Future[String] = {
-
-    val maybeResult = for {
-      safeId  <- maybeSafeId
-      details <- buildOrganisationSubscriptionDetails(safeId)(userAnswers)
+  private def subscribeOrganisation(safeId: String,
+                                    userAnswers: UserAnswers)
+                                   (implicit hc: HeaderCarrier): Future[String] = {
+    buildOrganisationSubscriptionDetails(safeId)(userAnswers)
+      .fold(noDetails)(registrationClient
+        .subscribe(_)
+        .flatMap(subscriptionResultHandler(userAnswers.id)))
     }
-    yield {
-      registrationClient
-        .subscribe(details)
-        .flatMap(subscriptionResultHandler(userAnswers.id))
-    }
-    maybeResult.getOrElse {
-      Future.failed(new RegistrationDataNotFoundException("Subscription failed: missing safeId or subscription details"))
-    }
-  }
 
   private def subscriptionResultHandler(id: String)(subscriptionResult: SubscriptionResult): Future[String] = subscriptionResult match {
 
@@ -139,18 +133,12 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   }
 
   private def enrolOrganisation( subscriptionId: String,
-                                 maybeUtr: Option[String])
+                                 utr: String)
                                ( implicit hc: HeaderCarrier): Future[Unit] = {
-
-    maybeUtr.map { ctUtr =>
-      registrationClient
-        .enrolOrganisation(OrganisationEnrolmentDetails(subscriptionId, ctUtr))
-        .flatMap(enrolResultHandler(subscriptionId))
-    }.getOrElse {
-      logInfoAndFail(
-        new EnrolmentErrorException(s"SubscriptionConnector: Missing UTR when enrolling subscriptionId: $subscriptionId")
-      )
-    }
+    
+    registrationClient
+      .enrolOrganisation(OrganisationEnrolmentDetails(subscriptionId, utr))
+      .flatMap(enrolResultHandler(subscriptionId))
   }
 
   private def enrolResultHandler(subscriptionId: String)(enrolmentResult: EnrolmentResult): Future[Unit] = enrolmentResult match {
