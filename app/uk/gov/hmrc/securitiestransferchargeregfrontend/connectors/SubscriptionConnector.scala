@@ -43,7 +43,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
                                           registrationDataRepository: RegistrationDataRepository,
                                           registrationAuditService: RegistrationAuditService)
                                          (implicit ec: ExecutionContext) extends SubscriptionConnector with Logging:
-  
+
   private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
   private def noSafeId[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing safeId"))
   private def noDetails[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
@@ -51,31 +51,31 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      regData         <- registrationDataRepository.getRegistrationData(userId)
-      safeId          <- getSafeId(regData)
-      subscriptionId  <- subscribe(safeId, userAnswers)
-      _               <- enrol(subscriptionId, data.nino)
+      regData <- registrationDataRepository.getRegistrationData(userId)
+      safeId <- getSafeId(regData)
+      subscriptionId <- subscribe(safeId, userAnswers, data)
+      _ <- enrol(subscriptionId, data.nino)
     } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
   }
-  
+
   override def subscribeAndEnrolOrganisation(userId: String, credId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
       safeId          <- getSafeId(regData)
-      utr             <- getUtr(regData) 
+      utr             <- getUtr(regData)
       subscriptionId  <- subscribeOrganisation(safeId, userAnswers)
       _               <- enrolOrganisation(subscriptionId, utr)
     } yield registrationAuditService.auditOrganisationRegistrationComplete(regData.startedAt, userAnswers, credId)
   }
-  
+
   private val getSafeId: RegistrationData => Future[String] = data =>
     data.safeId.fold(noSafeId)(Future.successful)
 
   private val getUtr: RegistrationData => Future[String] = data =>
     data.ctUtr.fold(noUtr)(Future.successful)
-  
-  private def subscribe(safeId: String, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] = {
-    buildSubscriptionDetails(safeId)(userAnswers)
+
+  private def subscribe(safeId: String, userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[String] = {
+    buildSubscriptionDetails(safeId)(userAnswers)(data)
       .fold(noDetails)(registrationClient
         .subscribe(_)
         .flatMap(subscriptionResultHandler(userAnswers.id)))
@@ -104,14 +104,22 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
       logInfoAndFail(new SubscriptionErrorException(msg))
   }
 
-  private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers =>
-    for {
-      alf          <- getAddress(answers)
-      address      =  alf.address
-      (l1, l2, l3) <- extractLines(address)
-      email        <- getEmailAddress(answers)
-      tel          <- getTelephoneNumber(answers)
-    } yield IndividualSubscriptionDetails(safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
+  private def normalizeWhitespace(s: String): String =
+    s.replaceAll("\\s+", " ").trim
+
+  private def buildContactName(data: ValidIndividualData): String =
+    normalizeWhitespace(s"${data.firstName} ${data.lastName}")
+
+  private val buildSubscriptionDetails: String => UserAnswers => ValidIndividualData => Option[IndividualSubscriptionDetails] = { safeId =>
+    answers =>
+      data =>
+        for {
+          alf <- getAddress(answers)
+          address = alf.address
+          (l1, l2, l3) <- extractLines(address)
+          email <- getEmailAddress(answers)
+          tel <- getTelephoneNumber(answers)
+        } yield IndividualSubscriptionDetails(safeId, buildContactName(data), l1, l2, l3, address.postcode, address.country.code, tel, None, email)
   }
 
   private val buildOrganisationSubscriptionDetails: String => UserAnswers => Option[OrganisationSubscriptionDetails] = { safeId => answers =>
@@ -135,7 +143,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   private def enrolOrganisation( subscriptionId: String,
                                  utr: String)
                                ( implicit hc: HeaderCarrier): Future[Unit] = {
-    
+
     registrationClient
       .enrolOrganisation(OrganisationEnrolmentDetails(subscriptionId, utr))
       .flatMap(enrolResultHandler(subscriptionId))
@@ -153,4 +161,4 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
       val msg = s"SubscriptionConnector: Error response when enrolling subscriptionId: $subscriptionId, error: $error"
       logInfoAndFail(new EnrolmentErrorException(msg))
   }
-  
+
