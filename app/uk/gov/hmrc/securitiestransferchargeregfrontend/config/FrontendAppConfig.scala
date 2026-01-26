@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
 
-  val host: String    = configuration.get[String]("host")
+  val host: String    = servicesConfig.baseUrl("securities-transfer-charge-reg-frontend")
   val appName: String = configuration.get[String]("appName")
 
   val stcEnrolmentKey = "HMRC-STC-ORG"
@@ -47,7 +47,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val registerOrganisationUrl: String = configuration.get[String]("microservice.redirects.register-organisation-url")
   val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
-  val assistantKickOutUrl: String = configuration.get[String]("microservice.redirects.assistant-ko-url")
 
   /*
    * GRS Incorporated Entity

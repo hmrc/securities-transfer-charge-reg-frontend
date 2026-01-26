@@ -46,7 +46,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.filters.RetrievalFilter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.StcValidOrgRequest
-
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 import scala.concurrent.{ExecutionContext, Future}
 
 class StcValidOrgSpec extends SpecBase {
@@ -166,14 +166,13 @@ class StcValidOrgSpec extends SpecBase {
 
     "must redirect to any assistant user to the assistant KO page" in {
       val application = applicationBuilder().build()
-      val appConfig = application.injector.instanceOf[FrontendAppConfig]
-
+      
       running(application) {
         val action = testSetup(application, buildRetrieval(maybeCredentialRole = Some(Assistant)))
         val result = action.invokeBlock(FakeRequest(), { _ => Future.successful(Results.Ok) })
 
         status(result) mustBe SEE_OTHER
-        redirectLocation(result).get must include(appConfig.assistantKickOutUrl)
+        redirectLocation(result).get must include(routes.UpdateDobKickOutController.onPageLoad().url)
       }
     }
 
