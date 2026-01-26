@@ -99,8 +99,7 @@ class DateOfBirthRegFormProviderSpec extends DateBehaviours {
     }
 
     "accept dates where age is 150 years and some days" in {
-      val oneFiftyAndSomeDays = today.minusYears(150).minusDays(200)
-
+      val oneFiftyAndSomeDays = today.minusYears(150).plusDays(200)
       val result = form.bind(
         Map(
           "value.day" -> oneFiftyAndSomeDays.getDayOfMonth.toString,
