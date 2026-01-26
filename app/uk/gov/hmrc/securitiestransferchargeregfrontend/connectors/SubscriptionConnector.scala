@@ -51,10 +51,10 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      regData         <- registrationDataRepository.getRegistrationData(userId)
-      safeId          <- getSafeId(regData)
-      subscriptionId  <- subscribe(safeId, userAnswers)
-      _               <- enrol(subscriptionId, data.nino)
+      regData <- registrationDataRepository.getRegistrationData(userId)
+      safeId <- getSafeId(regData)
+      subscriptionId <- subscribe(safeId, userAnswers, data)
+      _ <- enrol(subscriptionId, data.nino)
     } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
   }
 
@@ -74,8 +74,8 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   private val getUtr: RegistrationData => Future[String] = data =>
     data.ctUtr.fold(noUtr)(Future.successful)
 
-  private def subscribe(safeId: String, userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[String] = {
-    buildSubscriptionDetails(safeId)(userAnswers)
+  private def subscribe(safeId: String, userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[String] = {
+    buildSubscriptionDetails(safeId)(userAnswers)(data)
       .fold(noDetails)(registrationClient
         .subscribe(_)
         .flatMap(subscriptionResultHandler(userAnswers.id)))
@@ -110,14 +110,16 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   private def buildContactName(data: ValidIndividualData): String =
     normalizeWhitespace(s"${data.firstName} ${data.lastName}")
 
-  private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers =>
-    for {
-      alf          <- getAddress(answers)
-      address      =  alf.address
-      (l1, l2, l3) <- extractLines(address)
-      email        <- getEmailAddress(answers)
-      tel          <- getTelephoneNumber(answers)
-    } yield IndividualSubscriptionDetails(safeId, l1, l2, l3, address.postcode, address.country.code, tel, None, email)
+  private val buildSubscriptionDetails: String => UserAnswers => ValidIndividualData => Option[IndividualSubscriptionDetails] = { safeId =>
+    answers =>
+      data =>
+        for {
+          alf <- getAddress(answers)
+          address = alf.address
+          (l1, l2, l3) <- extractLines(address)
+          email <- getEmailAddress(answers)
+          tel <- getTelephoneNumber(answers)
+        } yield IndividualSubscriptionDetails(safeId, buildContactName(data), l1, l2, l3, address.postcode, address.country.code, tel, None, email)
   }
 
   private val buildOrganisationSubscriptionDetails: String => UserAnswers => Option[OrganisationSubscriptionDetails] = { safeId => answers =>
