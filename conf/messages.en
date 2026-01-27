@@ -174,10 +174,10 @@ contactNumber.error.required = Enter a phone number
 contactNumber.error.invalid = Enter a telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 contactNumber.error.length = Your contact number must be 25 characters or less
 
-
 internalError.title = There is a problem with the service
 internalError.heading = There is a problem with the service
 internalError.p1 = Try again later.
 
-nonAdminOrgUserKickOut.title = nonAdminOrgUserKickOut
-nonAdminOrgUserKickOut.heading = nonAdminOrgUserKickOut
+nonAdminOrgUserKickOut.title = You cannot use this service
+nonAdminOrgUserKickOut.heading = You cannot use this service
+nonAdminOrgUserKickOut.p1 = Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
