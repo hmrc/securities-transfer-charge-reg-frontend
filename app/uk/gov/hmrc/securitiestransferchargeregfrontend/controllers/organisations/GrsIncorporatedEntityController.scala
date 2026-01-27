@@ -31,7 +31,7 @@ class GrsIncorporatedEntityController @Inject() (controllerComponents: MessagesC
                                                  connector: GrsIncorporatedEntityConnector,
                                                  auth: OrgAuth,
                                                  dataRepository: RegistrationDataRepository)
-                                                (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository)  with Logging:
+                                                (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository) with Logging:
   
   import auth.*
   
@@ -49,6 +49,7 @@ class GrsIncorporatedEntityController @Inject() (controllerComponents: MessagesC
   
   def returnFromJourney(journeyId: String): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
+      logger.info("GRS Incorporated Entity: returned from journey with id " + journeyId)
       connector.retrieveGrsResults(journeyId).flatMap { result =>
         super.processResponse(request.request.userId, result)
       }
