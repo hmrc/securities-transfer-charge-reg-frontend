@@ -19,21 +19,16 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.NonAdminOrgUserKickOutView
-
 import javax.inject.Inject
 
 class NonAdminOrgUserKickOutController @Inject()(
                                        override val messagesApi: MessagesApi,
-                                       auth: Auth,
                                        val controllerComponents: MessagesControllerComponents,
                                        view: NonAdminOrgUserKickOutView
                                      ) extends FrontendBaseController with I18nSupport {
 
-import auth.* 
-  
-  def onPageLoad: Action[AnyContent] = authorised {
+  def onPageLoad: Action[AnyContent] = Action {
     implicit request =>
       Ok(view())
   }
