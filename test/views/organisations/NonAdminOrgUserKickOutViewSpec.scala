@@ -56,6 +56,10 @@ class NonAdminOrgUserKickOutViewSpec extends ViewBaseSpec {
 
         individualPage.para(1) mustBe Some(ExpectedMessages.para1Value)
       }
+      "should not have a back button" in {
+
+        individualPage.hasBackLink mustBe false
+      }
     }
   }
 
