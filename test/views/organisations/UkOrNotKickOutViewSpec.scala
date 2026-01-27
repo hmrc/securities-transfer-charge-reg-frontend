@@ -20,7 +20,6 @@ import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.UpdateDetailsKickOutView
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotKickOutView
 import views.ViewBaseSpec
 
@@ -43,7 +42,7 @@ class UkOrNotKickOutViewSpec extends ViewBaseSpec {
 
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
+  "The UkOrNotKickOutView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
