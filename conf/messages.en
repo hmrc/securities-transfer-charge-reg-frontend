@@ -178,3 +178,6 @@ contactNumber.error.length = Your contact number must be 25 characters or less
 internalError.title = There is a problem with the service
 internalError.heading = There is a problem with the service
 internalError.p1 = Try again later.
+
+nonAdminOrgUserKickOut.title = nonAdminOrgUserKickOut
+nonAdminOrgUserKickOut.heading = nonAdminOrgUserKickOut
