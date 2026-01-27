@@ -4,7 +4,8 @@ import base.SpecBase
 import controllers.routes
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
-import views.html.NonAdminOrgUserKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.NonAdminOrgUserKickOutController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.NonAdminOrgUserKickOutView
 
 class NonAdminOrgUserKickOutControllerSpec extends SpecBase {
 
@@ -15,7 +16,7 @@ class NonAdminOrgUserKickOutControllerSpec extends SpecBase {
       val application = applicationBuilder(userAnswers = Some(emptyUserAnswers)).build()
 
       running(application) {
-        val request = FakeRequest(GET, routes.NonAdminOrgUserKickOutController.onPageLoad().url)
+        val request = FakeRequest(GET, NonAdminOrgUserKickOutController.onPageLoad().url)
 
         val result = route(application, request).value
 
