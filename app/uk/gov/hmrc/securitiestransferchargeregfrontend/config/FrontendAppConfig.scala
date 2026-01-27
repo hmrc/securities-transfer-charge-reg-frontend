@@ -39,7 +39,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginUrl: String         = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
-
+  val continueUrlBase: String = configuration.get[String]("urls.continue-url-base")
+  
   val unauthorisedUrl: String = configuration.get[String]("microservice.redirects.unauthorised-url")
   val registerUrl: String = configuration.get[String]("microservice.redirects.register-url")
   val registerIndividualUrl: String = configuration.get[String]("microservice.redirects.register-individual-url")
@@ -58,7 +59,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
 
   val grsIncorporatedEntityReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/incorporated-entity/return"
+    s"$continueUrlBase/org/registration/incorporated-entity/return"
 
   val grsLimitedCompanyJourneyUrl: String =
     s"${grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
@@ -77,7 +78,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsPartnershipBaseUrl/partnership-identification/api/journey"
     
   val grsPartnershipReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/partnership/return"
+    s"$continueUrlBase/org/registration/partnership/return"
 
   val grsLimitedPartnershipJourneyUrl: String =
     s"$grsPartnershipBaseUrl/partnership-identification/api/limited-partnership-journey"
@@ -99,7 +100,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsMinorEntityBaseUrl/minor-entity-identification/api/journey"
 
   val grsMinorEntityReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/minor-entity/return"
+    s"$continueUrlBase/org/registration/minor-entity/return"
 
   val grsTrustJourneyUrl: String =
     s"$grsMinorEntityBaseUrl/minor-entity-identification/api/trusts-journey"
