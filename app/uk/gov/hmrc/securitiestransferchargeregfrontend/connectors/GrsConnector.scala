@@ -102,6 +102,7 @@ abstract class AbstractGrsConnector(grsClient: GrsClient,
     val parsed = Json.parse(raw).as[JsObject]
 
     val overrideJson = Json.obj("continueUrl" -> continueUrl)
+    logger.info("Continue URL for GRS journey: " + continueUrl)
     parsed.deepMerge(overrideJson)
   }
 }

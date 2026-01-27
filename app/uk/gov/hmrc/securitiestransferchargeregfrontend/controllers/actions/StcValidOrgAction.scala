@@ -18,11 +18,11 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions
 
 import com.google.inject.Inject
 import play.api.Logging
-import play.api.mvc.{ActionBuilder, AnyContent, BodyParsers, Request, Result}
 import play.api.mvc.Results.Redirect
-import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
+import play.api.mvc.*
 import uk.gov.hmrc.auth.core.retrieve.v2.Retrievals.*
 import uk.gov.hmrc.auth.core.retrieve.~
+import uk.gov.hmrc.auth.core.{AuthConnector, AuthorisationException, AuthorisedFunctions, NoActiveSession}
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
@@ -62,6 +62,7 @@ class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector
     case nasx: NoActiveSession =>
       logger.warn(s"No active session found: ${nasx.getLocalizedMessage}")
       Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
+      
     case ae: AuthorisationException =>
       logger.warn(s"Auth error: ${ae.getLocalizedMessage}")
       Redirect(routes.UnauthorisedController.onPageLoad())

@@ -23,7 +23,7 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("registrationComplete.title"))) {
+@layout(pageTitle = titleNoForm(messages("registrationComplete.title")), showBackLink = false) {
 
 <div class="govuk-width-container">
     <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">

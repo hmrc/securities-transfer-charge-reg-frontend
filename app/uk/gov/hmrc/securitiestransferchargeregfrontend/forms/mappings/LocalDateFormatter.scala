@@ -108,13 +108,13 @@ private[mappings] class LocalDateFormatter(
       .map(_.toList.map(e => e.copy(key = key, args = e.args ++ args)))
       .flatMap { dob =>
         val age = ageInYears(dob)
-        val max = 150
         val min = 18
+        val oldestAllowedDob = today.minusYears(150)
 
         List(
           Option.when(dob.isAfter(today))(FormError(key, futureDateKey, List(formatDateToString(today)))),
           Option.when(age < min)(FormError(key, under18DateKey)),
-          Option.when(age > max)(FormError(key, pastDateKey,List(formatDateToString(today.minusYears(max)))))
+          Option.when(dob.isBefore(oldestAllowedDob))(FormError(key, pastDateKey, List(formatDateToString(oldestAllowedDob))))
         ).collectFirst { case Some(err) => Left(List(err)) }
           .getOrElse(Right(dob))
       }

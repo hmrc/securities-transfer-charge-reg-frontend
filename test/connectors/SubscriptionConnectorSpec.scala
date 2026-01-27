@@ -25,7 +25,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditService
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient, SubscriptionResult, SubscriptionServerError}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationDataNotFoundException, SubscriptionConnector, SubscriptionConnectorImpl, SubscriptionErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
@@ -231,7 +231,7 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       "fail if the user answers has no address" in {
         val uaNoAddress = testUserAnswersForOrganisation(address = None)
         val connector = testSetupForOrganisations()
-        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)((uaNoAddress))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(uaNoAddress)
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
         }
@@ -240,7 +240,7 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
       "fail if the user answers has no email address" in {
         val uaNoEmail = testUserAnswersForOrganisation(email = None)
         val connector = testSetupForOrganisations()
-        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)((uaNoEmail))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(uaNoEmail)
         whenReady(result.failed) { ex =>
           ex mustBe a[RegistrationDataNotFoundException]
         }
