@@ -40,8 +40,5 @@ class Redirects @Inject()(appConfig: FrontendAppConfig)  {
   def redirectToRegisterF: Future[Result] = toFuture(Redirect(appConfig.registerUrl))
   def redirectToService: Result = Redirect(appConfig.stcServiceUrl)
   def redirectToServiceF: Future[Result] = toFuture(redirectToService)
-  
-  // TODO: This redirect needs to be updated when the correct KO page is available - see STOSB-1348
-  def redirectToAssistantKOPageF: Future[Result] = toFuture(Redirect(individuals.routes.UpdateDobKickOutController.onPageLoad()))
-
+  def redirectToAssistantKOPageF: Future[Result] = toFuture(Redirect(organisations.routes.NonAdminOrgUserKickOutController.onPageLoad()))
 }

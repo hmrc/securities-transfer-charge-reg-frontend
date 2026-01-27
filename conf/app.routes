@@ -49,49 +49,48 @@ POST       /what-is-your-email-address/change            uk.gov.hmrc.securitiest
 
 GET        /registration-complete                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.RegistrationCompleteController.onPageLoad()
 
-GET        /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /what-is-your-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /what-is-your-contact-number/change             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /what-is-your-contact-number                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /what-is-your-contact-number                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /what-is-your-contact-number/change           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /what-is-your-contact-number/change           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.WhatsYourContactNumberController.onSubmit(mode: Mode = CheckMode)
 
 GET        /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onPageLoad()
 POST       /org/regForSecuritiesTransferCharge           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegForSecuritiesTransferChargeController.onSubmit()
 
-GET        /org/select-business-type                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/select-business-type                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = NormalMode)
-GET        /org/change-select-business-type                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/change-select-business-type                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = CheckMode)
+GET        /org/select-business-type                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/select-business-type                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-select-business-type              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-select-business-type              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.SelectBusinessTypeController.onSubmit(mode: Mode = CheckMode)
 
-GET        /org/uk-or-not-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
+GET        /org/uk-or-not-kick-out                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
 
-GET        /org/type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/type-of-partnership                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = NormalMode)
-GET        /org/change-type-of-partnership                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/change-type-of-partnership                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = CheckMode)
+GET        /org/type-of-partnership                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/type-of-partnership                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-type-of-partnership               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-type-of-partnership               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.TypeOfPartnershipController.onSubmit(mode: Mode = CheckMode)
 
-GET        /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/uk-or-not                                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
-GET        /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/change-uk-or-not                                 uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
+GET        /org/uk-or-not                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/uk-or-not                                uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-uk-or-not                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-uk-or-not                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotController.onSubmit(mode: Mode = CheckMode)
 
-GET        /org/contact-email-address                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/contact-email-address                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onSubmit(mode: Mode = NormalMode)
-GET        /org/change-contact-email-address                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/change-contact-email-address                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onSubmit(mode: Mode = CheckMode)
+GET        /org/contact-email-address                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/contact-email-address                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-contact-email-address             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-contact-email-address             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactEmailAddressController.onSubmit(mode: Mode = CheckMode)
 
-GET        /org/partnership-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.PartnershipKickOutController.onPageLoad()
-GET        /org/assistant-kick-out                              uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
+GET        /org/partnership-kick-out                     uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.PartnershipKickOutController.onPageLoad()
+GET        /org/assistant-kick-out                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.UkOrNotKickOutController.onPageLoad()
 
-GET        /org/contact-number                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = NormalMode)
-POST       /org/contact-number                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = NormalMode)
-GET        /org/change-contact-number            uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = CheckMode)
-POST       /org/change-contact-number             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = CheckMode)
+GET        /org/contact-number                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = NormalMode)
+POST       /org/contact-number                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = NormalMode)
+GET        /org/change-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onPageLoad(mode: Mode = CheckMode)
+POST       /org/change-contact-number                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.ContactNumberController.onSubmit(mode: Mode = CheckMode)
 
-GET        /org/registration-complete             uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegistrationCompleteController.onPageLoad()
+GET        /org/registration-complete                    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.RegistrationCompleteController.onPageLoad()
 
-
-GET        /org/address                                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
-GET        /org/address/return                               uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)
+GET        /org/address                                  uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onPageLoad()
+GET        /org/address/return                           uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.AddressController.onReturn(id: String)
 
 GET        /org/registration/incorporated-entity/limited-company                      uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsIncorporatedEntityController.limitedCompanyJourney
 GET        /org/registration/incorporated-entity/registered-society                   uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsIncorporatedEntityController.registeredSocietyJourney
@@ -105,3 +104,5 @@ GET        /org/registration/partnership/return                             uk.g
 GET        /org/registration/minor-entity/trust                         uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.trustJourney
 GET        /org/registration/minor-entity/unincorporated-association    uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.unincorporatedAssociationJourney
 GET        /org/registration/minor-entity/return                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.returnFromJourney(journeyId: String)
+
+GET        /nonAdminOrgUserKickOut                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.NonAdminOrgUserKickOutController.onPageLoad()

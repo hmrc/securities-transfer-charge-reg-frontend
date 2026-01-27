@@ -19,30 +19,28 @@ package views.organisations
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotKickOutView
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.NonAdminOrgUserKickOutView
 import views.ViewBaseSpec
 
-class UkOrNotKickOutViewSpec extends ViewBaseSpec {
+class NonAdminOrgUserKickOutViewSpec extends ViewBaseSpec {
 
   override def fakeApplication(): Application = applicationBuilder().build()
 
-  private val viewInstance         = app.injector.instanceOf[UkOrNotKickOutView]
-  private val appConfig         = app.injector.instanceOf[FrontendAppConfig]
+  private val viewInstance         = app.injector.instanceOf[NonAdminOrgUserKickOutView]
 
   def view(): Document = Jsoup.parse(
-    viewInstance(appConfig)(fakeRequest, messages).body
+    viewInstance()(fakeRequest, messages).body
   )
 
   object ExpectedMessages {
     val title = "You cannot use this service"
     val heading = "You cannot use this service"
 
-    val para1Value = "To tell us about a securities transfer you will need to use a UK agent who can provide information to HMRC on your behalf."
+    val para1Value = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
 
   }
 
-  "The UkOrNotKickOutView" - {
+  "The NonAdminOrgUserKickOutView" - {
     "the user is an Individual" - {
       val individualPage = view()
 
@@ -57,6 +55,10 @@ class UkOrNotKickOutViewSpec extends ViewBaseSpec {
       "display the correct paragraph content" in {
 
         individualPage.para(1) mustBe Some(ExpectedMessages.para1Value)
+      }
+      "should not have a back button" in {
+
+        individualPage.hasBackLink mustBe false
       }
     }
   }
