@@ -123,10 +123,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$addressLookupBaseUrl/api/confirmed"
 
   val alfIndividualsContinueUrl: String =
-    s"$host/register-securities-transfer-charge/address/return"
+    s"$continueUrlBase/address/return"
 
   val alfOrgContinueUrl: String =
-    s"$host/register-securities-transfer-charge/org/address/return"
+    s"$continueUrlBase/org/address/return"
 
   val individualsAlfConfigFileLocation: String = configuration.get[String]("alf.individuals-config-file")
   val organisationsAlfConfigFileLocation: String = configuration.get[String]("alf.organisations-config-file")
