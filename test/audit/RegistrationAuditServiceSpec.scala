@@ -34,7 +34,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.*
 
-import java.time.{Instant, LocalDate}
+import java.time.Instant
 import scala.concurrent.ExecutionContext
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -83,7 +83,7 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
       .set(AddressPage(), fakeAddress).success.value
       .set(WhatsYourEmailAddressPage, "test@test.com").success.value
       .set(WhatsYourContactNumberPage, "07538 511 122").success.value
-      .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
+      .set(DateOfBirthRegPage, Fixtures.dateOfBirth).success.value
   }
 
   "RegistrationAuditService" - {
@@ -150,7 +150,7 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
       details.firstName mustBe Fixtures.firstName
       details.lastName mustBe Fixtures.lastName
       details.nino mustBe Fixtures.nino
-      details.dateOfBirth mustBe LocalDate.now().minusYears(20).toString
+      details.dateOfBirth mustBe Fixtures.formattedDateOfBirth
       details.contactDetails.addressLine1 must not be empty
       details.contactDetails.postCode mustBe fakeAddress.address.postcode
       details.contactDetails.country mustBe fakeAddress.address.country.code

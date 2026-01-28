@@ -27,7 +27,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import java.time.LocalDate
@@ -72,7 +71,7 @@ class DateOfBirthRegController @Inject()(
         dateOfBirth =>
           val result = for {
             updated  <- updateUserAnswers(dateOfBirth)
-            _        <- registerUser(dateOfBirth.format(dobFormatter))
+            _        <- registerUser(dateOfBirth.toString)
           } yield {
               Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
           }
