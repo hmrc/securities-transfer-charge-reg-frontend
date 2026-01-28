@@ -15,6 +15,7 @@ lazy val microservice = (project in file("."))
   .settings(ThisBuild / useSuperShell := false)
   .settings(
     name := appName,
+    scalacOptions += "-Werror", //This is the line that was added, feel to remove the comment when reviewing the PR.
     RoutesKeys.routesImport ++= Seq(
       "uk.gov.hmrc.securitiestransferchargeregfrontend.models._",
       "uk.gov.hmrc.play.bootstrap.binders.RedirectUrl"
