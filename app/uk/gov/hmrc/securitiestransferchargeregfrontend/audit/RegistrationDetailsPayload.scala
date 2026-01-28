@@ -21,6 +21,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{SelectBusinessTypePage, TypeOfPartnershipPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 
 sealed trait RegistrationDetailsPayload
 
@@ -67,7 +68,7 @@ object RegistrationDetailsPayload {
       email <- getEmailAddress(userAnswers)
       tel <- getTelephoneNumber(userAnswers)
     } yield IndividualDetailsPayload(firstName = data.firstName, lastName = data.lastName,
-      dateOfBirth = dob.toString,
+      dateOfBirth = dob.format(dobFormatter),
       nino = data.nino,
       contactDetails = ContactDetails(
         addressLine1 = l1,

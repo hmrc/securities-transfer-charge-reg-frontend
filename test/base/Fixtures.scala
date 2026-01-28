@@ -28,7 +28,9 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.StcAu
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.{IdentifierRequest, StcAuthRequest, StcValidIndividualRequest, StcValidOrgRequest}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationData
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 
+import java.time.LocalDate
 import scala.concurrent.{ExecutionContext, Future}
 
 object Fixtures {
@@ -55,11 +57,15 @@ object Fixtures {
     subscriptionId = Some(Fixtures.subscriptionId),
     ctUtr = Some(Fixtures.utr)
   )
-  
+
+  val dateOfBirth: LocalDate =  LocalDate.now().minusYears(20)
+  val formattedDateOfBirth: String = dateOfBirth.format(dobFormatter)
+
+
   val credId = "cred-123"
   val providerType = "GovernmentGateway"
   val someValidName: Option[ItmpName] = Some(ItmpName(Some(firstName), Some("Middle"), Some(lastName)))
-  
+
   // Use the no-arg FakeRequest factory (matches other tests in the project) to avoid constructor overload issues
   val fakeIdentifierRequest: IdentifierRequest[AnyContent] = IdentifierRequest[AnyContent](FakeRequest(), user)
   val requestFactory = FakeRequestFactory(RequestFactory.plain)
