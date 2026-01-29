@@ -25,8 +25,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, Page}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 
 class IndividualsNavigatorSpec extends SpecBase {
-
-  val navigator = new IndividualsNavigator
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+  val navigator = new IndividualsNavigator(new repositories.FakeSessionRepository)
 
   "Navigator" - {
 

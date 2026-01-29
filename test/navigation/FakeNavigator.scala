@@ -21,9 +21,15 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
+import scala.concurrent.{Future, ExecutionContext}
+
 class FakeNavigator(desiredRoute: Call) extends Navigator {
 
-  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
-    desiredRoute
+  implicit val ec: ExecutionContext = ExecutionContext.global
+  
+  override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
+    Future.successful(desiredRoute)
+    
+  override def to[A](page: Page)(data: A): Call = desiredRoute
 }
 

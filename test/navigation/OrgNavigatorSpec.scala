@@ -16,7 +16,7 @@
 
 package navigation
 
-import base.SpecBase
+import base.{Fixtures, SpecBase}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
@@ -26,8 +26,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, SelectBusinessTypePage, TypeOfPartnershipPage}
 
 class OrgNavigatorSpec extends SpecBase {
-
-  val navigator = new OrgNavigator
+  implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
+  val navigator = new OrgNavigator(new repositories.FakeSessionRepository)
 
   "Navigator" - {
 
