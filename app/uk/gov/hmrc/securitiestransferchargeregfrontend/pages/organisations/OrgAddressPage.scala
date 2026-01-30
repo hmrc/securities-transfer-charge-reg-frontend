@@ -1,5 +1,5 @@
 /*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,13 +14,9 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.securitiestransferchargeregfrontend.pages
+package uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations
 
-import play.api.libs.json.JsPath
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.AlfConfirmedAddress
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 
-import scala.language.implicitConversions
+case object OrgAddressPage extends AddressPage
 
-trait AddressPage extends QuestionPage[AlfConfirmedAddress]:
-  override def path: JsPath = JsPath \ toString
-  override def toString: String = "addressPage"

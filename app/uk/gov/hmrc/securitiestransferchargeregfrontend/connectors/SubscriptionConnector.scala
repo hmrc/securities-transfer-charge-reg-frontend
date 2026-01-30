@@ -106,7 +106,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   private val buildSubscriptionDetails: String => UserAnswers => Option[IndividualSubscriptionDetails] = { safeId => answers =>
     for {
-      alf          <- getAddress(answers)
+      alf          <- getIndividualAddress(answers)
       address      =  alf.address
       (l1, l2, l3) <- extractLines(address)
       email        <- getEmailAddress(answers)
@@ -116,7 +116,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   private val buildOrganisationSubscriptionDetails: String => UserAnswers => Option[OrganisationSubscriptionDetails] = { safeId => answers =>
     for {
-      alf          <- getAddress(answers)
+      alf          <- getOrgAddress(answers)
       address      =  alf.address
       (l1, l2, l3) <- extractLines(address)
       email        <- getContactEmailAddress(answers)

@@ -26,6 +26,8 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.IndividualAddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
@@ -36,7 +38,9 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
                                   (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
-  
+
+  val addressPage: AddressPage = IndividualAddressPage
+
   def onPageLoad: Action[AnyContent] = validIndividual.async {
     implicit request =>
       super.pageLoad(config.individualsAlfConfigFileLocation, config.alfIndividualsContinueUrl)

@@ -20,47 +20,52 @@ import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, Page, individuals as individualsPages}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{Page, individuals as individualsPages}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class IndividualsNavigator @Inject() extends Navigator {
+class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
+                                    (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) {
 
-  private val normalRoutes: Page => UserAnswers => Call = {
+  private val normalRoutes: Page => UserAnswers => Future[Call] = {
     case individualsPages.RegForSecuritiesTransferChargePage =>
-      _ => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+      _ => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode))
 
     case individualsPages.CheckYourDetailsPage =>
-      userAnswers =>
-        userAnswers.get(individualsPages.CheckYourDetailsPage) match {
-          case Some(true)  => individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
-          case Some(false) => individualRoutes.UpdateDetailsKickOutController.onPageLoad()
-          case None        => routes.JourneyRecoveryController.onPageLoad()
-        }
+      userAnswers => dataDependent(individualsPages.CheckYourDetailsPage, userAnswers) { detailsCorrect =>
+        if (detailsCorrect) individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
+        else individualRoutes.UpdateDetailsKickOutController.onPageLoad()
+      }
 
     case individualsPages.DateOfBirthRegPage =>
-      userAnswers =>
-        userAnswers.get(individualsPages.CheckYourDetailsPage) match {
-          case Some(_)  => individualRoutes.AddressController.onPageLoad()
-          case None     => individualRoutes.UpdateDobKickOutController.onPageLoad()
-        }
-      
-    case _: AddressPage[_] =>
-      _ => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+      userAnswers => dataRequired(individualsPages.DateOfBirthRegPage, userAnswers, individualRoutes.AddressController.onPageLoad())
+        
+    case individualsPages.IndividualAddressPage =>
+      userAnswers => dataRequired(individualsPages.IndividualAddressPage, userAnswers, individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode))
 
     case individualsPages.WhatsYourEmailAddressPage =>
-      _ => individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
-
-    case _ =>
-      _ => routes.IndexController.onPageLoad()
+      userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode))
+      
+    case individualsPages.WhatsYourContactNumberPage =>
+      userAnswers => dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
+      
+    case _ => _ => defaultPage
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode  => checkRouteMap(page)(userAnswers)
+      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
     }
+  }
+
+  override val errorPage: Page => Call = {
+    case individualsPages.DateOfBirthRegPage => individualRoutes.UpdateDobKickOutController.onPageLoad()
+    case _ => routes.JourneyRecoveryController.onPageLoad()
+  }
 }

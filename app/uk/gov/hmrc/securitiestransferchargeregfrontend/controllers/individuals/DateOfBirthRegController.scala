@@ -22,15 +22,12 @@ import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.RegistrationConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualDataRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
-import java.time.LocalDate
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -69,12 +66,15 @@ class DateOfBirthRegController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        dateOfBirth =>
+        dateOfBirth => (
           for {
             updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
-            _               <- registerUser(dateOfBirth.format(dobFormatter))
             nextPage        <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
+            _               <- registerUser(dateOfBirth.format(dobFormatter))
           } yield Redirect(nextPage)
+      ).recover {
+          case _ => Redirect(navigator.errorPage(DateOfBirthRegPage))
+        }
       )
   }
   

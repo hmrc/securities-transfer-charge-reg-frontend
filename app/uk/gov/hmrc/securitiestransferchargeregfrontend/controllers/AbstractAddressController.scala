@@ -35,6 +35,7 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
                                         ( implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
   
   val navigator: Navigator
+  val addressPage: AddressPage
   
   /*
    * Creates an address journey and redirects to the to it.
@@ -53,7 +54,7 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
     for {
       address <- alf.alfRetrieveAddress(addressId)
       answers <- updateUserAnswers(userId)(address)
-      nextPage <- navigator.nextPage(AddressPage(), NormalMode, answers)
+      nextPage <- navigator.nextPage(addressPage, NormalMode, answers)
     } yield {
         Redirect(nextPage)
     }
@@ -67,7 +68,7 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
       logger.info("ALF returned address successfully")
       sessionRepository.updateAndStore(
         userId,
-        _.set(AddressPage[AlfConfirmedAddress](), address).get
+        _.set(addressPage, address).get
       )
 
 }

@@ -28,6 +28,8 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.OrgAddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
@@ -38,6 +40,8 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
                                   (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
 
   import auth.*
+
+  val addressPage: AddressPage = OrgAddressPage
 
   def onPageLoad: Action[AnyContent] = validOrg.async {
     implicit request =>
