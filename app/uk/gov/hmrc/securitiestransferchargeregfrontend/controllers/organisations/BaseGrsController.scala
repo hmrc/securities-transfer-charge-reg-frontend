@@ -16,39 +16,44 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
-import routes as orgRoutes
-
 import play.api.Logging
 import play.api.i18n.I18nSupport
 import play.api.mvc.{MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.GrsPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
 import scala.concurrent.{ExecutionContext, Future}
 
 class BaseGrsController(val controllerComponents: MessagesControllerComponents,
-                        registrationDataRepository: RegistrationDataRepository)
+                        registrationDataRepository: RegistrationDataRepository,
+                        navigator: Navigator)
                        (implicit ec: ExecutionContext) extends Logging with FrontendBaseController with I18nSupport:
   
-  def processResponse(userId: String, result: GrsResult): Future[Result] =
-    processSuccess(userId).orElse(processFailure)(result)
+  def processResponse(userAnswers: UserAnswers, result: GrsResult): Future[Result] =
+    processSuccess(userAnswers).orElse(processFailure)(result)
   
-  private def processSuccess(userId: String): PartialFunction[GrsResult, Future[Result]] = {
+  private def processSuccess(userAnswers: UserAnswers): PartialFunction[GrsResult, Future[Result]] = {
     case GrsSuccess(utr, safe) =>
       logger.info("GRS journey succeeded - processing results")
-      for {
-        _ <- registrationDataRepository.setCtUtr(userId)(utr)
-        _ <- registrationDataRepository.setSafeId(userId)(safe)
-    } yield {
-        logger.info("GRS data processed - redirecting to next page.")
-        Redirect(orgRoutes.AddressController.onPageLoad().url)
-    }
+      (
+        for {
+          _         <- registrationDataRepository.setCtUtr(userAnswers.id)(utr)
+          _         <- registrationDataRepository.setSafeId(userAnswers.id)(safe)
+          nextPage  <- navigator.nextPage(GrsPage, NormalMode, userAnswers)
+          _         =  logger.info("GRS data processed - redirecting to next page.")
+        } yield Redirect(nextPage)
+      ).recover {
+        case _ => Redirect(navigator.errorPage(GrsPage))
+      }
   }
   
   private def processFailure: PartialFunction[GrsResult, Future[Result]] = {
     case GrsFailure(reason) =>
       logger.warn(s"GRS journey failed: $reason")
-      Future.successful(Redirect(orgRoutes.PartnershipKickOutController.onPageLoad().url))
+      Future.successful(Redirect(navigator.errorPage(GrsPage)))
   }

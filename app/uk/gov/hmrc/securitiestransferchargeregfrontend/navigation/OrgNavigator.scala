@@ -33,6 +33,8 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
                             (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) {
 
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
+
+    case organisationsPages.GrsPage => ???
     
     case organisationsPages.OrgAddressPage =>
       userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
@@ -81,6 +83,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   }
 
   override val errorPage: Page => Call = {
+    case organisationsPages.GrsPage => orgRoutes.PartnershipKickOutController.onPageLoad()
     case organisationsPages.ContactNumberPage => ???
     case organisationsPages.OrgAddressPage => ???
     case _ => routes.JourneyRecoveryController.onPageLoad()
