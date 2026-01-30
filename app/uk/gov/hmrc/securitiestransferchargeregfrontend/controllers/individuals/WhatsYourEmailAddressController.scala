@@ -60,9 +60,9 @@ class WhatsYourEmailAddressController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        emailAddress =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, value))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, emailAddress))
             nextPage        <- navigator.nextPage(WhatsYourEmailAddressPage, mode, updatedAnswers)
           } yield Redirect(nextPage)
       )

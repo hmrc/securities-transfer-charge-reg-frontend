@@ -20,27 +20,25 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationDataNotFoundException, SubscriptionConnector}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes as rootRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourContactNumberPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourContactNumberController @Inject()( override val messagesApi: MessagesApi,
-                                                  sessionRepository: SessionRepository,
                                                   auth: IndividualAuth,
+                                                  @Named("individuals") navigator: Navigator,
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   subscriptionConnector: SubscriptionConnector,
                                                   view: WhatsYourContactNumberView
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
   
@@ -67,16 +65,12 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        contactNumber =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-            _ <- subscribe(updatedAnswers, innerRequest)
-          } yield Redirect(individualRoutes.RegistrationCompleteController.onPageLoad())
-      ).recoverWith {
-        case _: RegistrationDataNotFoundException =>
-          Future.successful(Redirect(rootRoutes.JourneyRecoveryController.onPageLoad()))
-      }
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
+            nextPage        <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
+            _               <- subscribe(updatedAnswers, innerRequest)
+          } yield Redirect(nextPage)
+      )
     }
 
-}

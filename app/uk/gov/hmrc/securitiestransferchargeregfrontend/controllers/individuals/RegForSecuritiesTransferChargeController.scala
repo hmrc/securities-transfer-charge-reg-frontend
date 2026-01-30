@@ -30,7 +30,8 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 
 class RegForSecuritiesTransferChargeController @Inject()(auth: IndividualAuth,
-                                                         @Named("individuals") navigator: Navigator, val controllerComponents: MessagesControllerComponents,
+                                                         @Named("individuals") navigator: Navigator,
+                                                         val controllerComponents: MessagesControllerComponents,
                                                          view: RegForSecuritiesTransferChargeView,
                                                          registrationRepository: RegistrationDataRepository
                                                         )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:

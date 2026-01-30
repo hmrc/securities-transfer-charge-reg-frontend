@@ -18,11 +18,12 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
 import play.api.libs.json.Reads
 import play.api.mvc.Call
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.queries.Gettable
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+
 import scala.concurrent.{ExecutionContext, Future}
 
 trait Navigator:

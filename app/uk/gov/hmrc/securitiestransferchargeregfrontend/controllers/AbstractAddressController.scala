@@ -22,20 +22,12 @@ import play.api.mvc.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfConfirmedAddress, NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.AlfConfirmedAddress
 
-import scala.concurrent.{ExecutionContext, Future}
+import scala.concurrent.Future
 
 
-abstract class AbstractAddressController( alf: AlfAddressConnector,
-                                          sessionRepository: SessionRepository)
-                                        ( implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport with Logging {
-  
-  val navigator: Navigator
-  val addressPage: AddressPage
+abstract class AbstractAddressController(alf: AlfAddressConnector) extends FrontendBaseController with I18nSupport with Logging {
   
   /*
    * Creates an address journey and redirects to the to it.
@@ -49,26 +41,9 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
    * Retrieves the outcome of the journey and stores the address in UserAnswers if
    * it was successful. If retrieval fails the user is sent to an error page.
    */
-  def alfReturn(addressId: String, userId: String)(implicit hc: HeaderCarrier): Future[Result] = {
+  def alfReturn(addressId: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress] = {
     logger.info("Address lookup frontend has returned control to STC service")
-    for {
-      address <- alf.alfRetrieveAddress(addressId)
-      answers <- updateUserAnswers(userId)(address)
-      nextPage <- navigator.nextPage(addressPage, NormalMode, answers)
-    } yield {
-        Redirect(nextPage)
-    }
+    alf.alfRetrieveAddress(addressId)
   }
-
-  private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
-  // TODO: Don't need to store the UAs anymore
-  private def updateUserAnswers[A](userId: String): AddressHandler =
-    address =>
-      logger.info("ALF returned address successfully")
-      sessionRepository.updateAndStore(
-        userId,
-        _.set(addressPage, address).get
-      )
-
 }

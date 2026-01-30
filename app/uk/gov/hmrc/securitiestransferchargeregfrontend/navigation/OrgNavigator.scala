@@ -81,6 +81,8 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   }
 
   override val errorPage: Page => Call = {
+    case organisationsPages.ContactNumberPage => ???
+    case organisationsPages.OrgAddressPage => ???
     case _ => routes.JourneyRecoveryController.onPageLoad()
   }
 }

@@ -16,26 +16,28 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import uk.gov.hmrc.http.HeaderCarrier
+import uk.gov.hmrc.play.http.HeaderCarrierConverter
+import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.AlfAddressConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
-import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.AbstractAddressController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.IndividualAddressPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.OrgAddressPage
 
 import javax.inject.{Inject, Named}
-import scala.concurrent.ExecutionContext
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.config.FrontendAppConfig
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.IndividualAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
+import scala.concurrent.{ExecutionContext, Future}
 
 class AddressController @Inject() (val controllerComponents: MessagesControllerComponents,
                                    alf: AlfAddressConnector,
-                                   sessionRepository: SessionRepository,
                                    auth: IndividualAuth,
                                    @Named("individuals") val navigator: Navigator,
                                    config: FrontendAppConfig)
-                                  (implicit ec: ExecutionContext) extends AbstractAddressController(alf, sessionRepository) {
+                                  (implicit ec: ExecutionContext) extends AbstractAddressController(alf):
 
   import auth.*
 
@@ -46,9 +48,12 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
       super.pageLoad(config.individualsAlfConfigFileLocation, config.alfIndividualsContinueUrl)
   }
 
-  def onReturn(addressId: String): Action[AnyContent] = (validIndividual andThen getData).async {
+  def onReturn(addressId: String): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
     implicit request =>
-      val userId = request.request.userId
-      super.alfReturn(addressId, userId)
+      implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
+      for {
+        address <- super.alfReturn(addressId)
+        userAnswers <- Future.fromTry(request.userAnswers.set(IndividualAddressPage, address))
+        nextPage <- navigator.nextPage(OrgAddressPage, NormalMode, userAnswers)
+      } yield Redirect(nextPage)
   }
-}
