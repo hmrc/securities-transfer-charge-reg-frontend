@@ -17,71 +17,102 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
 import base.SpecBase
+import org.mockito.ArgumentMatchers.any
+import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
-import org.mockito.Mockito.*
+import play.api.libs.json.JsPath
+import play.api.mvc.Call
 import repositories.FakeSessionRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.AbstractNavigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.queries.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{UserAnswers, Mode}
-import play.api.libs.json.JsPath
-import org.mockito.ArgumentMatchers.any
-import play.api.mvc.Call
 
 import scala.concurrent.{ExecutionContext, Future}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.*
+
 class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
   implicit val ec: ExecutionContext = scala.concurrent.ExecutionContext.global
-
+  val testPage: Page & Gettable[Boolean] & Settable[Boolean] = new Page with Gettable[Boolean] with Settable[Boolean] {
+    override def path: JsPath = JsPath \ "test"
+  }
+  private val userAnswers = UserAnswers("test-id").set(testPage, true).get
+  private val mockSessionRepository = mock[SessionRepository]
   private val testCall = routes.JourneyRecoveryController.onPageLoad()
 
-  class TestNavigator(sessionRepository: SessionRepository) extends AbstractNavigator(sessionRepository) {
+  private def testSetup(SessionSetResult: Boolean = true): TestNavigator = {
+    when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(SessionSetResult))
+    new TestNavigator(mockSessionRepository)
+  }
+
+  class TestNavigator(mockSessionRepository: SessionRepository) extends AbstractNavigator(mockSessionRepository) {
+    override val errorPage: Page => Call = _ => testCall
+
     override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
       Future.successful(testCall)
-
-    override val errorPage: Page => Call = _ => testCall
   }
 
   "All navigators should" - {
-    
-
     "successfully go to a page" in {
       val result = new TestNavigator(new FakeSessionRepository()).goTo(testCall)
       result.futureValue mustBe testCall
     }
     "store user answers when navigating from a page that requires data" in {
-      val sessionRepository = mock[SessionRepository]
-      when(sessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(true))
-      val navigator = new TestNavigator(sessionRepository)
-      val testPage: Page & Gettable[Boolean] & Settable[Boolean] = new Page with Gettable[Boolean] with Settable[Boolean] {
-        override def path: JsPath = JsPath \ "test"
-      }
-      val userAnswers = UserAnswers("test-id").set(testPage, true).get
+      val navigator = testSetup()
       val result = navigator.dataRequired(testPage, userAnswers, testCall)
-      whenReady(result) { res =>
-        res mustBe testCall
-        verify(sessionRepository, times(1)).set(userAnswers)
+      whenReady(result) { _ =>
+        verify(mockSessionRepository, times(1)).set(userAnswers)
       }
     }
     "fail when storing user answers fails when navigating from a page that requires data" in {
-
+      val navigator = testSetup(SessionSetResult = false)
+      val result = navigator.dataRequired(testPage, userAnswers, testCall)
+      result.failed.futureValue mustBe a[NoSuchElementException]
     }
     "return the success page when data is present for data required navigation" in {
-
+      val navigator = testSetup()
+      val result = navigator.dataRequired(testPage, userAnswers, testCall)
+      whenReady(result) { res =>
+        res mustBe testCall
+      }
     }
     "return the error page when data is missing for data required navigation" in {
-
+      val navigator = testSetup()
+      val result = navigator.dataRequired(testPage, UserAnswers(""), testCall)
+      for {
+        res     <- result
+        default <- navigator.defaultPage
+      } yield {
+        res mustBe default
+      }
     }
     "return the success page when data is present for data dependent navigation" in {
-
+      val navigator = testSetup()
+      val result = navigator.dataDependent(testPage, userAnswers)(_ => testCall)
+      whenReady(result) { res =>
+        res mustBe testCall
+      }
     }
     "return the error page when data is missing for data dependent navigation" in {
-
+      val navigator = testSetup()
+      val result = navigator.dataDependent(testPage, UserAnswers(""))(_ => testCall)
+      for {
+        res <- result
+        default <- navigator.defaultPage
+      } yield {
+        res mustBe default
+      }
     }
     "call the provided function when data is present for data dependent navigation" in {
-
+      val navigator = testSetup()
+      val mockMethod = mock[Boolean => Call]
+      when(mockMethod.apply(true)).thenReturn(testCall)
+      val result = navigator.dataDependent(testPage, userAnswers)(mockMethod)
+        whenReady(result) { _ =>
+        verify(mockMethod, times(1)).apply(true)
+      }
     }
   }
 

@@ -32,7 +32,7 @@ trait Navigator:
 
 abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit ec: ExecutionContext) extends Navigator:
 
-  protected val defaultPage: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
+  protected[navigation] val defaultPage: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
   
   protected[navigation] def goTo(success: Call): Future[Call] =
     Future.successful(success)
