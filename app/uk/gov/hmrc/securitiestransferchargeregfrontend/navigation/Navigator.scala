@@ -34,13 +34,13 @@ abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit 
 
   protected val defaultPage: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
   
-  protected def goTo(success: Call): Future[Call] =
+  protected[navigation] def goTo(success: Call): Future[Call] =
     Future.successful(success)
-  
-  protected def dataRequired[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers, success: Call): Future[Call] =
+
+  protected[navigation] def dataRequired[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers, success: Call): Future[Call] =
     dataDependent(page, userAnswers)(_ => success)
 
-  protected def dataDependent[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers)(f: A => Call): Future[Call] =
+  protected[navigation] def dataDependent[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers)(f: A => Call): Future[Call] =
     userAnswers.get(page) match {
       case Some(value) =>
         sessionRepository

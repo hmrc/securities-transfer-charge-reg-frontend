@@ -30,8 +30,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.{IndividualDetailsP
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, IndividualAddressPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.*
 
 import java.time.Instant
@@ -73,14 +72,14 @@ class RegistrationAuditServiceSpec extends SpecBase with MockitoSugar with Match
       .set(UkOrNotPage, true).success.value
       .set(SelectBusinessTypePage, SelectBusinessType.Partnership).success.value
       .set(TypeOfPartnershipPage, TypeOfPartnership.LimitedPartnership).success.value
-      .set(AddressPage(), fakeAddress).success.value
+      .set(OrgAddressPage, fakeAddress).success.value
       .set(ContactEmailAddressPage, "test@test.com").success.value
       .set(ContactNumberPage, "07538 511 122").success.value
   }
 
   private def uaForIndividual(answers: UserAnswers): UserAnswers = {
     answers
-      .set(AddressPage(), fakeAddress).success.value
+      .set(IndividualAddressPage, fakeAddress).success.value
       .set(WhatsYourEmailAddressPage, "test@test.com").success.value
       .set(WhatsYourContactNumberPage, "07538 511 122").success.value
       .set(DateOfBirthRegPage, Fixtures.dateOfBirth).success.value

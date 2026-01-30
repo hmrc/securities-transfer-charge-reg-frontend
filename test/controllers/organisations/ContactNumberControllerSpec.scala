@@ -33,8 +33,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage, OrgAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactNumberView
 
@@ -139,7 +138,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(OrgAddressPage, fakeAddress).success.value
           .set(ContactEmailAddressPage, "test@test.com").success.value
           .set(ContactNumberPage, "07538 511 122").success.value
 
@@ -174,7 +173,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey recovery page if enrolment fails" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(OrgAddressPage, fakeAddress).success.value
           .set(ContactEmailAddressPage, "test@test.com").success.value
           .set(ContactNumberPage, "07538 511 122").success.value
 
@@ -209,7 +208,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to Journey recovery page if subscription fails" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(OrgAddressPage, fakeAddress).success.value
           .set(ContactEmailAddressPage, "test@test.com").success.value
           .set(ContactNumberPage, "07538 511 122").success.value
 

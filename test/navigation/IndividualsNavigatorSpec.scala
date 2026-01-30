@@ -21,8 +21,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.IndividualsNavigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{AddressPage, Page}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, IndividualAddressPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
 
 class IndividualsNavigatorSpec extends SpecBase {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -32,9 +32,9 @@ class IndividualsNavigatorSpec extends SpecBase {
 
     "in Normal mode" - {
 
-      "must go from a page that doesn't exist in the route map to Index" in {
+      "must go from a page that doesn't exist in the route map to Journey Recovery" in {
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.IndexController.onPageLoad()
+        navigator.nextPage(UnknownPage, NormalMode, UserAnswers("id")) mustBe routes.JourneyRecoveryController.onPageLoad()
       }
 
       "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
@@ -65,7 +65,7 @@ class IndividualsNavigatorSpec extends SpecBase {
 
       "must go from the Address to WhatsYourEmailAddressController" in {
         val answers = emptyUserAnswers
-        navigator.nextPage(AddressPage(), NormalMode, answers) mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+        navigator.nextPage(IndividualAddressPage, NormalMode, answers) mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
       }
       
       "must go from the WhatsYourEmailAddressPage to WhatsYourContactNumberPage" in {

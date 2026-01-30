@@ -16,7 +16,7 @@
 
 package navigation
 
-import base.{Fixtures, SpecBase}
+import base.SpecBase
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*

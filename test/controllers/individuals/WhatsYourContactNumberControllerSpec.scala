@@ -34,8 +34,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.r
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
@@ -85,7 +84,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(IndividualAddressPage, fakeAddress).success.value
           .set(WhatsYourEmailAddressPage, "test@test.com").success.value
           .set(WhatsYourContactNumberPage, "07538 511 122").success.value
           .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
@@ -124,7 +123,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must fail to journey recovery if there is no safe-id in the repository" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(IndividualAddressPage, fakeAddress).success.value
           .set(WhatsYourEmailAddressPage, "test@test.com").success.value
           .set(WhatsYourContactNumberPage, "07538 511 122").success.value
           .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value

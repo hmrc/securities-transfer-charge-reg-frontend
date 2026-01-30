@@ -33,3 +33,17 @@ class FakeSessionRepository extends SessionRepository:
 
   override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =
     Future.successful(updateFn(UserAnswers(key)))
+
+class FailingSessionRepository extends SessionRepository:
+  val failure = new RuntimeException("FAILED")
+  
+  override def get(id: String): Future[Option[UserAnswers]] = Future.failed(failure)
+
+  override def set(answers: UserAnswers): Future[Boolean] = Future.successful(false)
+
+  override def clear(id: String): Future[Boolean] = Future.successful(false)
+
+  override def keepAlive(id: String): Future[Boolean] = Future.successful(false)
+
+  override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =
+    Future.failed(failure)

@@ -23,13 +23,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 
 import scala.concurrent.{Future, ExecutionContext}
 
-class FakeNavigator(desiredRoute: Call) extends Navigator {
+class FakeNavigator(desiredRoute: Call) extends Navigator:
 
   implicit val ec: ExecutionContext = ExecutionContext.global
   
   override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
     Future.successful(desiredRoute)
-    
-  override def to[A](page: Page)(data: A): Call = desiredRoute
-}
+
+  val errorPage: Page => Call = _ => desiredRoute
 
