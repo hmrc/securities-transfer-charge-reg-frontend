@@ -25,7 +25,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourEmailAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourEmailAddressView
 
 import javax.inject.{Inject, Named}
@@ -33,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourEmailAddressController @Inject()(
                                                  override val messagesApi: MessagesApi,
-                                                 sessionRepository: SessionRepository,
                                                  @Named("individuals") navigator: Navigator,
                                                  auth: IndividualAuth,
                                                  formProvider: WhatsYourEmailAddressFormProvider,
