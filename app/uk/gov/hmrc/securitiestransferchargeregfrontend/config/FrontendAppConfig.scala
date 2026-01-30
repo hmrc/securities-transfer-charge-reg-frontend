@@ -25,7 +25,7 @@ import uk.gov.hmrc.play.bootstrap.config.ServicesConfig
 @Singleton
 class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig: ServicesConfig) {
 
-  val host: String    = configuration.get[String]("host")
+  val host: String    = servicesConfig.baseUrl("securities-transfer-charge-reg-frontend")
   val appName: String = configuration.get[String]("appName")
 
   val stcEnrolmentKey = "HMRC-STC-ORG"
@@ -39,7 +39,8 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginUrl: String         = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
-
+  val continueUrlBase: String = configuration.get[String]("urls.continue-url-base")
+  
   val unauthorisedUrl: String = configuration.get[String]("microservice.redirects.unauthorised-url")
   val registerUrl: String = configuration.get[String]("microservice.redirects.register-url")
   val registerIndividualUrl: String = configuration.get[String]("microservice.redirects.register-individual-url")
@@ -47,7 +48,6 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val registerOrganisationUrl: String = configuration.get[String]("microservice.redirects.register-organisation-url")
   val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
-  val assistantKickOutUrl: String = configuration.get[String]("microservice.redirects.assistant-ko-url")
 
   /*
    * GRS Incorporated Entity
@@ -59,7 +59,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsIncorporatedEntityBaseUrl/incorporated-entity-identification/api/journey"
 
   val grsIncorporatedEntityReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/incorporated-entity/return"
+    s"$continueUrlBase/org/registration/incorporated-entity/return"
 
   val grsLimitedCompanyJourneyUrl: String =
     s"${grsIncorporatedEntityBaseUrl}/incorporated-entity-identification/api/limited-company-journey"
@@ -78,7 +78,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsPartnershipBaseUrl/partnership-identification/api/journey"
     
   val grsPartnershipReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/partnership/return"
+    s"$continueUrlBase/org/registration/partnership/return"
 
   val grsLimitedPartnershipJourneyUrl: String =
     s"$grsPartnershipBaseUrl/partnership-identification/api/limited-partnership-journey"
@@ -100,7 +100,7 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$grsMinorEntityBaseUrl/minor-entity-identification/api/journey"
 
   val grsMinorEntityReturnUrl: String =
-    s"$host/register-securities-transfer-charge/org/registration/minor-entity/return"
+    s"$continueUrlBase/org/registration/minor-entity/return"
 
   val grsTrustJourneyUrl: String =
     s"$grsMinorEntityBaseUrl/minor-entity-identification/api/trusts-journey"
@@ -123,10 +123,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
     s"$addressLookupBaseUrl/api/confirmed"
 
   val alfIndividualsContinueUrl: String =
-    s"$host/register-securities-transfer-charge/address/return"
+    s"$continueUrlBase/address/return"
 
   val alfOrgContinueUrl: String =
-    s"$host/register-securities-transfer-charge/org/address/return"
+    s"$continueUrlBase/org/address/return"
 
   val individualsAlfConfigFileLocation: String = configuration.get[String]("alf.individuals-config-file")
   val organisationsAlfConfigFileLocation: String = configuration.get[String]("alf.organisations-config-file")

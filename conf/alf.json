@@ -11,7 +11,7 @@
     "showPhaseBanner": false,
     "alphaPhase": false,
     "disableTranslations": false,
-    "showBackButtons": true,
+    "showBackButtons": false,
     "includeHMRCBranding": true,
     "ukMode": false,
     "selectPageConfig": {
@@ -34,7 +34,7 @@
         "addressLine1": true,
         "addressLine2": false,
         "addressLine3": false,
-        "town": true,
+        "town": false,
         "postcode": true
       },
       "showOrganisationName": false
@@ -61,7 +61,7 @@
       "lookupPageLabels": {
         "title": "Find your address",
         "heading": "Find your address",
-        "filterLabel": "Property name or number (optional)",
+        "filterLabel": "Property name or number",
         "postcodeLabel": "Postcode",
         "submitLabel": "Continue",
         "noResultsFoundMessage": "Sorry, we couldn't find anything for that postcode.",
@@ -87,10 +87,8 @@
       "editPageLabels": {
         "title": "Enter your address",
         "heading": "Enter your address",
-        "organisationLabel": "Organisation (optional)",
         "line1Label": "Address line 1",
         "line2Label": "Address line 2",
-        "line3Label": "County",
         "townLabel": "Town or city",
         "postcodeLabel": "Postcode",
         "countryLabel": "Country",
@@ -121,7 +119,7 @@
         "title": "Find address welsh",
         "heading": "Find address welsh",
         "afterHeadingText": "We will use this address to send letters welsh",
-        "filterLabel": "Property name or number welsh (optional)",
+        "filterLabel": "Property name or number welsh",
         "postcodeLabel": "Postcode welsh",
         "submitLabel": "Find address welsh",
         "noResultsFoundMessage": "Sorry, we couldn't find anything for that postcode. welsh",
@@ -141,12 +139,11 @@
       "editPageLabels": {
         "title": "Enter address welsh",
         "heading": "Enter address welsh",
-        "organisationLabel": "Organisation (optional) welsh",
         "line1Label": "Address line 1 welsh",
-        "line2Label": "Address line 2 (optional) welsh",
-        "line3Label": "Address line 3 (optional) welsh",
+        "line2Label": "Address line 2 welsh",
+        "line3Label": "Address line 3 welsh",
         "townLabel": "Town/City welsh",
-        "postcodeLabel": "Postcode (optional) welsh",
+        "postcodeLabel": "Postcode welsh",
         "countryLabel": "Country welsh",
         "submitLabel": "Continue welsh"
       }

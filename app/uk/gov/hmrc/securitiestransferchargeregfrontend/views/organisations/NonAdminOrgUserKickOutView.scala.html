@@ -1,5 +1,5 @@
 @*
- * Copyright 2025 HM Revenue & Customs
+ * Copyright 2026 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,20 +23,9 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = titleNoForm(messages("registrationComplete.title")), showBackLink = false) {
+@layout(pageTitle = titleNoForm(messages("nonAdminOrgUserKickOut.title")), showBackLink = false) {
 
-<div class="govuk-width-container">
-    <main class="govuk-main-wrapper govuk-main-wrapper--l" id="main-content" role="main">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">
-                        @messages("registrationComplete.heading")
-                    </h1>
-                </div>
-                <p class="govuk-body">@messages("registrationComplete.p1") <a href="">@messages("registrationComplete.p1.link")</a></p>
-            </div>
-        </div>
-    </main>
-</div>
+    <h1 class="govuk-heading-xl">@messages("nonAdminOrgUserKickOut.heading")</h1>
+    <p class="govuk-body">@messages("nonAdminOrgUserKickOut.p1")</p>
+
 }

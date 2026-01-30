@@ -57,6 +57,10 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
         individualPage.para(1) mustBe Some(ExpectedIndividual.para1Value)
         individualPage.link(1) mustBe Some(Link(ExpectedIndividual.link1Value, ""))
       }
+      "should not have a back button" in {
+
+        individualPage.hasBackLink mustBe false
+      }
     }
   }
 

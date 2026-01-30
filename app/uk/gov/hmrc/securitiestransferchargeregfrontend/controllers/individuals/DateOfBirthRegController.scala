@@ -77,4 +77,3 @@ class DateOfBirthRegController @Inject()(
         }
       )
   }
-  
