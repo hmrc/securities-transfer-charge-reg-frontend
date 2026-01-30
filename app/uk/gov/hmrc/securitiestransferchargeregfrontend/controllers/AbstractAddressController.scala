@@ -53,13 +53,15 @@ abstract class AbstractAddressController( alf: AlfAddressConnector,
     for {
       address <- alf.alfRetrieveAddress(addressId)
       answers <- updateUserAnswers(userId)(address)
+      nextPage <- navigator.nextPage(AddressPage(), NormalMode, answers)
     } yield {
-        Redirect(navigator.nextPage(AddressPage(), NormalMode, answers))
+        Redirect(nextPage)
     }
   }
 
   private type AddressHandler = PartialFunction[AlfConfirmedAddress, Future[UserAnswers]]
   
+  // TODO: Don't need to store the UAs anymore
   private def updateUserAnswers[A](userId: String): AddressHandler =
     address =>
       logger.info("ALF returned address successfully")

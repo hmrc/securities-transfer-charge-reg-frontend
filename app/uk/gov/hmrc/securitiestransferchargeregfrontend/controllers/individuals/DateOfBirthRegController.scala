@@ -25,7 +25,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfB
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualDataRequest
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourEmailAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
@@ -36,13 +36,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class DateOfBirthRegController @Inject()(
                                           override val messagesApi: MessagesApi,
-                                          sessionRepository: SessionRepository,
-                                          @Named("individuals") navigator: Navigator,                                          auth: IndividualAuth,
+                                          @Named("individuals") navigator: Navigator,
+                                          auth: IndividualAuth,
                                           formProvider: DateOfBirthRegFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: DateOfBirthRegView,
                                           registrationConnector: RegistrationConnector,
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
 
@@ -70,27 +70,11 @@ class DateOfBirthRegController @Inject()(
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
         dateOfBirth =>
-          val updatedAnswers: Future[UserAnswers] = for {
-            _        <- registerUser(dateOfBirth.format(dobFormatter))
-            updated  <- updateUserAnswers(dateOfBirth)
-          } yield updated
-
-          updatedAnswers.recover {
-            case _ => request.userAnswers
-          }
-          .map { answers =>
-            Redirect(navigator.nextPage(DateOfBirthRegPage, mode, answers))
-          }
+          for {
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
+            _               <- registerUser(dateOfBirth.format(dobFormatter))
+            nextPage        <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
-
-  private def updateUserAnswers[A](dob: LocalDate)(implicit request: ValidIndividualDataRequest[A]): Future[UserAnswers] = {
-    request.userAnswers.set(DateOfBirthRegPage, dob).fold(
-      ex => Future.failed(ex),
-      updated =>
-        sessionRepository.set(updated).collect {
-        case true => updated
-      }
-    )
-  }
-}
+  

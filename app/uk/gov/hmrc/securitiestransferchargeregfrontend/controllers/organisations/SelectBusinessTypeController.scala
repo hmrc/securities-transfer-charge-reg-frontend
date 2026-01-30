@@ -24,7 +24,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.Selec
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
 
 import javax.inject.{Inject, Named}
@@ -32,7 +31,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelectBusinessTypeController @Inject()(
                                               override val messagesApi: MessagesApi,
-                                              sessionRepository: SessionRepository,
                                               @Named("organisations") navigator: Navigator,                                              auth: OrgAuth,
                                               formProvider: SelectBusinessTypeFormProvider,
                                               val controllerComponents: MessagesControllerComponents,
@@ -63,9 +61,9 @@ class SelectBusinessTypeController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(SelectBusinessTypePage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(SelectBusinessTypePage, mode, updatedAnswers))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(SelectBusinessTypePage, value))
+            nextPage        <- navigator.nextPage(SelectBusinessTypePage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
 }

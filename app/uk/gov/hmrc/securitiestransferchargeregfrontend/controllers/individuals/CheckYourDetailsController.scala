@@ -40,7 +40,7 @@ class CheckYourDetailsController @Inject()(
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourDetailsView
                                           )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with Logging {
+  extends FrontendBaseController with I18nSupport with Logging:
 
   import auth.*
   
@@ -58,22 +58,19 @@ class CheckYourDetailsController @Inject()(
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = {
-    (validIndividual andThen getData).async { implicit request =>
+    (validIndividual andThen getData andThen requireData).async { implicit request =>
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))),
-        value => {
-          val updatedAnswers =
-            request.userAnswers
-              .getOrElse(UserAnswers(request.request.userId))
-              .set(CheckYourDetailsPage, value)
-              .get
 
-          sessionRepository.set(updatedAnswers).map { _ =>
-            Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
-          }
-        })
+        areDetailsCorrect => {
+          for {
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourDetailsPage, areDetailsCorrect))
+            nextPage <- navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
+        }
+      )
     }
   }
-}
+

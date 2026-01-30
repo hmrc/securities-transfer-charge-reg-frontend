@@ -64,9 +64,9 @@ class WhatsYourEmailAddressController @Inject()(
 
         value =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(WhatsYourEmailAddressPage, mode, updatedAnswers))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, value))
+            nextPage        <- navigator.nextPage(WhatsYourEmailAddressPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
 }

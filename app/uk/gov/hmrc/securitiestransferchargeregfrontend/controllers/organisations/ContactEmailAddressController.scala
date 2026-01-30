@@ -25,7 +25,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.Conta
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.ContactEmailAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactEmailAddressView
 
 import javax.inject.{Inject, Named}
@@ -33,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class ContactEmailAddressController @Inject()(
                                                override val messagesApi: MessagesApi,
-                                               sessionRepository: SessionRepository,
                                                @Named("organisations") navigator: Navigator,                                               auth: OrgAuth,
                                                formProvider: ContactEmailAddressFormProvider,
                                                val controllerComponents: MessagesControllerComponents,
@@ -61,11 +59,11 @@ class ContactEmailAddressController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        email =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactEmailAddressPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(ContactEmailAddressPage, mode, updatedAnswers))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(ContactEmailAddressPage, email))
+            nextPage        <- navigator.nextPage(ContactEmailAddressPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
 }
