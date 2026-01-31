@@ -25,11 +25,11 @@ class FakeSessionRepository extends SessionRepository:
 
   override def get(id: String): Future[Option[UserAnswers]] = Future.successful(None)
 
-  override def set(answers: UserAnswers): Future[Boolean] = Future.successful(true)
+  override def set(answers: UserAnswers): Future[Unit] = Future.successful(())
 
-  override def clear(id: String): Future[Boolean] = Future.successful(true)
+  override def clear(id: String): Future[Unit] = Future.successful(())
 
-  override def keepAlive(id: String): Future[Boolean] = Future.successful(true)
+  override def keepAlive(id: String): Future[Unit] = Future.successful(())
 
   override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =
     Future.successful(updateFn(UserAnswers(key)))
@@ -39,11 +39,11 @@ class FailingSessionRepository extends SessionRepository:
   
   override def get(id: String): Future[Option[UserAnswers]] = Future.failed(failure)
 
-  override def set(answers: UserAnswers): Future[Boolean] = Future.successful(false)
+  override def set(answers: UserAnswers): Future[Unit] = Future.successful(())
 
-  override def clear(id: String): Future[Boolean] = Future.successful(false)
+  override def clear(id: String): Future[Unit] = Future.successful(())
 
-  override def keepAlive(id: String): Future[Boolean] = Future.successful(false)
+  override def keepAlive(id: String): Future[Unit] = Future.successful(())
 
   override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =
     Future.failed(failure)

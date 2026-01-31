@@ -42,8 +42,8 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
   private val mockSessionRepository = mock[SessionRepository]
   private val testCall = routes.JourneyRecoveryController.onPageLoad()
 
-  private def testSetup(SessionSetResult: Boolean = true): TestNavigator = {
-    when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(SessionSetResult))
+  private def testSetup(): TestNavigator = {
+    when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(()))
     new TestNavigator(mockSessionRepository)
   }
 
@@ -65,11 +65,6 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
       whenReady(result) { _ =>
         verify(mockSessionRepository, times(1)).set(userAnswers)
       }
-    }
-    "fail when storing user answers fails when navigating from a page that requires data" in {
-      val navigator = testSetup(SessionSetResult = false)
-      val result = navigator.dataRequired(testPage, userAnswers, testCall)
-      result.failed.futureValue mustBe a[NoSuchElementException]
     }
     "return the success page when data is present for data required navigation" in {
       val navigator = testSetup()

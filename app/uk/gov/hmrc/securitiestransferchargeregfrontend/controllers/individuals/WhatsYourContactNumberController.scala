@@ -65,12 +65,15 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        contactNumber =>
+        contactNumber => (
           for {
             updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
             nextPage        <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
             _               <- subscribe(updatedAnswers, innerRequest)
           } yield Redirect(nextPage)
+        ).recover { 
+          case _ => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
+        }
       )
     }
 

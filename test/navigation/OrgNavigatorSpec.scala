@@ -17,6 +17,7 @@
 package navigation
 
 import base.SpecBase
+import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
@@ -25,7 +26,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.OrgNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, SelectBusinessTypePage, TypeOfPartnershipPage}
 
-class OrgNavigatorSpec extends SpecBase {
+class OrgNavigatorSpec extends SpecBase with ScalaFutures {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
   val navigator = new OrgNavigator(new repositories.FakeSessionRepository)
 
@@ -36,49 +37,48 @@ class OrgNavigatorSpec extends SpecBase {
       "must go from the TypeOfPartnershipPage to partnershipKickOutPage when general partnership is selected" in {
         val answers = emptyUserAnswers
           .set(TypeOfPartnershipPage, TypeOfPartnership.GeneralPartnership).success.value
-        navigator.nextPage(
-          TypeOfPartnershipPage,
-          NormalMode,
-          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        }
       }
 
       "must go from the TypeOfPartnershipPage to partnershipKickOutPage when scottish partnership is selected" in {
         val answers = emptyUserAnswers
           .set(TypeOfPartnershipPage, TypeOfPartnership.ScottishPartnership).success.value
-        navigator.nextPage(
-          TypeOfPartnershipPage,
-          NormalMode,
-          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        }
       }
 
+      // TODO: Soletrader should not be kicked out to ParnershipKickOutPage. Fix this test and the navigator logic.
       "must go from the SelectBusinessTypePage to partnershipKickOutPage when soletrader is selected" in {
         val answers = emptyUserAnswers
           .set(SelectBusinessTypePage, SelectBusinessType.SoleTrader).success.value
-        navigator.nextPage(
-          SelectBusinessTypePage,
-          NormalMode,
-          answers) mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        }
       }
 
       "must go from the SelectBusinessTypePage to TypeOfPartnershipPage when partnership is selected" in {
         val answers = emptyUserAnswers
           .set(SelectBusinessTypePage, SelectBusinessType.Partnership).success.value
-        navigator.nextPage(
-          SelectBusinessTypePage,
-          NormalMode,
-          answers) mustBe orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+        }
       }
 
       "must go from the ContactEmailAddressPage to ContactNumberPage" in {
         val answers = emptyUserAnswers
           .set(ContactEmailAddressPage, "foo@example.com").success.value
-        navigator.nextPage(
-          ContactEmailAddressPage,
-          NormalMode,
-          answers) mustBe orgRoutes.ContactNumberController.onPageLoad(NormalMode)
+        val result = navigator.nextPage(ContactEmailAddressPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.ContactNumberController.onPageLoad(NormalMode)
+        }
       }
-
-
     }
 
     "in Check mode" - {
@@ -86,7 +86,10 @@ class OrgNavigatorSpec extends SpecBase {
       "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
 
         case object UnknownPage extends Page
-        navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id")) mustBe routes.CheckYourAnswersController.onPageLoad()
+        val result = navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id"))
+        whenReady(result) { res =>
+          res mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
       }
     }
   }

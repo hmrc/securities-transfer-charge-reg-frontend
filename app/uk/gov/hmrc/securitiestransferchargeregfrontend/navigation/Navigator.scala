@@ -45,6 +45,6 @@ abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit 
       case Some(value) =>
         sessionRepository
           .set(userAnswers)
-          .collect { case true => f(value) }
+          .map { _ => f(value) }
       case None => defaultPage
     }

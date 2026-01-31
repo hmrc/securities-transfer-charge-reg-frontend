@@ -31,6 +31,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult
 import play.api.test.Helpers.defaultAwaitTimeout
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.GrsPage
 
 class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
@@ -56,8 +57,7 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
     
     val navigator = mock[Navigator]
     when(navigator.nextPage(GrsPage, NormalMode, userAnswers)).thenReturn(Future.successful(successCall))
-    when(navigator.errorPage(GrsPage)).thenReturn(Future.successful(failureCall))
-    
+    when(navigator.errorPage).thenReturn { (_: Page) => failureCall }
     val controller = new BaseGrsController(controllerComponents, repo, navigator)
     controller.processResponse(userAnswers, grsResult)
   }
@@ -77,9 +77,9 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
       
       "but failing to store the results in the repository" - {
         
-        "should return a failed future" in {
+        "should return a redirect to a failure page" in {
           val outcome = testSetup(repoSetResponse = failure)
-          outcome.failed.futureValue mustBe a[Exception]
+          redirectLocation(outcome).value must startWith(failureCall.url)
         }
       }
     }

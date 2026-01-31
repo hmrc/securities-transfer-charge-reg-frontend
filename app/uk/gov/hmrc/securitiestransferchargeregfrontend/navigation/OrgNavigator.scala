@@ -34,11 +34,6 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
 
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
 
-    case organisationsPages.GrsPage => ???
-    
-    case organisationsPages.OrgAddressPage =>
-      userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
-
     case organisationsPages.RegForSecuritiesTransferChargePage =>
       _ => goTo(orgRoutes.UkOrNotController.onPageLoad(NormalMode))
 
@@ -57,7 +52,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
         case RegisteredSociety          => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
         case UnincorporatedAssociation  => orgRoutes.GrsMinorEntityController.unincorporatedAssociationJourney
       }
-  
+
     case organisationsPages.TypeOfPartnershipPage =>
       userAnswers => dataDependent(organisationsPages.TypeOfPartnershipPage, userAnswers) {
         case ScottishLimitedPartnership   => orgRoutes.GrsPartnershipController.scottishLimitedPartnershipJourney
@@ -65,10 +60,19 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
         case LimitedLiabilityPartnership  => orgRoutes.GrsPartnershipController.limitedLiabilityPartnershipJourney
         case _                            => orgRoutes.PartnershipKickOutController.onPageLoad()
       }
+      
+    case organisationsPages.GrsPage =>
+      _ => goTo(orgRoutes.AddressController.onPageLoad())
 
+    case organisationsPages.OrgAddressPage =>
+        userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
+      
     case organisationsPages.ContactEmailAddressPage =>
       userAnswers => dataRequired(organisationsPages.ContactEmailAddressPage, userAnswers, orgRoutes.ContactNumberController.onPageLoad(NormalMode))
-      
+
+    case organisationsPages.ContactNumberPage =>
+      userAnswers => dataRequired(organisationsPages.ContactNumberPage, userAnswers, orgRoutes.RegistrationCompleteController.onPageLoad())
+
     case _ => _ => defaultPage
   }
 
@@ -83,8 +87,9 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   }
 
   override val errorPage: Page => Call = {
+    // TODO: This is not the right kick out page.
     case organisationsPages.GrsPage => orgRoutes.PartnershipKickOutController.onPageLoad()
-    case organisationsPages.ContactNumberPage => ???
+    case organisationsPages.ContactNumberPage => routes.JourneyRecoveryController.onPageLoad()
     case organisationsPages.OrgAddressPage => ???
     case _ => routes.JourneyRecoveryController.onPageLoad()
   }
