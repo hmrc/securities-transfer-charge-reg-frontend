@@ -59,9 +59,9 @@ class SelectBusinessTypeController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        businessType =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(SelectBusinessTypePage, value))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(SelectBusinessTypePage, businessType))
             nextPage        <- navigator.nextPage(SelectBusinessTypePage, mode, updatedAnswers)
           } yield Redirect(nextPage)
       )

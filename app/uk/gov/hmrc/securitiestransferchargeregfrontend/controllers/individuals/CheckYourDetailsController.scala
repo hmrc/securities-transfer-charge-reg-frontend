@@ -64,8 +64,8 @@ class CheckYourDetailsController @Inject()(
 
         areDetailsCorrect => {
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(CheckYourDetailsPage, areDetailsCorrect))
-            nextPage <- navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(CheckYourDetailsPage, areDetailsCorrect))
+            nextPage        <- navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers)
           } yield Redirect(nextPage)
         }
       )

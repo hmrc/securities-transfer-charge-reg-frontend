@@ -59,9 +59,10 @@ class TypeOfPartnershipController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
+
+        typeOfPartnership =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(TypeOfPartnershipPage, value))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(TypeOfPartnershipPage, typeOfPartnership))
             nextPage       <- navigator.nextPage(TypeOfPartnershipPage, mode, updatedAnswers)
           } yield Redirect(nextPage)
       )
