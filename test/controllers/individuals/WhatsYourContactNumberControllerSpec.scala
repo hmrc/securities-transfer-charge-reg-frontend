@@ -30,7 +30,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.Enro
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{SubscriptionConnector, SubscriptionErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
@@ -133,7 +133,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       val mockSubscriptionConnector = mock[SubscriptionConnector]
 
       when(mockSubscriptionConnector.subscribeAndEnrolIndividual(any[String])(any[UserAnswers], any[ValidIndividualData]())(any[HeaderCarrier]()))
-        .thenReturn(Future.failed(new Exception("Subscription failed")))
+        .thenReturn(Future.failed(new SubscriptionErrorException("Subscription failed")))
 
       val emptyRegistrationData = new RegistrationData(Fixtures.user, None, None)
 

@@ -40,16 +40,12 @@ class BaseGrsController(val controllerComponents: MessagesControllerComponents,
   private def processSuccess(userAnswers: UserAnswers): PartialFunction[GrsResult, Future[Result]] = {
     case GrsSuccess(utr, safe) =>
       logger.info("GRS journey succeeded - processing results")
-      (
-        for {
-          _         <- registrationDataRepository.setCtUtr(userAnswers.id)(utr)
-          _         <- registrationDataRepository.setSafeId(userAnswers.id)(safe)
-          nextPage  <- navigator.nextPage(GrsPage, NormalMode, userAnswers)
-          _         =  logger.info("GRS data processed - redirecting to next page.")
-        } yield Redirect(nextPage)
-      ).recover {
-        case _ => Redirect(navigator.errorPage(GrsPage))
-      }
+      for {
+        _         <- registrationDataRepository.setCtUtr(userAnswers.id)(utr)
+        _         <- registrationDataRepository.setSafeId(userAnswers.id)(safe)
+        nextPage  <- navigator.nextPage(GrsPage, NormalMode, userAnswers)
+        _         =  logger.info("GRS data processed - redirecting to next page.")
+      } yield Redirect(nextPage)
   }
   
   private def processFailure: PartialFunction[GrsResult, Future[Result]] = {

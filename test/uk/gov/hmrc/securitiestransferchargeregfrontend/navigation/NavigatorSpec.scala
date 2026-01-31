@@ -43,6 +43,7 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
   private val testCall = routes.JourneyRecoveryController.onPageLoad()
 
   private def testSetup(): TestNavigator = {
+    reset(mockSessionRepository)
     when(mockSessionRepository.set(any[UserAnswers]())).thenReturn(Future.successful(()))
     new TestNavigator(mockSessionRepository)
   }
@@ -58,6 +59,14 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
     "successfully go to a page" in {
       val result = new TestNavigator(new FakeSessionRepository()).goTo(testCall)
       result.futureValue mustBe testCall
+    }
+    "store user answers if supplied when going to a page" in {
+      val navigator = testSetup()
+      val result = navigator.goTo(testCall, Some(userAnswers))
+      whenReady(result) { _ =>
+        verify(mockSessionRepository, times(1)).set(userAnswers)
+        result.futureValue mustBe testCall
+      }
     }
     "store user answers when navigating from a page that requires data" in {
       val navigator = testSetup()

@@ -35,7 +35,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
 
     case organisationsPages.RegForSecuritiesTransferChargePage =>
-      _ => goTo(orgRoutes.UkOrNotController.onPageLoad(NormalMode))
+      userAnswers => goTo(orgRoutes.UkOrNotController.onPageLoad(NormalMode), Some(userAnswers))
 
     case organisationsPages.UkOrNotPage =>
       userAnswers => dataDependent(organisationsPages.UkOrNotPage, userAnswers) { isUk =>

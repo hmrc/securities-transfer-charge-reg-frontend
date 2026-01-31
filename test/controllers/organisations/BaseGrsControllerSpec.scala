@@ -21,6 +21,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Result}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import org.mockito.Mockito.*
+import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.{redirectLocation, status}
 import play.api.http.Status.SEE_OTHER
 
@@ -34,7 +35,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.GrsPage
 
-class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
+class BaseGrsControllerSpec extends SpecBase with MockitoSugar with ScalaFutures:
 
   private def controllerComponents = mock[MessagesControllerComponents]
   private def registrationDataRepository = mock[RegistrationDataRepository]
@@ -77,9 +78,9 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
       
       "but failing to store the results in the repository" - {
         
-        "should return a redirect to a failure page" in {
+        "should fail the exception" in {
           val outcome = testSetup(repoSetResponse = failure)
-          redirectLocation(outcome).value must startWith(failureCall.url)
+          outcome.failed.futureValue mustBe a[Exception]
         }
       }
     }

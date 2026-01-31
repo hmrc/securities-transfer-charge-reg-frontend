@@ -32,7 +32,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
 
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
     case individualsPages.RegForSecuritiesTransferChargePage =>
-      _ => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode))
+      userAnswers => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode), Some(userAnswers))
 
     case individualsPages.CheckYourDetailsPage =>
       userAnswers => dataDependent(individualsPages.CheckYourDetailsPage, userAnswers) { detailsCorrect =>
@@ -42,7 +42,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
 
     case individualsPages.DateOfBirthRegPage =>
       userAnswers => dataRequired(individualsPages.DateOfBirthRegPage, userAnswers, individualRoutes.AddressController.onPageLoad())
-        
+      
     case individualsPages.IndividualAddressPage =>
       userAnswers => dataRequired(individualsPages.IndividualAddressPage, userAnswers, individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode))
 

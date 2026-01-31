@@ -27,7 +27,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.IndividualAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.OrgAddressPage
 
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
@@ -52,8 +51,8 @@ class AddressController @Inject() (val controllerComponents: MessagesControllerC
     implicit request =>
       implicit val hc: HeaderCarrier = HeaderCarrierConverter.fromRequestAndSession(request, request.session)
       for {
-        address <- super.alfReturn(addressId)
+        address     <- super.alfReturn(addressId)
         userAnswers <- Future.fromTry(request.userAnswers.set(IndividualAddressPage, address))
-        nextPage <- navigator.nextPage(OrgAddressPage, NormalMode, userAnswers)
+        nextPage    <- navigator.nextPage(IndividualAddressPage, NormalMode, userAnswers)
       } yield Redirect(nextPage)
   }

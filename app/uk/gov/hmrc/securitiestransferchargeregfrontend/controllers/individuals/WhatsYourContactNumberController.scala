@@ -20,7 +20,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -72,7 +72,8 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
             _               <- subscribe(updatedAnswers, innerRequest)
           } yield Redirect(nextPage)
         ).recover { 
-          case _ => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
+          case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
+            => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
         }
       )
     }
