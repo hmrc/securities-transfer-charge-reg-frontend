@@ -22,7 +22,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.IndividualsNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, IndividualAddressPage, RegForSecuritiesTransferChargePage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{CheckYourDetailsPage, DateOfBirthRegPage, IndividualAddressPage, RegForSecuritiesTransferChargePage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
 
 import java.time.LocalDate
 
@@ -93,6 +93,13 @@ class IndividualsNavigatorSpec extends SpecBase {
         val result = navigator.nextPage(WhatsYourEmailAddressPage, NormalMode, answers)
         whenReady(result) { res =>
           res mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+        }
+      }
+      "must go from the WhatsYourContactNumberPage to RegistrationComplete" in {
+        val answers = emptyUserAnswers.set(WhatsYourContactNumberPage, "01234567890").get
+        val result = navigator.nextPage(WhatsYourContactNumberPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe individualRoutes.RegistrationCompleteController.onPageLoad()
         }
       }
     }

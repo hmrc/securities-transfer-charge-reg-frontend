@@ -24,7 +24,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.OrgNavigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, SelectBusinessTypePage, TypeOfPartnershipPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.*
 
 class OrgNavigatorSpec extends SpecBase with ScalaFutures {
   implicit val ec: scala.concurrent.ExecutionContext = scala.concurrent.ExecutionContext.global
@@ -33,26 +33,30 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
   "Navigator" - {
 
     "in Normal mode" - {
-
-      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when general partnership is selected" in {
+      "must go from RegistrationStart to UkOrNot" in {
         val answers = emptyUserAnswers
-          .set(TypeOfPartnershipPage, TypeOfPartnership.GeneralPartnership).success.value
-        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        val result = navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+          res mustBe orgRoutes.UkOrNotController.onPageLoad(NormalMode)
         }
       }
 
-      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when scottish partnership is selected" in {
-        val answers = emptyUserAnswers
-          .set(TypeOfPartnershipPage, TypeOfPartnership.ScottishPartnership).success.value
-        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+      "must go from UkOrNot to SelectBusinessType if the answer is yes" in {
+        val answers = emptyUserAnswers.set(UkOrNotPage, true).get
+        val result = navigator.nextPage(UkOrNotPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+          res mustBe orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
         }
       }
 
-      // TODO: Soletrader should not be kicked out to ParnershipKickOutPage. Fix this test and the navigator logic.
+      "must go from UkOrNot to UkOrNotKickOut if the answer is no" in {
+        val answers = emptyUserAnswers.set(UkOrNotPage, false).get
+        val result = navigator.nextPage(UkOrNotPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.UkOrNotKickOutController.onPageLoad()
+        }
+      }
+
       "must go from the SelectBusinessTypePage to partnershipKickOutPage when soletrader is selected" in {
         val answers = emptyUserAnswers
           .set(SelectBusinessTypePage, SelectBusinessType.SoleTrader).success.value
@@ -71,6 +75,87 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
         }
       }
 
+      "must go from the SelectBusinessTypePage to limitedCompanyJourney when limited company is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.LimitedCompany).success.value
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
+        }
+      }
+
+      "must go from the SelectBusinessTypePage to registeredSocietyJourney when registered society is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.RegisteredSociety).success.value
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
+        }
+      }
+
+      "must go from the SelectBusinessTypePage to GRS trust journey when trust is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.Trust).success.value
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsMinorEntityController.trustJourney
+        }
+      }
+
+      "must go from the SelectBusinessTypePage to GRS unincorporated entity journey when unincorporated entity is selected" in {
+        val answers = emptyUserAnswers
+          .set(SelectBusinessTypePage, SelectBusinessType.UnincorporatedAssociation).success.value
+        val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsMinorEntityController.unincorporatedAssociationJourney
+        }
+      }
+      
+      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when general partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.GeneralPartnership).success.value
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        }
+      }
+
+      "must go from the TypeOfPartnershipPage to partnershipKickOutPage when scottish partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.ScottishPartnership).success.value
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.PartnershipKickOutController.onPageLoad()
+        }
+      }
+
+      "must go from the TypeOfPartnershipPage to GRS limited partnership journey when limited partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.LimitedPartnership).success.value
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsPartnershipController.limitedPartnershipJourney
+        }
+      }
+
+      "must go from the TypeOfPartnershipPage to GRS Scottish limited partnership journey when Scottish limited partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.ScottishLimitedPartnership).success.value
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsPartnershipController.scottishLimitedPartnershipJourney
+        }
+      }
+
+      "must go from the TypeOfPartnershipPage to GRS limited liability partnership journey when limited liability partnership is selected" in {
+        val answers = emptyUserAnswers
+          .set(TypeOfPartnershipPage, TypeOfPartnership.LimitedLiabilityPartnership).success.value
+        val result = navigator.nextPage(TypeOfPartnershipPage, NormalMode, answers)
+        whenReady(result) { res =>
+          res mustBe orgRoutes.GrsPartnershipController.limitedLiabilityPartnershipJourney
+        }
+      }
+      
       "must go from the ContactEmailAddressPage to ContactNumberPage" in {
         val answers = emptyUserAnswers
           .set(ContactEmailAddressPage, "foo@example.com").success.value

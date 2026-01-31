@@ -94,7 +94,7 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
       val navigator = testSetup()
       val result = navigator.dataDependent(testPage, UserAnswers(""))(_ => testCall)
       for {
-        res <- result
+        res     <- result
         default <- navigator.defaultPage
       } yield {
         res mustBe default
