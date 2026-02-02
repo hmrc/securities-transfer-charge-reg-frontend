@@ -70,7 +70,7 @@ class DateOfBirthRegController @Inject()(
           for {
             updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
             nextPage        <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
-            _               <- registerUser(dateOfBirth.format(dobFormatter))
+            _               <- registerUser(dateOfBirth.toString)
           } yield Redirect(nextPage)
       ).recover {
           case _: RegistrationErrorException => Redirect(navigator.errorPage(DateOfBirthRegPage))
