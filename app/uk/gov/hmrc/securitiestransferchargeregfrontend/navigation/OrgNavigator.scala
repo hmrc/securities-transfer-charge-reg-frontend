@@ -90,7 +90,6 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     // TODO: This is not the right kick out page.
     case organisationsPages.GrsPage => orgRoutes.PartnershipKickOutController.onPageLoad()
     case organisationsPages.ContactNumberPage => routes.JourneyRecoveryController.onPageLoad()
-    case organisationsPages.OrgAddressPage => ???
     case _ => routes.JourneyRecoveryController.onPageLoad()
   }
 }
