@@ -26,7 +26,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.TypeOfPartnershipPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.TypeOfPartnershipView
 
 import javax.inject.{Inject, Named}
@@ -34,7 +33,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TypeOfPartnershipController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             sessionRepository: SessionRepository,
                                              @Named("organisations") navigator: Navigator,                                             auth: OrgAuth,
                                              formProvider: TypeOfPartnershipFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
@@ -61,11 +59,12 @@ class TypeOfPartnershipController @Inject()(
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
-        value =>
+
+        typeOfPartnership =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(TypeOfPartnershipPage, value))
-            _ <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(TypeOfPartnershipPage, mode, updatedAnswers))
+            updatedAnswers <- Future.fromTry(request.userAnswers.set(TypeOfPartnershipPage, typeOfPartnership))
+            nextPage       <- navigator.nextPage(TypeOfPartnershipPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
 }

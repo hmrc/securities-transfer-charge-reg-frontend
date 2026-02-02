@@ -23,10 +23,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.CheckYourDetailsPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.CheckYourDetailsView
 
 import javax.inject.{Inject, Named}
@@ -34,13 +33,12 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class CheckYourDetailsController @Inject()(
                                             override val messagesApi: MessagesApi,
-                                            sessionRepository: SessionRepository,
                                             @Named("individuals") navigator: Navigator,                                            auth: IndividualAuth,
                                             formProvider: CheckYourDetailsFormProvider,
                                             val controllerComponents: MessagesControllerComponents,
                                             view: CheckYourDetailsView
                                           )(implicit ec: ExecutionContext)
-  extends FrontendBaseController with I18nSupport with Logging {
+  extends FrontendBaseController with I18nSupport with Logging:
 
   import auth.*
   
@@ -58,22 +56,19 @@ class CheckYourDetailsController @Inject()(
 
 
   def onSubmit(mode: Mode): Action[AnyContent] = {
-    (validIndividual andThen getData).async { implicit request =>
+    (validIndividual andThen getData andThen requireData).async { implicit request =>
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))),
-        value => {
-          val updatedAnswers =
-            request.userAnswers
-              .getOrElse(UserAnswers(request.request.userId))
-              .set(CheckYourDetailsPage, value)
-              .get
 
-          sessionRepository.set(updatedAnswers).map { _ =>
-            Redirect(navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers))
-          }
-        })
+        areDetailsCorrect => {
+          for {
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(CheckYourDetailsPage, areDetailsCorrect))
+            nextPage        <- navigator.nextPage(CheckYourDetailsPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
+        }
+      )
     }
   }
-}
+

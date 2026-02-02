@@ -22,16 +22,18 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.play.http.HeaderCarrierConverter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsPartnershipConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 
 class GrsPartnershipController @Inject() (controllerComponents: MessagesControllerComponents,
                                           connector: GrsPartnershipConnector,
                                           auth: OrgAuth,
+                                          @Named("organisations") navigator: Navigator,
                                           dataRepository: RegistrationDataRepository)
-                                         (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository)  with Logging:
+                                         (implicit ec: ExecutionContext) extends BaseGrsController(controllerComponents, dataRepository, navigator)  with Logging:
 
   import auth.*
 
@@ -56,6 +58,6 @@ class GrsPartnershipController @Inject() (controllerComponents: MessagesControll
   def returnFromJourney(journeyId: String): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
       connector.retrieveGrsResults(journeyId).flatMap { result =>
-        super.processResponse(request.request.userId, result)
+        super.processResponse(request.userAnswers, result)
       }
   }

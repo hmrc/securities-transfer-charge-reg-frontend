@@ -19,29 +19,26 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.RegistrationConnector
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationConnector, RegistrationErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualDataRequest
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
-import java.time.LocalDate
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class DateOfBirthRegController @Inject()(
                                           override val messagesApi: MessagesApi,
-                                          sessionRepository: SessionRepository,
-                                          @Named("individuals") navigator: Navigator,                                          auth: IndividualAuth,
+                                          @Named("individuals") navigator: Navigator,
+                                          auth: IndividualAuth,
                                           formProvider: DateOfBirthRegFormProvider,
                                           val controllerComponents: MessagesControllerComponents,
                                           view: DateOfBirthRegView,
                                           registrationConnector: RegistrationConnector,
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
 
@@ -68,26 +65,14 @@ class DateOfBirthRegController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        dateOfBirth =>
-          val result = for {
-            updated  <- updateUserAnswers(dateOfBirth)
-            _        <- registerUser(dateOfBirth.toString)
-          } yield {
-              Redirect(navigator.nextPage(DateOfBirthRegPage, mode, updated))
-          }
-          result.recoverWith {
-            case _ => Future.successful(Redirect(routes.UpdateDobKickOutController.onPageLoad()))
-          }
+        dateOfBirth => (
+          for {
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
+            nextPage        <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
+            _               <- registerUser(dateOfBirth.toString)
+          } yield Redirect(nextPage)
+      ).recover {
+          case _: RegistrationErrorException => Redirect(navigator.errorPage(DateOfBirthRegPage))
+        }
       )
   }
-
-  private def updateUserAnswers[A](dob: LocalDate)(implicit request: ValidIndividualDataRequest[A]): Future[UserAnswers] = {
-    request.userAnswers.set(DateOfBirthRegPage, dob).fold(
-      ex => Future.failed(ex),
-      updated =>
-        sessionRepository.set(updated).collect {
-        case true => updated
-      }
-    )
-  }
-}

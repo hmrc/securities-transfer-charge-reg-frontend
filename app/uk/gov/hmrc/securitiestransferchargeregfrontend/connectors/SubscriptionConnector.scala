@@ -51,10 +51,10 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
     for {
-      regData <- registrationDataRepository.getRegistrationData(userId)
-      safeId <- getSafeId(regData)
-      subscriptionId <- subscribe(safeId, userAnswers, data)
-      _ <- enrol(subscriptionId, data.nino)
+      regData         <- registrationDataRepository.getRegistrationData(userId)
+      safeId          <- getSafeId(regData)
+      subscriptionId  <- subscribe(safeId, userAnswers, data)
+      _               <- enrol(subscriptionId, data.nino)
     } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
   }
 
@@ -114,7 +114,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
     answers =>
       data =>
         for {
-          alf <- getAddress(answers)
+          alf <- getIndividualAddress(answers)
           address = alf.address
           (l1, l2, l3) <- extractLines(address)
           email <- getEmailAddress(answers)
@@ -124,7 +124,7 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
 
   private val buildOrganisationSubscriptionDetails: String => UserAnswers => Option[OrganisationSubscriptionDetails] = { safeId => answers =>
     for {
-      alf          <- getAddress(answers)
+      alf          <- getOrgAddress(answers)
       address      =  alf.address
       (l1, l2, l3) <- extractLines(address)
       email        <- getContactEmailAddress(answers)

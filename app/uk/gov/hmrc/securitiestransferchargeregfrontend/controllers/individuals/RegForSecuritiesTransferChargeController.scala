@@ -30,10 +30,11 @@ import javax.inject.{Inject, Named}
 import scala.concurrent.ExecutionContext
 
 class RegForSecuritiesTransferChargeController @Inject()(auth: IndividualAuth,
-                                                         @Named("individuals") navigator: Navigator, val controllerComponents: MessagesControllerComponents,
+                                                         @Named("individuals") navigator: Navigator,
+                                                         val controllerComponents: MessagesControllerComponents,
                                                          view: RegForSecuritiesTransferChargeView,
                                                          registrationRepository: RegistrationDataRepository
-                                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                                        )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
 
@@ -44,8 +45,10 @@ class RegForSecuritiesTransferChargeController @Inject()(auth: IndividualAuth,
 
   def onSubmit(): Action[AnyContent] = validIndividual.async {
     implicit request =>
-      registrationRepository.setStartedAt(request.userId).map { _ =>
-        Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
-      }
+      val userId = request.userId
+      for {
+        _         <- registrationRepository.setStartedAt(userId)
+        nextPage  <- navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers(userId))
+      } yield Redirect(nextPage)
   }
-}
+

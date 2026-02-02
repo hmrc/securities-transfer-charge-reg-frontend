@@ -25,7 +25,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYo
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.WhatsYourEmailAddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourEmailAddressView
 
 import javax.inject.{Inject, Named}
@@ -33,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class WhatsYourEmailAddressController @Inject()(
                                                  override val messagesApi: MessagesApi,
-                                                 sessionRepository: SessionRepository,
                                                  @Named("individuals") navigator: Navigator,
                                                  auth: IndividualAuth,
                                                  formProvider: WhatsYourEmailAddressFormProvider,
@@ -62,11 +60,11 @@ class WhatsYourEmailAddressController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        emailAddress =>
           for {
-            updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, value))
-            _              <- sessionRepository.set(updatedAnswers)
-          } yield Redirect(navigator.nextPage(WhatsYourEmailAddressPage, mode, updatedAnswers))
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourEmailAddressPage, emailAddress))
+            nextPage        <- navigator.nextPage(WhatsYourEmailAddressPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
       )
   }
 }

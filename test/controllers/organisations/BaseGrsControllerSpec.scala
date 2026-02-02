@@ -21,6 +21,7 @@ import org.scalatestplus.mockito.MockitoSugar
 import play.api.mvc.{MessagesControllerComponents, Result}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
 import org.mockito.Mockito.*
+import org.scalatest.concurrent.ScalaFutures
 import play.api.test.Helpers.{redirectLocation, status}
 import play.api.http.Status.SEE_OTHER
 
@@ -29,7 +30,12 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult.{GrsFailure, GrsSuccess}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.GrsResult
 import play.api.test.Helpers.defaultAwaitTimeout
-class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.GrsPage
+
+class BaseGrsControllerSpec extends SpecBase with MockitoSugar with ScalaFutures:
 
   private def controllerComponents = mock[MessagesControllerComponents]
   private def registrationDataRepository = mock[RegistrationDataRepository]
@@ -39,9 +45,9 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
   private val testSafeId = "X123456789-00"
   private val success = Future.successful(())
   private val failure = Future.failed(new Exception("FAILED"))
-  private val successUrl = orgRoutes.AddressController.onPageLoad().url
-  private val failureUrl = orgRoutes.PartnershipKickOutController.onPageLoad().url
-  
+  private val successCall = orgRoutes.AddressController.onPageLoad()
+  private val failureCall = orgRoutes.PartnershipKickOutController.onPageLoad()
+  private val userAnswers = UserAnswers(testUserId)
   implicit val ec: ExecutionContext = ExecutionContext.global
   
   def testSetup(repoSetResponse: Future[Unit] = success,
@@ -49,8 +55,12 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
     val repo = registrationDataRepository
     when(repo.setCtUtr(testUserId)(testUtr)).thenReturn(repoSetResponse)
     when(repo.setSafeId(testUserId)(testSafeId)).thenReturn(repoSetResponse)
-    val controller = new BaseGrsController(controllerComponents, repo)
-    controller.processResponse(testUserId, grsResult)
+    
+    val navigator = mock[Navigator]
+    when(navigator.nextPage(GrsPage, NormalMode, userAnswers)).thenReturn(Future.successful(successCall))
+    when(navigator.errorPage).thenReturn { (_: Page) => failureCall }
+    val controller = new BaseGrsController(controllerComponents, repo, navigator)
+    controller.processResponse(userAnswers, grsResult)
   }
   
   "BaseGrsControllerSpec processResponse should" - {
@@ -62,13 +72,13 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
         "should redirect the user to the next page" in {
           val outcome = testSetup()
           status(outcome) mustEqual SEE_OTHER
-          redirectLocation(outcome).value must startWith(successUrl)
+          redirectLocation(outcome).value must startWith(successCall.url)
         }
       }
       
       "but failing to store the results in the repository" - {
         
-        "should return a failed future" in {
+        "should fail the exception" in {
           val outcome = testSetup(repoSetResponse = failure)
           outcome.failed.futureValue mustBe a[Exception]
         }
@@ -79,7 +89,7 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar:
 
       "should redirect to the KO page" in {
         val outcome = testSetup(grsResult = GrsFailure("OH NO!"))
-        redirectLocation(outcome).value must startWith(failureUrl)
+        redirectLocation(outcome).value must startWith(failureCall.url)
       }
     }
 }

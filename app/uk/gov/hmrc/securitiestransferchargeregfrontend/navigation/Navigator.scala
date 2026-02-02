@@ -16,9 +16,36 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
+import play.api.libs.json.Reads
 import play.api.mvc.Call
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
+import uk.gov.hmrc.securitiestransferchargeregfrontend.queries.Gettable
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
+
+import scala.concurrent.{ExecutionContext, Future}
 
 trait Navigator:
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call]
+  val errorPage: Page => Call
+
+abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit ec: ExecutionContext) extends Navigator:
+
+  protected[navigation] val defaultPage: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
+  
+  protected[navigation] def goTo(success: Call, userAnswers: Option[UserAnswers] = None): Future[Call] =
+    userAnswers.fold
+     (Future.successful(success))
+     (ua => sessionRepository.set(ua).map(_ => success) )
+
+  protected[navigation] def dataRequired[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers, success: Call): Future[Call] =
+    dataDependent(page, userAnswers)(_ => success)
+
+  protected[navigation] def dataDependent[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers)(f: A => Call): Future[Call] =
+    userAnswers.get(page)
+      .fold(defaultPage)(value => 
+        sessionRepository.set(userAnswers).map {
+          _ => f(value) 
+        }
+      )

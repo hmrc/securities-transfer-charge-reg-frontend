@@ -57,7 +57,13 @@ object Fixtures {
     subscriptionId = Some(Fixtures.subscriptionId),
     ctUtr = Some(Fixtures.utr)
   )
-
+  val fakeAlfAddress: AlfAddress = AlfAddress(
+    List("1 high street", "bobbins on sea"), "ZZ1 1ZZ", Country("GB", "United Kingdom")
+  )
+  val fakeAlfConfirmedAddress: AlfConfirmedAddress = AlfConfirmedAddress(
+    "foo", Some("bar"), fakeAlfAddress
+  )
+  
   val dateOfBirth: LocalDate =  LocalDate.now().minusYears(20)
   val formattedDateOfBirth: String = dateOfBirth.format(dobFormatter)
 
@@ -154,12 +160,6 @@ object Fixtures {
   import play.api.mvc.Results.Ok
   
   class FakeAlfConnector extends AlfAddressConnector {
-    val fakeAlfAddress: AlfAddress = AlfAddress(
-      List("1 high street", "bobbins on sea"), "ZZ1 1ZZ", Country("GB", "United Kingdom")
-    )
-    val fakeAlfConfirmedAddress: AlfConfirmedAddress = AlfConfirmedAddress(
-      "foo", Some("bar"), fakeAlfAddress
-    )
 
     override def alfRetrieveAddress(key: String)(implicit hc: HeaderCarrier): Future[AlfConfirmedAddress] = Future.successful(fakeAlfConfirmedAddress)
 

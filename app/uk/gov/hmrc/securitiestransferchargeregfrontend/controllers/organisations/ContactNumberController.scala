@@ -22,20 +22,18 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.RegistrationCompleteController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, NormalMode}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.ContactNumberPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.ContactNumberView
 
-import javax.inject.Inject
+import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
 class ContactNumberController @Inject()(
                                          override val messagesApi: MessagesApi,
-                                         sessionRepository: SessionRepository,
+                                         @Named("organisations") navigator: Navigator,
                                          auth: OrgAuth,
                                          formProvider: ContactNumberFormProvider,
                                          val controllerComponents: MessagesControllerComponents,
@@ -67,15 +65,15 @@ class ContactNumberController @Inject()(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value =>
+        contactNumber =>
           val subscribeAndEnrol = subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId, innerRequest.credId)
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(ContactNumberPage, value))
-            _               <- sessionRepository.set(updatedAnswers)
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(ContactNumberPage, contactNumber))
+            nextPage        <- navigator.nextPage(ContactNumberPage, NormalMode, updatedAnswers)
             _               <- subscribeAndEnrol(updatedAnswers)
-          } yield Redirect(RegistrationCompleteController.onPageLoad())
+          } yield Redirect(nextPage)
       ).recover {
-        case _ => Redirect(JourneyRecoveryController.onPageLoad())
+        case _ => Redirect(navigator.errorPage(ContactNumberPage))
       }
   }
 }

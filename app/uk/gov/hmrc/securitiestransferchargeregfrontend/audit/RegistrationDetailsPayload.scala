@@ -60,7 +60,7 @@ object RegistrationDetailsPayload {
                      userAnswers: UserAnswers
                     ): Option[IndividualDetailsPayload] =
     for {
-      alf <- getAddress(userAnswers)
+      alf <- getIndividualAddress(userAnswers)
       dob <- getDateOfBirth(userAnswers)
       address = alf.address
       uprn = alf.id.map(_.filter(_.isDigit))
@@ -88,7 +88,7 @@ object RegistrationDetailsPayload {
     for {
       ukOrNot <- getUkOrNot(userAnswers)
       businessType <- userAnswers.get(SelectBusinessTypePage).map(_.toString)
-      alf <- getAddress(userAnswers)
+      alf <- getOrgAddress(userAnswers)
       address = alf.address
       uprn = alf.id.map(_.filter(_.isDigit))
       (l1, l2, l3) <- extractLines(address)

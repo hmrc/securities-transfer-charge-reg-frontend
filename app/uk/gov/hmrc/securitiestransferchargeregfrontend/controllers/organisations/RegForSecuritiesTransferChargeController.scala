@@ -47,8 +47,10 @@ class RegForSecuritiesTransferChargeController @Inject()(
 
   def onSubmit(): Action[AnyContent] = validOrg.async {
     implicit request =>
-      registrationRepository.setStartedAt(request.userId).map { _ =>
-        Redirect(navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers("")))
-      }
+      for {
+        _         <- registrationRepository.setStartedAt(request.userId)
+        nextPage  <- navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, UserAnswers.empty(request.userId))
+      } yield Redirect(nextPage)
+      
   }
 }

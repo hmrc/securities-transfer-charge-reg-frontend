@@ -23,69 +23,73 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.{organisations as organisationsPages, *}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 import javax.inject.{Inject, Singleton}
+import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
-class OrgNavigator @Inject() extends Navigator {
-  
-  private val normalRoutes: Page => UserAnswers => Call = {
-    
-    case _: AddressPage[_] =>
-      _ => orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
+class OrgNavigator @Inject()(sessionRepository: SessionRepository)
+                            (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) {
+
+  private val normalRoutes: Page => UserAnswers => Future[Call] = {
 
     case organisationsPages.RegForSecuritiesTransferChargePage =>
-      _ => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+      userAnswers => goTo(orgRoutes.UkOrNotController.onPageLoad(NormalMode), Some(userAnswers))
 
     case organisationsPages.UkOrNotPage =>
-      userAnswers => {
-        userAnswers.get(organisationsPages.UkOrNotPage) match {
-          case Some(true)   => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
-          case Some(false)  => orgRoutes.UkOrNotKickOutController.onPageLoad()
-          case None => routes.JourneyRecoveryController.onPageLoad()
-        }
+      userAnswers => dataDependent(organisationsPages.UkOrNotPage, userAnswers) { isUk =>
+        if (isUk) orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+        else orgRoutes.UkOrNotKickOutController.onPageLoad()
       }
 
     case organisationsPages.SelectBusinessTypePage =>
-      userAnswers => {
-        userAnswers.get(organisationsPages.SelectBusinessTypePage) match {
-          case Some(LimitedCompany)             => orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
-          case Some(Partnership)                => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
-          case Some(SoleTrader)                 => orgRoutes.PartnershipKickOutController.onPageLoad()
-          case Some(Trust)                      => orgRoutes.GrsMinorEntityController.trustJourney
-          case Some(RegisteredSociety)          => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
-          case Some(UnincorporatedAssociation)  => orgRoutes.GrsMinorEntityController.unincorporatedAssociationJourney
-          case None                             => routes.JourneyRecoveryController.onPageLoad()
-        }
+      userAnswers => dataDependent(organisationsPages.SelectBusinessTypePage, userAnswers) {
+        case LimitedCompany             => orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
+        case Partnership                => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+        case SoleTrader                 => orgRoutes.PartnershipKickOutController.onPageLoad()
+        case Trust                      => orgRoutes.GrsMinorEntityController.trustJourney
+        case RegisteredSociety          => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
+        case UnincorporatedAssociation  => orgRoutes.GrsMinorEntityController.unincorporatedAssociationJourney
       }
-  
+
     case organisationsPages.TypeOfPartnershipPage =>
-      userAnswers => typeOfPartnershipNavigation(userAnswers)
-
-    case organisationsPages.ContactEmailAddressPage =>
-      _ => orgRoutes.ContactNumberController.onPageLoad(NormalMode)
-
-    case _ =>
-      _ => routes.IndexController.onPageLoad()
-  }
-
-  private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
-
-  private def typeOfPartnershipNavigation(userAnswers: UserAnswers): Call =
-    userAnswers
-      .get(organisationsPages.TypeOfPartnershipPage)
-      .map {
+      userAnswers => dataDependent(organisationsPages.TypeOfPartnershipPage, userAnswers) {
         case ScottishLimitedPartnership   => orgRoutes.GrsPartnershipController.scottishLimitedPartnershipJourney
         case LimitedPartnership           => orgRoutes.GrsPartnershipController.limitedPartnershipJourney
         case LimitedLiabilityPartnership  => orgRoutes.GrsPartnershipController.limitedLiabilityPartnershipJourney
         case _                            => orgRoutes.PartnershipKickOutController.onPageLoad()
       }
-      .getOrElse(routes.JourneyRecoveryController.onPageLoad())
+      
+    case organisationsPages.GrsPage =>
+      _ => goTo(orgRoutes.AddressController.onPageLoad())
 
+    case organisationsPages.OrgAddressPage =>
+        userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
+      
+    case organisationsPages.ContactEmailAddressPage =>
+      userAnswers => dataRequired(organisationsPages.ContactEmailAddressPage, userAnswers, orgRoutes.ContactNumberController.onPageLoad(NormalMode))
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Call =
+    case organisationsPages.ContactNumberPage =>
+      userAnswers => dataRequired(organisationsPages.ContactNumberPage, userAnswers, orgRoutes.RegistrationCompleteController.onPageLoad())
+
+    case _ => _ => defaultPage
+  }
+
+  private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
+  
+
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode  => checkRouteMap(page)(userAnswers)
+      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
     }
+  }
+
+  override val errorPage: Page => Call = {
+    // TODO: This is not the right kick out page.
+    case organisationsPages.GrsPage => orgRoutes.PartnershipKickOutController.onPageLoad()
+    case organisationsPages.ContactNumberPage => routes.JourneyRecoveryController.onPageLoad()
+    case _ => routes.JourneyRecoveryController.onPageLoad()
+  }
 }

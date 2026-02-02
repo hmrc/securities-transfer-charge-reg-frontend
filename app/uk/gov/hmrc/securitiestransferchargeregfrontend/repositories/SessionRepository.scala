@@ -36,11 +36,11 @@ trait SessionRepository {
     
   def get(id: String): Future[Option[UserAnswers]]
 
-  def set(answers: UserAnswers): Future[Boolean]
+  def set(answers: UserAnswers): Future[Unit]
 
-  def clear(id: String): Future[Boolean]
+  def clear(id: String): Future[Unit]
 
-  def keepAlive(id: String): Future[Boolean]
+  def keepAlive(id: String): Future[Unit]
 }
 
 @Singleton
@@ -67,14 +67,14 @@ class SessionRepositoryImpl @Inject()(
 
   private def byId(id: String): Bson = Filters.equal("_id", id)
 
-  def keepAlive(id: String): Future[Boolean] = Mdc.preservingMdc {
+  def keepAlive(id: String): Future[Unit] = Mdc.preservingMdc {
     collection
       .updateOne(
         filter = byId(id),
         update = Updates.set("lastUpdated", Instant.now(clock)),
       )
       .toFuture()
-      .map(_ => true)
+      .map(_ => ())
   }
 
   def get(id: String): Future[Option[UserAnswers]] = Mdc.preservingMdc {
@@ -86,7 +86,7 @@ class SessionRepositoryImpl @Inject()(
     }
   }
 
-  def set(answers: UserAnswers): Future[Boolean] = Mdc.preservingMdc {
+  def set(answers: UserAnswers): Future[Unit] = Mdc.preservingMdc {
 
     val updatedAnswers = answers copy (lastUpdated = Instant.now(clock))
 
@@ -97,14 +97,14 @@ class SessionRepositoryImpl @Inject()(
         options     = ReplaceOptions().upsert(true)
       )
       .toFuture()
-      .map(_ => true)
+      .map(_ => ())
   }
 
-  def clear(id: String): Future[Boolean] = Mdc.preservingMdc {
+  def clear(id: String): Future[Unit] = Mdc.preservingMdc {
     collection
       .deleteOne(byId(id))
       .toFuture()
-      .map(_ => true)
+      .map(_ => ())
   }
   
   override def updateAndStore(key: String, updateFn: UserAnswers => UserAnswers): Future[UserAnswers] =

@@ -22,10 +22,9 @@ import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrNotFormProvider
-import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, UserAnswers}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.UkOrNotPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotView
 
 import javax.inject.{Inject, Named}
@@ -33,7 +32,6 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UkOrNotController @Inject()(
                                    override val messagesApi: MessagesApi,
-                                   sessionRepository: SessionRepository,
                                    @Named("organisations") navigator: Navigator,                                   auth: OrgAuth,
                                    formProvider: UkOrNotFormProvider,
                                    val controllerComponents: MessagesControllerComponents,
@@ -54,23 +52,18 @@ class UkOrNotController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        value => {
-          val updatedAnswers =
-            request.userAnswers
-              .getOrElse(UserAnswers(request.request.userId))
-              .set(UkOrNotPage, value)
-              .get
-
-          sessionRepository.set(updatedAnswers).map { _ =>
-            Redirect(navigator.nextPage(UkOrNotPage, mode, updatedAnswers))
-          }
+        isUk => {
+          for {
+            updatedAnswers  <- Future.fromTry(request.userAnswers.set(UkOrNotPage, isUk))
+            nextPage        <- navigator.nextPage(UkOrNotPage, mode, updatedAnswers)
+          } yield Redirect(nextPage)
         }
       )
   }

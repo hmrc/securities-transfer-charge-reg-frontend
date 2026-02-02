@@ -26,12 +26,11 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditSe
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationDataNotFoundException, SubscriptionConnector, SubscriptionConnectorImpl, SubscriptionErrorException}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{IndividualAddressPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.{ContactEmailAddressPage, ContactNumberPage, OrgAddressPage}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 
 import java.time.Instant
@@ -79,7 +78,7 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
     for {
       a1 <- email.fold(Success(answers))(answers.set(WhatsYourEmailAddressPage, _))
       a2 <- tel.fold(Success(a1))(a1.set(WhatsYourContactNumberPage, _))
-      a3 <- address.fold(Success(a2))(a2.set(AddressPage(), _))
+      a3 <- address.fold(Success(a2))(a2.set(IndividualAddressPage, _))
     } yield a3
   }.get
 
@@ -90,7 +89,7 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
     for {
       a1 <- email.fold(Success(answers))(answers.set(ContactEmailAddressPage, _))
       a2 <- tel.fold(Success(a1))(a1.set(ContactNumberPage, _))
-      a3 <- address.fold(Success(a2))(a2.set(AddressPage(), _))
+      a3 <- address.fold(Success(a2))(a2.set(OrgAddressPage, _))
     } yield a3
   }.get
 

@@ -26,16 +26,17 @@ import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionStatus.SubscriptionActive
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualEnrolmentDetails, IndividualSubscriptionDetails, RegistrationClient}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{SubscriptionConnector, SubscriptionErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.AddressPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.{DateOfBirthRegPage, WhatsYourContactNumberPage, WhatsYourEmailAddressPage}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{RegistrationData, RegistrationDataRepository}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 
@@ -85,7 +86,7 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
     "must redirect to RegistrationCompletePage on successful subscribe and enrol after valid data is submitted" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(IndividualAddressPage, fakeAddress).success.value
           .set(WhatsYourEmailAddressPage, "test@test.com").success.value
           .set(WhatsYourContactNumberPage, "07538 511 122").success.value
           .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
@@ -121,31 +122,25 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must fail to journey recovery if there is no safe-id in the repository" in {
+    "must fail to journey recovery if there subscription fails" in {
       val userAnswers =
         emptyUserAnswers
-          .set(AddressPage(), fakeAddress).success.value
+          .set(IndividualAddressPage, fakeAddress).success.value
           .set(WhatsYourEmailAddressPage, "test@test.com").success.value
           .set(WhatsYourContactNumberPage, "07538 511 122").success.value
           .set(DateOfBirthRegPage, LocalDate.now().minusYears(20)).success.value
 
-      val fakeRegistrationClient = mock[RegistrationClient]
+      val mockSubscriptionConnector = mock[SubscriptionConnector]
 
-      when(fakeRegistrationClient.subscribe(any[IndividualSubscriptionDetails]())(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(Right(SubscriptionSuccessful(Fixtures.subscriptionId))))
-
-      when(fakeRegistrationClient.enrolIndividual(any[IndividualEnrolmentDetails]())(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(Right(EnrolmentFailed)))
-
-      when(fakeRegistrationClient.hasCurrentSubscription(any[String]())(any[HeaderCarrier]()))
-        .thenReturn(Future.successful(Right(SubscriptionActive)))
+      when(mockSubscriptionConnector.subscribeAndEnrolIndividual(any[String])(any[UserAnswers], any[ValidIndividualData]())(any[HeaderCarrier]()))
+        .thenReturn(Future.failed(new SubscriptionErrorException("Subscription failed")))
 
       val emptyRegistrationData = new RegistrationData(Fixtures.user, None, None)
 
       val application =
         applicationBuilder(userAnswers = Some(userAnswers))
           .overrides(
-            bind[RegistrationClient].toInstance(fakeRegistrationClient),
+            bind[SubscriptionConnector].toInstance(mockSubscriptionConnector),
             bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository(emptyRegistrationData))
           )
           .build()
