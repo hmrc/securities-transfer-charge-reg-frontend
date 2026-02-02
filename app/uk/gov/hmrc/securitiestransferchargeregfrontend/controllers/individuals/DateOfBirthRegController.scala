@@ -25,7 +25,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfB
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
-import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.DateTimeFormats.dobFormatter
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 
 import javax.inject.{Inject, Named}
