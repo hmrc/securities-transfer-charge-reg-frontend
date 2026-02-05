@@ -38,7 +38,7 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
   object ExpectedIndividual {
     val title = "What’s your date of birth?"
-    val pageTitle = "Your details"
+    val caption = "Your details"
     val heading = "What’s your date of birth?"
     val hint = "For example, 27 3 2007."
 
@@ -53,8 +53,8 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
         individualPage.title must include(ExpectedIndividual.title)
       }
 
-      "display the correct page title content" in {
-        individualPage.hintText mustBe Some(ExpectedIndividual.pageTitle)
+      "display the correct caption text" in {
+        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
 
       "have the correct heading" in {

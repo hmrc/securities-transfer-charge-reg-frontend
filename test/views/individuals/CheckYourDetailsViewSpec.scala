@@ -41,7 +41,7 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     val heading = "Check your details"
     val continue = "Continue"
 
-    val hintValue = "Your details"
+    val caption = "Your details"
 
     val summaryCard1Key = "First name"
     val summaryCard2Key = "Last name"
@@ -65,8 +65,8 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
-      "display the correct hint text" in {
-        individualPage.hintText mustBe Some(ExpectedIndividual.hintValue)
+      "display the correct caption text" in {
+        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
 
       "display the correct content in the Summary Card" in {
