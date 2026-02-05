@@ -35,11 +35,11 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait StcValidOrgAction extends ActionBuilder[StcValidOrgRequest, AnyContent]
 
-class StcValidOrgActionImpl @Inject()( override val authConnector: AuthConnector,
+class StcValidOrgActionImpl @Inject()(override val authConnector: AuthConnector,
                                       config: FrontendAppConfig,
                                       retrievalFilter: RetrievalFilter,
                                       val parser: BodyParsers.Default )
-                                    ( implicit val executionContext: ExecutionContext) extends StcValidOrgAction with Logging with AuthorisedFunctions:
+                                     (implicit val executionContext: ExecutionContext) extends StcValidOrgAction with Logging with AuthorisedFunctions:
 
   private[actions] val retrievals = internalId and allEnrolments and affinityGroup and credentialRole and credentials
 
