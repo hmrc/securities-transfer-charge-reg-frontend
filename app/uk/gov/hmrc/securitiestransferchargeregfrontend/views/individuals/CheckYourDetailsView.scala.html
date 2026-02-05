@@ -32,7 +32,7 @@
 @(form: Form[_], firstName: String, lastName: String, nino: String, mode: Mode)(implicit request: Request[_], messages: Messages)
 
 @layout(pageTitle = title(form, messages("checkYourDetails.title"))) {
-    <div id="more-detail-hint" class="govuk-hint">
+    <div id="more-detail-hint" class="govuk-caption-l">
         @messages("checkYourDetails.hint")
     </div>
 

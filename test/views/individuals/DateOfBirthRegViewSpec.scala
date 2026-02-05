@@ -16,16 +16,13 @@
 
 package views.individuals
 
-import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.{CheckYourDetailsView, DateOfBirthRegView}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
 import views.ViewBaseSpec
-
-import java.time.LocalDate
 
 class DateOfBirthRegViewSpec extends ViewBaseSpec {
 
