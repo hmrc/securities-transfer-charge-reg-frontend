@@ -33,7 +33,7 @@ class RegistrationCompleteController @Inject()(
 
   import auth.*
   
-  def onPageLoad: Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
+  def onPageLoad: Action[AnyContent] = validIndividual {
     implicit request =>
       Ok(view())
   }
