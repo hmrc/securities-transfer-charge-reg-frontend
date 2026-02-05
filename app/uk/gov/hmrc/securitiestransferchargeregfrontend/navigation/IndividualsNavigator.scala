@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.navigation
 
+import play.api.Logging
 import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
@@ -28,9 +29,10 @@ import scala.concurrent.{ExecutionContext, Future}
 
 @Singleton
 class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
-                                    (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) {
+                                    (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) with Logging {
 
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
+    
     case individualsPages.RegForSecuritiesTransferChargePage =>
       userAnswers => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode), Some(userAnswers))
 
@@ -49,9 +51,13 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
     case individualsPages.WhatsYourEmailAddressPage =>
       userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode))
       
-    case individualsPages.WhatsYourContactNumberPage =>
-      userAnswers => dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
-      
+    case individualsPages.WhatsYourContactNumberPage => 
+      userAnswers => for {
+        nextPage  <- dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
+        _         <- sessionRepository.clear(userAnswers.id)
+        _          = logger.info(s"Navigating to registration complete - session data cleared.")
+      } yield nextPage
+
     case _ => _ => defaultPage
   }
 
