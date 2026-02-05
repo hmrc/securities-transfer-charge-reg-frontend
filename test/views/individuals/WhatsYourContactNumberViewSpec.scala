@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.{UpdateDetailsKickOutView, WhatsYourContactNumberView}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 import views.ViewBaseSpec
 
 class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
@@ -38,7 +38,7 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
   object ExpectedIndividual {
     val title = "What’s your contact number?"
-    val pageTitle = "Your details"
+    val caption = "Your details"
     val heading = "What’s your contact number?"
     val hint = "For international numbers, include the country code."
 
@@ -52,8 +52,8 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
         individualPage.title must include(ExpectedIndividual.title)
       }
 
-      "display the correct page title content" in {
-        individualPage.hintText mustBe Some(ExpectedIndividual.pageTitle)
+      "display the correct caption text" in {
+        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
 
       "have the correct heading" in {

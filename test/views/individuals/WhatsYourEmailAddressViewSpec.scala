@@ -21,7 +21,7 @@ import org.jsoup.nodes.Document
 import play.api.Application
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
-import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.{UpdateDetailsKickOutView, WhatsYourEmailAddressView}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourEmailAddressView
 import views.ViewBaseSpec
 
 class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {
@@ -39,9 +39,7 @@ class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {
   object ExpectedIndividual {
     val title = "What’s your email address?"
     val heading = "What’s your email address?"
-
-    val hint = "Your details"
-
+    val caption = "Your details"
   }
 
   "The RegForSecuritiesTransferChargeView" - {
@@ -56,9 +54,8 @@ class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
       }
 
-      "display the correct hint content" in {
-
-        individualPage.hintText mustBe Some(ExpectedIndividual.hint)
+      "display the correct caption text" in {
+        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
     }
   }

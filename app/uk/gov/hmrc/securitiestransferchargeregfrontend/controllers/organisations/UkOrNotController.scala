@@ -32,7 +32,8 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UkOrNotController @Inject()(
                                    override val messagesApi: MessagesApi,
-                                   @Named("organisations") navigator: Navigator,                                   auth: OrgAuth,
+                                   @Named("organisations") navigator: Navigator,
+                                   auth: OrgAuth,
                                    formProvider: UkOrNotFormProvider,
                                    val controllerComponents: MessagesControllerComponents,
                                    view: UkOrNotView

@@ -16,11 +16,9 @@
 
 package views.organisations
 
-import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
-import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourEmailAddressFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
