@@ -32,7 +32,9 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class UkOrNotController @Inject()(
                                    override val messagesApi: MessagesApi,
-                                   @Named("organisations") navigator: Navigator,                                   auth: OrgAuth,
+                                   sessionRepository: SessionRepository,
+                                   @Named("organisations") navigator: Navigator,
+                                   auth: OrgAuth,
                                    formProvider: UkOrNotFormProvider,
                                    val controllerComponents: MessagesControllerComponents,
                                    view: UkOrNotView
@@ -52,18 +54,23 @@ class UkOrNotController @Inject()(
       Ok(view(preparedForm, mode))
   }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+  def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
         formWithErrors =>
           Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        isUk => {
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(UkOrNotPage, isUk))
-            nextPage        <- navigator.nextPage(UkOrNotPage, mode, updatedAnswers)
-          } yield Redirect(nextPage)
+        value => {
+          val updatedAnswers =
+            request.userAnswers
+              .getOrElse(UserAnswers(request.request.userId))
+              .set(UkOrNotPage, value)
+              .get
+
+          sessionRepository.set(updatedAnswers).map { _ =>
+            Redirect(navigator.nextPage(UkOrNotPage, mode, updatedAnswers))
+          }
         }
       )
   }
