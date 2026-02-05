@@ -23,7 +23,6 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrN
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.UkOrNotView
 import views.ViewBaseSpec
-import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 class UkOrNotViewSpec extends ViewBaseSpec {
 
