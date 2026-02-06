@@ -68,7 +68,7 @@ dateOfBirthReg.error.required.two = Date of birth must include a {0} and a {1}
 dateOfBirthReg.error.required = Date of birth must include a {0}
 dateOfBirthReg.error.invalid = Date of birth must be a real date
 dateOfBirthReg.error.futureDate = Date of birth must be in the past
-dateOfBirthReg.error.pastDate = Date of birth must not be earlier than {0}
+dateOfBirthReg.error.pastDate = Date of birth must be on or after {0}
 dateOfBirthReg.error.under18 = You need to be 18 years old or older to use this service
 dateOfBirthReg.change.hidden = Change your date of birth
 
