@@ -11,7 +11,7 @@
     "showPhaseBanner": false,
     "alphaPhase": false,
     "disableTranslations": false,
-    "showBackButtons": false,
+    "showBackButtons": true,
     "includeHMRCBranding": true,
     "ukMode": false,
     "selectPageConfig": {
