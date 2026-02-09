@@ -44,7 +44,7 @@ object RegistrationData {
 
 trait RegistrationDataRepository {
   def getRegistrationData(id: String): Future[RegistrationData]
-  def setSafeId(id: String)(safeId: String): Future[Unit]
+  def setSafeId(id: String)(maybeSafeId: Option[String]): Future[Unit]
   def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit]
   def setStartedAt(id: String): Future[Unit]
 
@@ -99,8 +99,8 @@ class RegistrationDataRepositoryImpl @Inject()( mongoComponent: MongoComponent,
 
   override def getRegistrationData(id: String): Future[RegistrationData] = get(id)
 
-  override def setSafeId(id: String)(safeId: String): Future[Unit] =
-    setElement(id, _.copy(safeId = Some(safeId)))
+  override def setSafeId(id: String)(maybeSafeId: Option[String]): Future[Unit] =
+    setElement(id, _.copy(safeId = maybeSafeId))
 
   override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] =
     setElement(id, _.copy(subscriptionId = Some(subscriptionId)))
