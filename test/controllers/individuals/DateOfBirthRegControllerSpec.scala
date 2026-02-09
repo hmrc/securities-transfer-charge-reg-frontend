@@ -21,6 +21,7 @@ import base.SpecBase
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.inject.bind
@@ -43,8 +44,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Da
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
-
+class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider = new DateOfBirthRegFormProvider()
@@ -111,8 +111,10 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
           .build()
 
       running(application) {
-        route(application, getRequest()).value
-        verify(mockRegistrationConnector, times(1)).clearRegistration(any[String])
+        val result = route(application, getRequest()).value
+        whenReady(result) { _ =>
+          verify(mockRegistrationConnector, times(1)).clearRegistration(any[String])
+        }
       }
     }
 
@@ -139,11 +141,12 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
 
       running(application) {
         val result = route(application, postRequest()).value
-        
+        whenReady(result) { _ =>
+          verify(mockRegistrationConnector, times(1)).registerIndividual(any[String])(any[ValidIndividualData])(any[String])(any[HeaderCarrier])
+        }
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
         
-        verify(mockRegistrationConnector, times(1)).registerIndividual(any[String])(any[ValidIndividualData])(any[String])(any[HeaderCarrier])
       }
     }
 
