@@ -20,7 +20,8 @@ import base.Fixtures.safeId
 import base.SpecBase
 import navigation.FakeNavigator
 import org.mockito.ArgumentMatchers.any
-import org.mockito.Mockito.when
+import org.mockito.Mockito.{times, verify, when}
+import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import play.api.i18n.Messages
 import play.api.inject.bind
@@ -29,9 +30,11 @@ import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualRegistrationDetails, RegistrationClient, RegistrationResponse}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.RegistrationConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes as individualRoutes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.individuals.DateOfBirthRegPage
@@ -41,8 +44,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Da
 import java.time.LocalDate
 import scala.concurrent.Future
 
-class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
-
+class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with ScalaFutures {
   private implicit val messages: Messages = stubMessages()
 
   private val formProvider = new DateOfBirthRegFormProvider()
@@ -51,7 +53,8 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   val validAnswer: LocalDate = LocalDate.of(1990, 1, 1)
-
+  val success: Future[Unit] = Future.successful(())
+  
   lazy val dateOfBirthRegRoute: String = individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode).url
   lazy val dateOfBirthPostRoute: String = individualRoutes.DateOfBirthRegController.onSubmit(NormalMode).url
 
@@ -97,9 +100,30 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
       }
     }
 
-    "must redirect to the next page when valid data is submitted" in {
+    "must clear the safe-id from the repository on a GET when the question has previously been answered" in {
+      val userAnswers = UserAnswers(userAnswersId).set(DateOfBirthRegPage, validAnswer).success.value
+      val mockRegistrationConnector = mock[RegistrationConnector]
+      when(mockRegistrationConnector.clearRegistration(userAnswersId)).thenReturn(success)
+      
+      val application =
+        applicationBuilder(userAnswers = Some(userAnswers))
+          .overrides(bind[RegistrationConnector].toInstance(mockRegistrationConnector))
+          .build()
+
+      running(application) {
+        val result = route(application, getRequest()).value
+        whenReady(result) { _ =>
+          verify(mockRegistrationConnector, times(1)).clearRegistration(any[String])
+        }
+      }
+    }
+
+    "must redirect to the next page and save the safe-id in the repository when valid data is submitted" in {
       val mockSessionRepository = mock[SessionRepository]
       when(mockSessionRepository.set(any())) thenReturn Future.successful(true)
+      
+      val mockRegistrationConnector = mock[RegistrationConnector]
+      when(mockRegistrationConnector.registerIndividual(any[String])(any[ValidIndividualData])(any[String])(any[HeaderCarrier])).thenReturn(success)
       
       val fakeRegistrationClient = mock[RegistrationClient]
       when(fakeRegistrationClient.register(any[IndividualRegistrationDetails]())(any[HeaderCarrier]()))
@@ -111,15 +135,18 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar {
             bind[Navigator].qualifiedWith("individuals").toInstance(new FakeNavigator(onwardRoute)),
             bind[SessionRepository].toInstance(mockSessionRepository),
             bind[RegistrationClient].toInstance(fakeRegistrationClient),
-            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository)
-          )
+            bind[RegistrationDataRepository].toInstance(new repositories.FakeRegistrationDataRepository),
+            bind[RegistrationConnector].toInstance(mockRegistrationConnector))
           .build()
 
       running(application) {
         val result = route(application, postRequest()).value
-
+        whenReady(result) { _ =>
+          verify(mockRegistrationConnector, times(1)).registerIndividual(any[String])(any[ValidIndividualData])(any[String])(any[HeaderCarrier])
+        }
         status(result) mustEqual SEE_OTHER
         redirectLocation(result).value mustEqual onwardRoute.url
+        
       }
     }
 

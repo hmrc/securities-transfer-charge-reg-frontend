@@ -54,7 +54,7 @@ class BaseGrsControllerSpec extends SpecBase with MockitoSugar with ScalaFutures
                 grsResult: GrsResult = GrsSuccess(testUtr, testSafeId)): Future[Result] = {
     val repo = registrationDataRepository
     when(repo.setCtUtr(testUserId)(testUtr)).thenReturn(repoSetResponse)
-    when(repo.setSafeId(testUserId)(testSafeId)).thenReturn(repoSetResponse)
+    when(repo.setSafeId(testUserId)(Some(testSafeId))).thenReturn(repoSetResponse)
     
     val navigator = mock[Navigator]
     when(navigator.nextPage(GrsPage, NormalMode, userAnswers)).thenReturn(Future.successful(successCall))

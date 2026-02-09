@@ -20,6 +20,7 @@ import play.api.Logging
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.RegistrationDataRepository
+import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers
 import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{IndividualRegistrationDetails, RegistrationClient, RegistrationResponse}
 
@@ -27,16 +28,18 @@ import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
 
-trait RegistrationConnector {
+trait RegistrationConnector:
+  def clearRegistration(userId: String): Future[Unit]
   def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String)(implicit hc: HeaderCarrier): Future[Unit]
-}
 
 class RegistrationErrorException(msg: String) extends RuntimeException(msg)
 
 class RegistrationConnectorImpl @Inject() ( registrationClient: RegistrationClient,
                                             registrationDataRepository: RegistrationDataRepository)
-                                          (implicit ec: ExecutionContext) extends RegistrationConnector with Logging:
+                                          ( implicit ec: ExecutionContext) extends RegistrationConnector with Logging:
 
+  private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
+  
   private def buildIndividualRequest(data: ValidIndividualData, dateOfBirth: String): IndividualRegistrationDetails = {
     IndividualRegistrationDetails(
       firstName = data.firstName,
@@ -47,17 +50,22 @@ class RegistrationConnectorImpl @Inject() ( registrationClient: RegistrationClie
     )
   }
 
+  override def clearRegistration(userId: String): Future[Unit] = {
+    logger.info(s"Removing registration data for user [$userId]")
+    registrationDataRepository.setSafeId(userId)(None)
+  }
+  
   override def registerIndividual(userId: String)(data: ValidIndividualData)(dateOfBirth: String)(implicit hc: HeaderCarrier): Future[Unit] = {
     registrationClient.register(buildIndividualRequest(data, dateOfBirth)).flatMap {
       case Right(RegistrationResponse.RegistrationSuccessful(safeId)) =>
-        registrationDataRepository.setSafeId(userId)(safeId).map(_ => ())
+        registrationDataRepository.setSafeId(userId)(Some(safeId)).map(_ =>
+          logger.info(s"Added registration data for user [$userId]")
+        )
       case Right(_) =>
-        val msg = s"RegistrationConnector: Unsuccessful response when registering userId: $userId"
-        logger.info(msg)
-        Future.failed(new RegistrationErrorException(msg))
+        val ex = new RegistrationErrorException(s"RegistrationConnector: Unsuccessful response when registering userId: $userId")
+        logInfoAndFail(ex)
       case Left(error) =>
-        val msg = s"RegistrationConnector: Error response when registering userId: $userId, error: $error"
-        logger.info(msg)
-        Future.failed(new RegistrationErrorException(msg))
+        val ex = new RegistrationErrorException(s"RegistrationConnector: Error response when registering userId: $userId, error: $error")
+        logInfoAndFail(ex)
     }
   }

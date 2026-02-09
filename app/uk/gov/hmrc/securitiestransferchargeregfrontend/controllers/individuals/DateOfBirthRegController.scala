@@ -46,11 +46,14 @@ class DateOfBirthRegController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
     implicit request =>
       val form = formProvider()
-
+      
       val preparedForm =
         request.userAnswers.get(DateOfBirthRegPage) match {
           case None => form
-          case Some(value) => form.fill(value)
+          case Some(value) =>
+            // STOSB-1355 - the user has come back after being matched in ETMP - we have to remove that match now.
+            registrationConnector.clearRegistration(request.request.userId)
+            form.fill(value)
         }
       Ok(view(preparedForm, mode))
   }

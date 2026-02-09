@@ -26,7 +26,7 @@ class FakeRegistrationDataRepository(data: RegistrationData = Fixtures.registrat
   override def getRegistrationData(id: String): Future[RegistrationData] =
     Future.successful(data)
 
-  override def setSafeId(id: String)(safeId: String): Future[Unit] = Future.successful(())
+  override def setSafeId(id: String)(maybeSafeId: Option[String]): Future[Unit] = Future.successful(())
 
   override def setSubscriptionId(id: String)(subscriptionId: String): Future[Unit] = Future.successful(())
 
