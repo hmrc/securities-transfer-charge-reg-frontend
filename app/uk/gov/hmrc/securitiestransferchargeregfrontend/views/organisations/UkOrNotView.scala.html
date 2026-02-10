@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Large
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Medium
 @import uk.gov.hmrc.govukfrontend.views.Implicits.RichRadios
 
 @this(
@@ -41,10 +42,7 @@
         @govukRadios(
             RadiosViewModel.yesNo(
                 field = form("value"),
-                legend = LegendViewModel(messages("ukOrNot.heading")).asPageHeading()
-            ).withHeadingAndSectionCaption(
-                Text(messages("ukOrNot.heading")),
-                Text(messages("orgDetails.caption"))
+                legend = LegendViewModel(messages("ukOrNot.title")).withCssClass(Large.toString)
             )
         )
 

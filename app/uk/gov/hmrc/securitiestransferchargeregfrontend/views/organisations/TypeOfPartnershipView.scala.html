@@ -18,6 +18,7 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.TypeOfPartnership
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Large
 
 @this(
     layout: templates.Layout,
@@ -46,7 +47,7 @@
         @govukRadios(
             RadiosViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("typeOfPartnership.heading")).asPageHeading(),
+                legend = LegendViewModel(messages("typeOfPartnership.heading")).asPageHeading(Large),
                 items  = TypeOfPartnership.options
             )
         )
