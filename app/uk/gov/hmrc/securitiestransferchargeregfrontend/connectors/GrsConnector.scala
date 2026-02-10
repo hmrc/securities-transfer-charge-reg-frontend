@@ -86,6 +86,7 @@ abstract class AbstractGrsConnector(grsClient: GrsClient,
   }
 
   def parseGrsRetrievalData(json: JsValue): GrsResult = {
+    logger.info(s"Parsing GRS response $json")
     val result = for {
       utr       <- parseUtr(json)
       regStatus <- parseRegistrationStatus(json)
