@@ -18,7 +18,7 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
-
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LabelSize.Large
 
 @this(
     layout: templates.Layout,
@@ -47,7 +47,7 @@
         @govukInput(
             InputViewModel(
                 field = form("value"),
-                label = LabelViewModel(messages("contactEmailAddress.heading")).asPageHeading()
+                label = LabelViewModel(messages("contactEmailAddress.heading")).asPageHeading(Large)
             )
             .withWidth(Full)
             .withHint(Hint(content = Text(messages("contactEmailAddress.hint"))))

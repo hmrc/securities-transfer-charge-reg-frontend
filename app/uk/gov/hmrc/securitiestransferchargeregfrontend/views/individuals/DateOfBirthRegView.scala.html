@@ -17,6 +17,7 @@
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
+@import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Large
 
 @this(
     layout: templates.Layout,
@@ -40,7 +41,7 @@
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),
-                legend = LegendViewModel(messages("dateOfBirthReg.heading")).asPageHeading()
+                legend = LegendViewModel(messages("dateOfBirthReg.heading")).asPageHeading(Large)
             )
             .withHint(HintViewModel(messages("dateOfBirthReg.hint")))
         )

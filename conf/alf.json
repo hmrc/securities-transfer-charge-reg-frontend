@@ -44,7 +44,7 @@
       "timeoutUrl": "/there-is-a-problem",
       "timeoutKeepAliveUrl": "/refresh-session"
     },
-    "pageHeadingStyle": "govuk-heading-xl"
+    "pageHeadingStyle": "govuk-heading-l"
   },
   "labels": {
     "en": {
