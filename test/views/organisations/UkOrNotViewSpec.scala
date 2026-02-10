@@ -52,11 +52,7 @@ class UkOrNotViewSpec extends ViewBaseSpec {
       }
 
       "have the correct heading" in {
-        ukOrNotPage.select("h1").text() must include(ExpectedMessages.heading)
-    }
-
-      "display the correct caption text" in {
-        ukOrNotPage.select("span.hmrc-caption").text() must include(ExpectedMessages.caption)
+        ukOrNotPage.select("legend.govuk-fieldset__legend").text() must include(ExpectedMessages.heading)
       }
     }
   }
