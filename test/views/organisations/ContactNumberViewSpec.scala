@@ -60,7 +60,7 @@ class ContactNumberViewSpec extends ViewBaseSpec {
       }
 
       "display the correct caption text" in {
-        page.select("span.govuk-caption-xl").text() must include(ExpectedMessages.caption)
+        page.select("span.govuk-caption-l").text() must include(ExpectedMessages.caption)
       }
     }
   }
