@@ -39,11 +39,10 @@ class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {
   object ExpectedIndividual {
     val title = "What’s your email address?"
     val heading = "What’s your email address?"
-    val caption = "Your details"
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
-    "the user is an Individual" - {
+  "The WhatsYourEmailAddressView" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {
@@ -52,10 +51,6 @@ class WhatsYourEmailAddressViewSpec extends ViewBaseSpec {
 
       "have the correct heading" in {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
-      }
-
-      "display the correct caption text" in {
-        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
     }
   }

@@ -41,7 +41,7 @@ class RegistrationCompleteViewSpec extends ViewBaseSpec {
   }
 
   "The RegistrationCompleteView" - {
-    "the user is an Individual" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {

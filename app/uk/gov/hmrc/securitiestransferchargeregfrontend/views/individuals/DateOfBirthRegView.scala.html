@@ -37,7 +37,6 @@
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value.day")))
         }
 
-        <div id="more-detail-hint" class="govuk-caption-l">Your details</div>
         @govukDateInput(
             DateViewModel(
                 field  = form("value"),

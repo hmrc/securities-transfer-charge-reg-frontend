@@ -40,7 +40,6 @@ class UkOrNotViewSpec extends ViewBaseSpec {
     val title = "Does your company operate in the UK?"
     val heading = "Does your company operate in the UK?"
     val continue = "Continue"
-    val caption = "Your company details"
   }
 
   "The UkOrNotView" - {

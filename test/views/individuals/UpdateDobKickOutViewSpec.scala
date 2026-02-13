@@ -41,7 +41,7 @@ class UpdateDobKickOutViewSpec extends ViewBaseSpec {
   }
 
   "The UpdateDobKickOutView" - {
-    "the user is an Individual" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {
