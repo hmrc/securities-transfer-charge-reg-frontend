@@ -71,7 +71,7 @@
       "selectPageLabels": {
         "title": "Select your address",
         "heading": "Select your address",
-        "headingWithPostcode": "Addresses found for postcode {postcode}",
+        "headingWithPostcode": "Addresses found for postcode",
         "proposalListLabel": "Please select one of the following addresses",
         "submitLabel": "Continue",
         "searchAgainLinkText": "Search again",
