@@ -106,8 +106,8 @@ whatsYourContactNumber.heading = What’s your contact number?
 whatsYourContactNumber.hint = For international numbers, include the country code.
 whatsYourContactNumber.checkYourAnswersLabel = What’s your contact number?
 whatsYourContactNumber.error.required = Enter your contact number
-whatsYourContactNumber.error.invalid = Enter a contact number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-whatsYourContactNumber.error.length = Your contact number must be 25 characters or less
+whatsYourContactNumber.error.invalid = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
+whatsYourContactNumber.error.length = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 whatsYourContactNumber.change.hidden = What’s your contact number?
 
 registrationComplete.title = Registration complete
@@ -170,9 +170,9 @@ contactEmailAddress.hint = We will use this email address to notify you about yo
 contactNumber.title = Enter a contact phone number
 contactNumber.heading = Enter a contact phone number
 contactNumber.hint = For international numbers, include the country code.
-contactNumber.error.required = Enter a phone number
-contactNumber.error.invalid = Enter a telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
-contactNumber.error.length = Your contact number must be 25 characters or less
+contactNumber.error.required = Enter your contact number
+contactNumber.error.invalid = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
+contactNumber.error.length = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 
 internalError.title = There is a problem with the service
 internalError.heading = There is a problem with the service
