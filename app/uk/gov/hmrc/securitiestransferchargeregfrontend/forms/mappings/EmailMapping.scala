@@ -33,5 +33,5 @@ trait EmailMapping extends Mappings {
 }
 
 object EmailMapping {
-  val maxEmailLength: Int = 132
+  val maxEmailLength: Int = 50
 }
