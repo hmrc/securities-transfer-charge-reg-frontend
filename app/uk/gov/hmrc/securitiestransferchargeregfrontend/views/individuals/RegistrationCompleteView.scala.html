@@ -25,10 +25,6 @@
 
 @()(implicit request: Request[_], messages: Messages)
 
-@panelContent = {
-    @Messages("registrationComplete.p1")
-}
-
 @layout(pageTitle = titleNoForm(messages("registrationComplete.title")), showBackLink = false) {
 
     @govukPanel(Panel(
