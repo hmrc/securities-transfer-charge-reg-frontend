@@ -16,25 +16,25 @@
 
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 
+
 @this(
         layout: templates.Layout,
-        govukButton: GovukButton
+        govukButton: GovukButton,
+        govukPanel: GovukPanel,
 )
 
 @()(implicit request: Request[_], messages: Messages)
 
+@panelContent = {
+    @Messages("registrationComplete.p1")
+}
+
 @layout(pageTitle = titleNoForm(messages("registrationComplete.title")), showBackLink = false) {
 
-<div class="govuk-width-container">
-    <div class="govuk-main-wrapper govuk-main-wrapper--l">
-        <div class="govuk-grid-row">
-            <div class="govuk-grid-column">
-                <div class="govuk-panel govuk-panel--confirmation">
-                    <h1 class="govuk-panel__title">@messages("registrationComplete.heading")</h1>
-                </div>
-                <p class="govuk-body">@messages("registrationComplete.p1") <a href="">@messages("registrationComplete.p1.link")</a></p>
-            </div>
-        </div>
-    </div>
-</div>
+    @govukPanel(Panel(
+        title = Text(Messages("registrationComplete.title")),
+    ))
+
+    <p class="govuk-body">@messages("registrationComplete.p1") <a href="">@messages("registrationComplete.p1.link")</a></p>
+
 }
