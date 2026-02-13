@@ -16,7 +16,6 @@
 
 package views.individuals
 
-import base.SpecBase
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
@@ -43,7 +42,7 @@ class RegForSecuritiesTransferChargeViewSpec extends ViewBaseSpec {
   }
 
   "The RegForSecuritiesTransferChargeView" - {
-    "the user is an Individual" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {
