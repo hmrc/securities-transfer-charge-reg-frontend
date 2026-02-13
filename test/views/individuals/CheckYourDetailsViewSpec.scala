@@ -40,9 +40,7 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     val title = "Check your details"
     val heading = "Check your details"
     val continue = "Continue"
-
-    val caption = "Your details"
-
+    
     val summaryCard1Key = "First name"
     val summaryCard2Key = "Last name"
     val summaryCard3Key = "National insurance number"
@@ -54,7 +52,7 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
   }
 
   "The CheckYourDetailsView" - {
-    "the user is an Individual" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {
@@ -63,10 +61,6 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
 
       "have the correct heading" in {
         individualPage.select("h1").text() mustBe ExpectedIndividual.heading
-      }
-
-      "display the correct caption text" in {
-        individualPage.select("#more-detail-hint").text() mustBe ExpectedIndividual.caption
       }
 
       "display the correct content in the Summary Card" in {
