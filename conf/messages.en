@@ -83,7 +83,7 @@ checkYourDetails.change.hidden = CheckYourDetails
 summaryCard.yourAccountDetails = Your account details
 summaryCard.firstName = First name
 summaryCard.lastName = Last name
-summaryCard.nationalInsuranceNumber = National insurance number
+summaryCard.nationalInsuranceNumber = National Insurance number
 
 updateDetailsKickOut.title = You must update the details on your government gateway account
 updateDetailsKickOut.heading = You must update the details on your government gateway account

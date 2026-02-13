@@ -43,7 +43,7 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
     
     val summaryCard1Key = "First name"
     val summaryCard2Key = "Last name"
-    val summaryCard3Key = "National insurance number"
+    val summaryCard3Key = "National Insurance number"
 
     val summaryCard1Value: String = firstName
     val summaryCard2Value: String = lastName
