@@ -87,7 +87,8 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
+      case CheckMode => Future.successful(routes.CheckYourAnswersController.onPageLoad())
+
     }
   }
 
@@ -98,7 +99,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     case organisationsPages.SelectBusinessTypePage => _ => Future.successful(orgRoutes.UkOrNotController.onPageLoad(NormalMode))
 
     case organisationsPages.TypeOfPartnershipPage => _ => Future.successful(orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode))
-    
+
     case organisationsPages.ContactNumberPage => _ => Future.successful(orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
 
     case _ => _ => defaultPage
@@ -107,6 +108,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   override def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
     mode match {
       case NormalMode => normalPreviousRoutes(page)(userAnswers)
+      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
     }
 
   override val errorPage: Page => Call = {
