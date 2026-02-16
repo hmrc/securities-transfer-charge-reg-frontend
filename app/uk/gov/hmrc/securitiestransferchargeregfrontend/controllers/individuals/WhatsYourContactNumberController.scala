@@ -44,7 +44,7 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
   
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
@@ -52,7 +52,11 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
+      val backLinkCallF = navigator.previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
+
+      backLinkCallF.map { backLinkCall =>
+        Ok(view(preparedForm, mode, backLinkCall))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -61,9 +65,14 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       val innerRequest = request.request
       val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
+      val backLinkCallF = navigator.previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
+
       form.bindFromRequest().fold(
+
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          backLinkCallF.map { backLinkCall =>
+            BadRequest(view(formWithErrors, mode, backLinkCall))
+          },
 
         contactNumber => (
           for {

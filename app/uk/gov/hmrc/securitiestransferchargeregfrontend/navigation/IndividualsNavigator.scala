@@ -70,6 +70,30 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
     }
   }
 
+  private val normalPreviousRoutes: Page => UserAnswers => Future[Call] = {
+
+    case individualsPages.DateOfBirthRegPage =>
+      _ =>
+        Future.successful(
+          individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+        )
+
+    case individualsPages.WhatsYourContactNumberPage =>
+      _ => Future.successful(
+        individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+      )
+
+    case _ =>
+      _ => defaultPage
+  }
+
+  override def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
+    mode match {
+      case NormalMode => normalPreviousRoutes(page)(userAnswers)
+      case CheckMode => Future.successful(routes.CheckYourAnswersController.onPageLoad())
+    }
+
+
   override val errorPage: Page => Call = {
     case individualsPages.DateOfBirthRegPage => individualRoutes.UpdateDobKickOutController.onPageLoad()
     case _ => routes.JourneyRecoveryController.onPageLoad()

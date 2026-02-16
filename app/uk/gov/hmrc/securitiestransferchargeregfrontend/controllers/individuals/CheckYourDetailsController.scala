@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
@@ -44,6 +44,9 @@ class CheckYourDetailsController @Inject()(
   
   private val form: Form[Boolean] = formProvider()
 
+  private def backLinkCall: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
+
+
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
@@ -51,7 +54,7 @@ class CheckYourDetailsController @Inject()(
         .fold(form)(form.fill)
 
       val innerRequest = request.request
-      Ok(view(preparedForm, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))
+      Ok(view(preparedForm, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode, backLinkCall))
     }
 
 
@@ -60,7 +63,7 @@ class CheckYourDetailsController @Inject()(
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode))),
+          Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode, backLinkCall))),
 
         areDetailsCorrect => {
           for {
