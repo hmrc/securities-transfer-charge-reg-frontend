@@ -40,8 +40,8 @@ class UpdateDetailsKickOutViewSpec extends ViewBaseSpec {
 
   }
 
-  "The RegForSecuritiesTransferChargeView" - {
-    "the user is an Individual" - {
+  "The UpdateDetailsKickOutView" - {
+    "should" - {
       val individualPage = view()
 
       "have the correct title" in {

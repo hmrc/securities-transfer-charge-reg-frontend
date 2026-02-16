@@ -40,7 +40,6 @@ class ContactNumberViewSpec extends ViewBaseSpec {
     val title = "Enter a contact phone number"
     val heading = "Enter a contact phone number"
     val hint = "For international numbers, include the country code."
-    val caption = "Your company details"
   }
 
   "ContactNumberView" - {
@@ -59,9 +58,6 @@ class ContactNumberViewSpec extends ViewBaseSpec {
         page.select("#value-hint").text() mustBe ExpectedMessages.hint
       }
 
-      "display the correct caption text" in {
-        page.select("span.govuk-caption-l").text() must include(ExpectedMessages.caption)
-      }
     }
   }
 

@@ -83,7 +83,7 @@ checkYourDetails.change.hidden = CheckYourDetails
 summaryCard.yourAccountDetails = Your account details
 summaryCard.firstName = First name
 summaryCard.lastName = Last name
-summaryCard.nationalInsuranceNumber = National insurance number
+summaryCard.nationalInsuranceNumber = National Insurance number
 
 updateDetailsKickOut.title = You must update the details on your government gateway account
 updateDetailsKickOut.heading = You must update the details on your government gateway account
@@ -97,7 +97,7 @@ whatsYourEmailAddress.title = What’s your email address?
 whatsYourEmailAddress.heading = What’s your email address?
 whatsYourEmailAddress.checkYourAnswersLabel = What’s your email address?
 whatsYourEmailAddress.error.required = Enter your email address
-whatsYourEmailAddress.error.invalid = Enter an email address with a name, @ symbol and a domain name, like yourname@example.com
+whatsYourEmailAddress.error.invalid = Enter an email address in the correct format, like name@example.com
 whatsYourEmailAddress.error.length = Your email must be 50 characters or fewer
 whatsYourEmailAddress.change.hidden = What’s your email address?
 
@@ -106,8 +106,8 @@ whatsYourContactNumber.heading = What’s your contact number?
 whatsYourContactNumber.hint = For international numbers, include the country code.
 whatsYourContactNumber.checkYourAnswersLabel = What’s your contact number?
 whatsYourContactNumber.error.required = Enter your contact number
-whatsYourContactNumber.error.invalid = Enter a contact number in the correct format, like 01632 960 001, 07700 900 982 or +44 808 157 0192
-whatsYourContactNumber.error.length = Your contact number must be 25 characters or less
+whatsYourContactNumber.error.invalid = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
+whatsYourContactNumber.error.length = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 whatsYourContactNumber.change.hidden = What’s your contact number?
 
 registrationComplete.title = Registration complete
@@ -140,16 +140,16 @@ selectBusinessType.checkYourAnswersLabel = Select your business type
 selectBusinessType.error.required = Select your business type
 selectBusinessType.change.hidden = Select your business type
 
-typeOfPartnership.title = What type of partnership
-typeOfPartnership.heading = What type of partnership
+typeOfPartnership.title = What is your business partnership type?
+typeOfPartnership.heading = What is your business partnership type?
 typeOfPartnership.generalPartnership = General Partnership
 typeOfPartnership.scottishPartnership = Scottish Partnership
 typeOfPartnership.scottishLimitedPartnership = Scottish Limited Partnership
 typeOfPartnership.limitedPartnership = Limited Partnership
 typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
-typeOfPartnership.checkYourAnswersLabel = What type of partnership
-typeOfPartnership.error.required = Select a partnership type
-typeOfPartnership.change.hidden = Change partnership type
+typeOfPartnership.checkYourAnswersLabel = What is your business partnership type?
+typeOfPartnership.error.required = Select your business partnership type
+typeOfPartnership.change.hidden = Change your business partnership type
 
 partnershipKickOut.title = You cannot use this service
 partnershipKickOut.heading = You cannot use this service
@@ -161,18 +161,18 @@ partnershipKickOut.linkText = create one using your personal details.
 contactEmailAddress.title = Enter a contact email address
 contactEmailAddress.heading = Enter a contact email address
 contactEmailAddress.checkYourAnswersLabel = Enter a contact email address
-contactEmailAddress.error.required = Enter an email address
+contactEmailAddress.error.required = Enter your email address
 contactEmailAddress.error.length = Your email must be 50 characters or fewer
-contactEmailAddress.error.invalid = Enter an email address with a name, @ symbol and a domain name, like yourname@example.com
+contactEmailAddress.error.invalid = Enter an email address in the correct format, like name@example.com
 contactEmailAddress.change.hidden = Enter a contact email address
 contactEmailAddress.hint = We will use this email address to notify you about your submission.
 
 contactNumber.title = Enter a contact phone number
 contactNumber.heading = Enter a contact phone number
 contactNumber.hint = For international numbers, include the country code.
-contactNumber.error.required = Enter a phone number
-contactNumber.error.invalid = Enter a telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
-contactNumber.error.length = Your contact number must be 25 characters or less
+contactNumber.error.required = Enter your contact number
+contactNumber.error.invalid = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
+contactNumber.error.length = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 
 internalError.title = There is a problem with the service
 internalError.heading = There is a problem with the service

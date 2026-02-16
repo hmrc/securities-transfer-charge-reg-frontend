@@ -37,7 +37,7 @@
         "town": false,
         "postcode": true
       },
-      "showOrganisationName": true
+      "showOrganisationName": false
     },
     "timeoutConfig": {
       "timeoutAmount": 900,
@@ -71,7 +71,7 @@
       "selectPageLabels": {
         "title": "Select your company\u2019s address",
         "heading": "Select your company\u2019s address",
-        "headingWithPostcode": "Addresses found for postcode {postcode}",
+        "headingWithPostcode": "Addresses found for postcode",
         "proposalListLabel": "Please select one of the following addresses",
         "submitLabel": "Continue",
         "searchAgainLinkText": "Search again",
