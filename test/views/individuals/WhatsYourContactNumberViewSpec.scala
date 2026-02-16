@@ -19,10 +19,12 @@ package views.individuals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.WhatsYourContactNumberView
 import views.ViewBaseSpec
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 
 class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
 
@@ -31,9 +33,10 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
   private val viewInstance         = app.injector.instanceOf[WhatsYourContactNumberView]
   private val formProvider = new WhatsYourContactNumberFormProvider()
   private val form = formProvider()
+  val backLinkRoute: Call = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
 
   def view(): Document = Jsoup.parse(
-    viewInstance(form, NormalMode)(fakeRequest, messages).body
+    viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {

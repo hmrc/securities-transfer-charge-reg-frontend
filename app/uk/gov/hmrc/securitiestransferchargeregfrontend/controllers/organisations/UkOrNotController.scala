@@ -20,6 +20,7 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrNotFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -37,35 +38,56 @@ class UkOrNotController @Inject()(
                                    formProvider: UkOrNotFormProvider,
                                    val controllerComponents: MessagesControllerComponents,
                                    view: UkOrNotView
-                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                 )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport {
 
   import auth.*
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
     implicit request =>
 
       val preparedForm = request.userAnswers
         .flatMap(_.get(UkOrNotPage))
         .fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      withBackLink(
+        navigator,
+        UkOrNotPage,
+        mode,
+        request.userAnswers
+      ) { backLinkCall =>
+        Ok(view(preparedForm, mode, backLinkCall))
+      }
+
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
       form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
 
-        isUk => {
+        formWithErrors =>
+          withBackLink(
+            navigator,
+            UkOrNotPage,
+            mode,
+            request.userAnswers
+          ) { backLinkCall =>
+            BadRequest(view(formWithErrors, mode, backLinkCall))
+          },
+
+        isUk =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(UkOrNotPage, isUk))
-            nextPage        <- navigator.nextPage(UkOrNotPage, mode, updatedAnswers)
+            updatedAnswers <- Future.fromTry(
+              request.userAnswers.set(UkOrNotPage, isUk)
+            )
+            nextPage <- navigator.nextPage(
+              UkOrNotPage,
+              mode,
+              updatedAnswers
+            )
           } yield Redirect(nextPage)
-        }
       )
-  }
+    }
 }

@@ -19,6 +19,8 @@ package views.individuals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
+import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.DateOfBirthRegView
@@ -31,9 +33,10 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
   private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
   private val formProvider = new DateOfBirthRegFormProvider()
   private val form = formProvider()
+  val backLinkRoute: Call = routes.CheckYourDetailsController.onPageLoad(NormalMode)
 
   def view(): Document = Jsoup.parse(
-    viewInstance(form, NormalMode)(fakeRequest, messages).body
+    viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {

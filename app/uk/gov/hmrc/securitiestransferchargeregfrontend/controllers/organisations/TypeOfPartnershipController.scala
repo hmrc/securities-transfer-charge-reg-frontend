@@ -18,8 +18,9 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -37,28 +38,43 @@ class TypeOfPartnershipController @Inject()(
                                              formProvider: TypeOfPartnershipFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: TypeOfPartnershipView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport {
 
   import auth.*
 
   val form: Form[TypeOfPartnership] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
     implicit request =>
 
       val preparedForm = request.userAnswers
         .flatMap(_.get(TypeOfPartnershipPage))
         .fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      withBackLink(
+        navigator,
+        TypeOfPartnershipPage,
+        mode,
+        request.userAnswers
+      ) { backLinkCall =>
+        Ok(view(preparedForm, mode, backLinkCall))
+      }
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
-      form.bindFromRequest().fold(
+      form.bindFromRequest().fold[Future[Result]](
+
         formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+          withBackLink(
+            navigator,
+            TypeOfPartnershipPage,
+            mode,
+            request.userAnswers
+          ) { backLinkCall =>
+            BadRequest(view(formWithErrors, mode, backLinkCall))
+          },
 
         typeOfPartnership =>
           for {

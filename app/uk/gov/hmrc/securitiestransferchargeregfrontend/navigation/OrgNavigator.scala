@@ -91,6 +91,24 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     }
   }
 
+  private val normalPreviousRoutes: Page => UserAnswers => Future[Call] = {
+
+    case organisationsPages.UkOrNotPage => _ => Future.successful(orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad())
+
+    case organisationsPages.SelectBusinessTypePage => _ => Future.successful(orgRoutes.UkOrNotController.onPageLoad(NormalMode))
+
+    case organisationsPages.TypeOfPartnershipPage => _ => Future.successful(orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode))
+    
+    case organisationsPages.ContactNumberPage => _ => Future.successful(orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
+
+    case _ => _ => defaultPage
+  }
+
+  override def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
+    mode match {
+      case NormalMode => normalPreviousRoutes(page)(userAnswers)
+    }
+
   override val errorPage: Page => Call = {
     // TODO: This is not the right kick out page.
     case organisationsPages.GrsPage => orgRoutes.PartnershipKickOutController.onPageLoad()

@@ -17,9 +17,10 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationConnector, RegistrationErrorException}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -38,7 +39,7 @@ class DateOfBirthRegController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           view: DateOfBirthRegView,
                                           registrationConnector: RegistrationConnector,
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport:
 
   import auth.*
 
@@ -57,9 +58,13 @@ class DateOfBirthRegController @Inject()(
             form.fill(value)
         }
 
-      val backLinkCallF = navigator.previousPage(DateOfBirthRegPage, mode, request.userAnswers)
-
-      backLinkCallF.map { backLinkCall => Ok(view(preparedForm, mode, backLinkCall))
+      withBackLink(
+        navigator,
+        DateOfBirthRegPage,
+        mode,
+        request.userAnswers
+      ) { backLinkCall =>
+        Ok(view(preparedForm, mode, backLinkCall))
       }
     }
 
@@ -70,12 +75,16 @@ class DateOfBirthRegController @Inject()(
       val registerUser = registrationConnector.registerIndividual(innerRequest.userId)(innerRequest)
       val form = formProvider()
 
-      val backLinkCallF = navigator.previousPage(DateOfBirthRegPage, mode, request.userAnswers)
-
-      form.bindFromRequest().fold(
+      form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors =>
-          backLinkCallF.map { backLinkCall => BadRequest(view(formWithErrors, mode, backLinkCall))
+          withBackLink(
+            navigator,
+            DateOfBirthRegPage,
+            mode,
+            request.userAnswers
+          ) { backLinkCall =>
+            BadRequest(view(formWithErrors, mode, backLinkCall))
           },
 
         dateOfBirth =>
@@ -90,3 +99,4 @@ class DateOfBirthRegController @Inject()(
           }
       )
     }
+

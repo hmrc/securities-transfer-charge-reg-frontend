@@ -21,6 +21,7 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -38,26 +39,29 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
                                                   val controllerComponents: MessagesControllerComponents,
                                                   subscriptionConnector: SubscriptionConnector,
                                                   view: WhatsYourContactNumberView
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
+                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport:
 
   import auth.*
   
   val form: Form[String] = formProvider()
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
-    implicit request =>
+      implicit request =>
 
-      val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm =
+        request.userAnswers.get(WhatsYourContactNumberPage)
+          .fold(form)(form.fill)
 
-      val backLinkCallF = navigator.previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
-
-      backLinkCallF.map { backLinkCall =>
+      withBackLink(
+        navigator,
+        WhatsYourContactNumberPage,
+        mode,
+        request.userAnswers
+      ) { backLinkCall =>
         Ok(view(preparedForm, mode, backLinkCall))
       }
-  }
+    }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData).async { implicit request =>
@@ -65,12 +69,15 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       val innerRequest = request.request
       val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
-      val backLinkCallF = navigator.previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
-
       form.bindFromRequest().fold(
 
         formWithErrors =>
-          backLinkCallF.map { backLinkCall =>
+          withBackLink(
+            navigator,
+            WhatsYourContactNumberPage,
+            mode,
+            request.userAnswers
+          ) { backLinkCall =>
             BadRequest(view(formWithErrors, mode, backLinkCall))
           },
 
