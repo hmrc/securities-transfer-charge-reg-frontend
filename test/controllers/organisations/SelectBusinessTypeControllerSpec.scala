@@ -42,7 +42,8 @@ class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
   def onwardRoute = Call("GET", "/foo")
 
   lazy val selectBusinessTypeRoute = orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode).url
-
+  val backLinkRoute: Call = orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+  
   val formProvider = new SelectBusinessTypeFormProvider()
   val form = formProvider()
 
@@ -60,7 +61,7 @@ class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[SelectBusinessTypeView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -78,7 +79,7 @@ class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(SelectBusinessType.values.head), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(SelectBusinessType.values.head), NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -124,7 +125,7 @@ class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 

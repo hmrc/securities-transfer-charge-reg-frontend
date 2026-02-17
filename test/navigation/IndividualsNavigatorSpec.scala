@@ -102,6 +102,27 @@ class IndividualsNavigatorSpec extends SpecBase {
           res mustBe individualRoutes.RegistrationCompleteController.onPageLoad()
         }
       }
+
+      "previousPage" - {
+
+        "must go from CheckYourDetailsPage back to RegForSecuritiesTransferChargePage" in {
+          val result = navigator.previousPage(CheckYourDetailsPage, NormalMode)
+
+          result mustBe individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+        }
+
+        "must go from DateOfBirthRegPage back to CheckYourDetailsPage" in {
+          val result = navigator.previousPage(DateOfBirthRegPage, NormalMode)
+
+          result mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+        }
+
+        "must go from WhatsYourContactNumberPage back to WhatsYourEmailAddressPage" in {
+          val result = navigator.previousPage(WhatsYourContactNumberPage, NormalMode)
+
+          result mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+        }
+      }
     }
 
     "in Check mode" - {
@@ -114,6 +135,15 @@ class IndividualsNavigatorSpec extends SpecBase {
           res mustBe routes.CheckYourAnswersController.onPageLoad()
         }
         
+      }
+
+      "previousPage" - {
+
+        "must go to CheckYourAnswers" in {
+          val result = navigator.previousPage(DateOfBirthRegPage, CheckMode)
+
+          result mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
       }
     }
   }

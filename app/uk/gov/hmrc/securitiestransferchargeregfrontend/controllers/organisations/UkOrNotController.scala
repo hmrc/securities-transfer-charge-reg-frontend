@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrNotFormProvider
@@ -42,30 +42,39 @@ class UkOrNotController @Inject()(
   import auth.*
 
   val form: Form[Boolean] = formProvider()
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(UkOrNotPage, mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
     implicit request =>
 
       val preparedForm = request.userAnswers
-        .flatMap(_.get(UkOrNotPage))
-        .fold(form)(form.fill)
+          .flatMap(_.get(UkOrNotPage))
+          .fold(form)(form.fill)
 
-      Ok(view(preparedForm, mode))
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+      form.bindFromRequest().fold[Future[play.api.mvc.Result]](
 
-        isUk => {
+        formWithErrors => {
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
+        },
+
+        isUk =>
           for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(UkOrNotPage, isUk))
-            nextPage        <- navigator.nextPage(UkOrNotPage, mode, updatedAnswers)
+            updatedAnswers <- Future.fromTry(
+              request.userAnswers.set(UkOrNotPage, isUk)
+            )
+            nextPage <- navigator.nextPage(
+              UkOrNotPage,
+              mode,
+              updatedAnswers
+            )
           } yield Redirect(nextPage)
-        }
       )
-  }
+    }
 }

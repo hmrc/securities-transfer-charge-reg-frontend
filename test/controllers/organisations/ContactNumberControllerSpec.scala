@@ -29,7 +29,7 @@ import uk.gov.hmrc.http.HeaderCarrier
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.{EnrolmentFailed, EnrolmentSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.{OrganisationEnrolmentDetails, OrganisationSubscriptionDetails, RegistrationClient}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.{ContactNumberController, RegistrationCompleteController}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes.{ContactEmailAddressController, ContactNumberController, RegistrationCompleteController}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes.JourneyRecoveryController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{NormalMode, UserAnswers}
@@ -48,7 +48,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[String] = formProvider()
 
   lazy val contactNumberRoute: String = ContactNumberController.onPageLoad(NormalMode).url
-
+  val backLinkRoute: Call = ContactEmailAddressController.onPageLoad(NormalMode)
   "ContactNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {
@@ -63,7 +63,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[ContactNumberView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -81,7 +81,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill("answer"), NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -101,7 +101,7 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 

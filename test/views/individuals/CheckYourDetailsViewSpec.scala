@@ -19,10 +19,12 @@ package views.individuals
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.CheckYourDetailsView
 import views.ViewBaseSpec
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 
 class CheckYourDetailsViewSpec extends ViewBaseSpec {
 
@@ -32,8 +34,10 @@ class CheckYourDetailsViewSpec extends ViewBaseSpec {
   private val formProvider = new CheckYourDetailsFormProvider()
   private val form = formProvider()
 
+  val backLinkRoute: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
+
   def view(): Document = Jsoup.parse(
-    viewInstance(form, firstName, lastName, nino, NormalMode)(fakeRequest, messages).body
+    viewInstance(form, firstName, lastName, nino, NormalMode, backLinkRoute)(fakeRequest, messages).body
   )
 
   object ExpectedIndividual {

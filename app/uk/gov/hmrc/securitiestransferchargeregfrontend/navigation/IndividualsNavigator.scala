@@ -58,7 +58,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
         _          = logger.info(s"Navigating to registration complete - session data cleared.")
       } yield nextPage
 
-    case _ => _ => defaultPage
+    case _ => _ => defaultPageF
   }
 
   private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
@@ -69,6 +69,24 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
       case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
     }
   }
+
+  private val normalPreviousRoutes: Page => Call = {
+
+    case individualsPages.CheckYourDetailsPage => individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+
+    case individualsPages.DateOfBirthRegPage => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+
+    case individualsPages.WhatsYourContactNumberPage => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+
+    case _ => routes.JourneyRecoveryController.onPageLoad()
+  }
+
+  def previousPage(page: Page, mode: Mode): Call =
+    mode match {
+      case NormalMode => normalPreviousRoutes(page)
+      case CheckMode => routes.CheckYourAnswersController.onPageLoad()
+    }
+
 
   override val errorPage: Page => Call = {
     case individualsPages.DateOfBirthRegPage => individualRoutes.UpdateDobKickOutController.onPageLoad()

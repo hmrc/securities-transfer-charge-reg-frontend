@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations
 
+import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
+import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.Navigator
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.SelectBusinessTypePage
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
@@ -31,15 +33,17 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class SelectBusinessTypeController @Inject()(
                                               override val messagesApi: MessagesApi,
-                                              @Named("organisations") navigator: Navigator,                                              auth: OrgAuth,
+                                              @Named("organisations") navigator: Navigator,
+                                              auth: OrgAuth,
                                               formProvider: SelectBusinessTypeFormProvider,
                                               val controllerComponents: MessagesControllerComponents,
                                               view: SelectBusinessTypeView
-                                     )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
+                                            )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
-  
-  val form = formProvider()
+
+  val form: Form[SelectBusinessType] = formProvider()
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(SelectBusinessTypePage, mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
@@ -49,15 +53,19 @@ class SelectBusinessTypeController @Inject()(
         case Some(value) => form.fill(value)
       }
 
-      Ok(view(preparedForm, mode))
-  }
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
+      
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+      form.bindFromRequest().fold[Future[Result]](
+
+        formWithErrors => {
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
+        },
 
         businessType =>
           for {

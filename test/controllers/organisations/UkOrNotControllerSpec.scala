@@ -36,6 +36,7 @@ class UkOrNotControllerSpec extends SpecBase with MockitoSugar {
   val form: Form[Boolean] = formProvider()
 
   lazy val ukOrNotRoute: String = routes.UkOrNotController.onPageLoad(NormalMode).url
+  val backLinkRoute: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
 
   "UkOrNot Controller" - {
 
@@ -51,7 +52,7 @@ class UkOrNotControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[UkOrNotView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -67,7 +68,7 @@ class UkOrNotControllerSpec extends SpecBase with MockitoSugar {
         val view = application.injector.instanceOf[UkOrNotView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(true), NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(true), NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 
@@ -87,7 +88,7 @@ class UkOrNotControllerSpec extends SpecBase with MockitoSugar {
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
   }

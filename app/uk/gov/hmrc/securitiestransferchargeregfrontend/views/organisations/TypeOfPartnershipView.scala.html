@@ -28,9 +28,9 @@
     govukButton: GovukButton
 )
 
-@(form: Form[_], mode: Mode)(implicit request: Request[_], messages: Messages)
+@(form: Form[_], mode: Mode, backLinkCall: Call)(implicit request: Request[_], messages: Messages)
 
-@layout(pageTitle = title(form, messages("typeOfPartnership.title"))) {
+@layout(pageTitle = title(form, messages("typeOfPartnership.title")), backLinkUrl = Some(backLinkCall.url)) {
 
     @formHelper(action = routes.TypeOfPartnershipController.onSubmit(mode), Symbol("autoComplete") -> "off") {
 
