@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationConnector, RegistrationErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
@@ -41,7 +41,9 @@ class DateOfBirthRegController @Inject()(
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
-  
+
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(DateOfBirthRegPage, mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData) { implicit request =>
 
@@ -56,9 +58,7 @@ class DateOfBirthRegController @Inject()(
             form.fill(value)
         }
 
-      val backLinkCall = navigator.previousPage(DateOfBirthRegPage, mode)
-      
-      Ok(view(preparedForm, mode, backLinkCall))
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -72,9 +72,8 @@ class DateOfBirthRegController @Inject()(
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors => {
-          val backLinkCall = navigator.previousPage(DateOfBirthRegPage, mode)
-          
-          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
         },
 
         dateOfBirth =>

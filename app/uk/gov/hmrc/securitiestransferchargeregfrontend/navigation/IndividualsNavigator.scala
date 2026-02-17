@@ -72,6 +72,8 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
 
   private val normalPreviousRoutes: Page => Call = {
 
+    case individualsPages.CheckYourDetailsPage => individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+
     case individualsPages.DateOfBirthRegPage => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
 
     case individualsPages.WhatsYourContactNumberPage => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)

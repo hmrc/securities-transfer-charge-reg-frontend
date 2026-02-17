@@ -105,6 +105,12 @@ class IndividualsNavigatorSpec extends SpecBase {
 
       "previousPage" - {
 
+        "must go from CheckYourDetailsPage back to RegForSecuritiesTransferChargePage" in {
+          val result = navigator.previousPage(CheckYourDetailsPage, NormalMode)
+
+          result mustBe individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+        }
+
         "must go from DateOfBirthRegPage back to CheckYourDetailsPage" in {
           val result = navigator.previousPage(DateOfBirthRegPage, NormalMode)
 

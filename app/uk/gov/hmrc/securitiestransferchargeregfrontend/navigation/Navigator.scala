@@ -33,8 +33,9 @@ trait Navigator:
 
 abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit ec: ExecutionContext) extends Navigator:
 
-  protected[navigation] val defaultPageF: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
   protected[navigation] val defaultPage: Call = routes.JourneyRecoveryController.onPageLoad()
+
+  protected[navigation] val defaultPageF: Future[Call] = Future.successful(defaultPage)
 
   protected[navigation] def goTo(success: Call, userAnswers: Option[UserAnswers] = None): Future[Call] =
     userAnswers.fold
@@ -46,7 +47,7 @@ abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit 
 
   protected[navigation] def dataDependent[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers)(f: A => Call): Future[Call] =
     userAnswers.get(page)
-      .fold(defaultPageF)(value => 
+      .fold(defaultPageF)(value =>
         sessionRepository.set(userAnswers).map {
           _ => f(value) 
         }

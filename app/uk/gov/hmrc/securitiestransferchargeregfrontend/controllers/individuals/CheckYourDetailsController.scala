@@ -19,7 +19,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 import play.api.Logging
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.CheckYourDetailsFormProvider
@@ -44,23 +44,24 @@ class CheckYourDetailsController @Inject()(
   
   private val form: Form[Boolean] = formProvider()
 
-  private def backLinkCall: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
-  
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
         .flatMap(_.get(CheckYourDetailsPage))
         .fold(form)(form.fill)
 
+      val backLinkCall = navigator.previousPage(CheckYourDetailsPage, mode)
+
       val innerRequest = request.request
       Ok(view(preparedForm, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode, backLinkCall))
     }
-  
+
   def onSubmit(mode: Mode): Action[AnyContent] = {
     (validIndividual andThen getData andThen requireData).async { implicit request =>
       val innerRequest = request.request
       form.bindFromRequest().fold(
         formWithErrors =>
+          val backLinkCall = navigator.previousPage(CheckYourDetailsPage, mode)
           Future.successful(BadRequest(view(formWithErrors, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode, backLinkCall))),
 
         areDetailsCorrect => {
