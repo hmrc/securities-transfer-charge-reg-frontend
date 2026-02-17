@@ -1,7 +1,7 @@
 {
   "continueUrl" : "REPLACE-ME",
   "businessVerificationCheck": false,
-  "optServiceName" : "Securities Transfer Charge",
+  "optServiceName" : "",
   "deskProServiceId" : "STC",
   "signOutUrl" : "/account/sign-out",
   "regime" : "STC",
@@ -11,7 +11,7 @@
       "optServiceName": "Service name translated into welsh"
     },
     "en": {
-      "optServiceName": "Securities Transfer Charge"
+      "optServiceName": ""
     }
   }
 }
