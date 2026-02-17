@@ -44,7 +44,7 @@ class DateOfBirthRegController @Inject()(
 
 
   def onPageLoad(mode: Mode): Action[AnyContent] =
-    (validIndividual andThen getData andThen requireData).async { implicit request =>
+    (validIndividual andThen getData andThen requireData) { implicit request =>
 
       val form = formProvider()
 
@@ -57,11 +57,9 @@ class DateOfBirthRegController @Inject()(
             form.fill(value)
         }
 
-      navigator
-        .previousPage(DateOfBirthRegPage, mode, request.userAnswers)
-        .map { backLinkCall =>
-          Ok(view(preparedForm, mode, backLinkCall))
-        }
+      val backLinkCall = navigator.previousPage(DateOfBirthRegPage, mode)
+      
+      Ok(view(preparedForm, mode, backLinkCall))
     }
 
 
@@ -75,12 +73,11 @@ class DateOfBirthRegController @Inject()(
 
       form.bindFromRequest().fold[Future[Result]](
 
-        formWithErrors =>
-          navigator
-            .previousPage(DateOfBirthRegPage, mode, request.userAnswers)
-            .map { backLinkCall =>
-              BadRequest(view(formWithErrors, mode, backLinkCall))
-            },
+        formWithErrors => {
+          val backLinkCall = navigator.previousPage(DateOfBirthRegPage, mode)
+          
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+        },
 
         dateOfBirth =>
           (

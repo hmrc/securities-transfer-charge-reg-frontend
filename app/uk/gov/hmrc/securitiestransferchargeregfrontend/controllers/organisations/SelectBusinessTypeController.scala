@@ -44,16 +44,15 @@ class SelectBusinessTypeController @Inject()(
 
   val form: Form[SelectBusinessType] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(SelectBusinessTypePage).fold(form)(form.fill)
 
-      navigator
-        .previousPage(SelectBusinessTypePage, mode, request.userAnswers)
-        .map { backLinkCall =>
-          Ok(view(preparedForm, mode, backLinkCall))
-        }
+      val backLinkCall = navigator.previousPage(SelectBusinessTypePage, mode)
+      
+      Ok(view(preparedForm, mode, backLinkCall))
+      
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
@@ -61,12 +60,11 @@ class SelectBusinessTypeController @Inject()(
 
       form.bindFromRequest().fold[Future[Result]](
 
-        formWithErrors =>
-          navigator
-            .previousPage(SelectBusinessTypePage, mode, request.userAnswers)
-            .map { backLinkCall =>
-              BadRequest(view(formWithErrors, mode, backLinkCall))
-            },
+        formWithErrors => {
+          val backLinkCall = navigator.previousPage(SelectBusinessTypePage, mode)
+            
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+        },
 
         businessType =>
           for {

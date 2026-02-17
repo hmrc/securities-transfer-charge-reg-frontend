@@ -44,16 +44,15 @@ class TypeOfPartnershipController @Inject()(
 
   val form: Form[TypeOfPartnership] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(TypeOfPartnershipPage).fold(form)(form.fill)
 
-      navigator
-        .previousPage(TypeOfPartnershipPage, mode, request.userAnswers)
-        .map { backLinkCall =>
-          Ok(view(preparedForm, mode, backLinkCall))
-        }
+      val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
+        
+      Ok(view(preparedForm, mode, backLinkCall))
+      
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
@@ -61,12 +60,11 @@ class TypeOfPartnershipController @Inject()(
 
       form.bindFromRequest().fold[Future[Result]](
 
-        formWithErrors =>
-          navigator
-            .previousPage(TypeOfPartnershipPage, mode, request.userAnswers)
-            .map { backLinkCall =>
-              BadRequest(view(formWithErrors, mode, backLinkCall))
-            },
+        formWithErrors => {
+          val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
+          
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+        },
 
         typeOfPartnership =>
           for {

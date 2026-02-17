@@ -164,6 +164,33 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
           res mustBe orgRoutes.ContactNumberController.onPageLoad(NormalMode)
         }
       }
+
+      "previousPage" - {
+
+        "must go from UkOrNotPage back to RegForSecuritiesTransferChargePage" in {
+          val result = navigator.previousPage(UkOrNotPage, NormalMode)
+
+          result mustBe orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+        }
+
+        "must go from SelectBusinessTypePage back to UkOrNotPage" in {
+          val result = navigator.previousPage(SelectBusinessTypePage, NormalMode)
+
+          result mustBe orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+        }
+
+        "must go from TypeOfPartnershipPage back to SelectBusinessTypePage" in {
+          val result = navigator.previousPage(TypeOfPartnershipPage, NormalMode)
+
+          result mustBe orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+        }
+
+        "must go from ContactNumberPage back to ContactEmailAddressPage" in {
+          val result = navigator.previousPage(ContactNumberPage, NormalMode)
+
+          result mustBe orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
+        }
+      }
     }
 
     "in Check mode" - {
@@ -174,6 +201,15 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
         val result = navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id"))
         whenReady(result) { res =>
           res mustBe routes.CheckYourAnswersController.onPageLoad()
+        }
+      }
+
+      "previousPage" - {
+
+        "must go to CheckYourAnswers" in {
+          val result = navigator.previousPage(UkOrNotPage, CheckMode)
+
+          result mustBe routes.CheckYourAnswersController.onPageLoad()
         }
       }
     }

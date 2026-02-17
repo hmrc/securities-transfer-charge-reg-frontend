@@ -45,16 +45,15 @@ class ContactNumberController @Inject()(
 
   val form: Form[String] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(ContactNumberPage).fold(form)(form.fill)
 
-      navigator
-        .previousPage(ContactNumberPage, mode, request.userAnswers)
-        .map { backLinkCall =>
-          Ok(view(preparedForm, mode, backLinkCall))
-        }
+      val backLinkCall = navigator.previousPage(ContactNumberPage, mode)
+      
+      Ok(view(preparedForm, mode, backLinkCall))
+        
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
@@ -69,12 +68,11 @@ class ContactNumberController @Inject()(
 
       form.bindFromRequest().fold[Future[Result]](
 
-        formWithErrors =>
-          navigator
-            .previousPage(ContactNumberPage, mode, request.userAnswers)
-            .map { backLinkCall =>
-              BadRequest(view(formWithErrors, mode, backLinkCall))
-            },
+        formWithErrors => {
+          val backLinkCall = navigator.previousPage(ContactNumberPage, mode)
+          
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+        },
 
         contactNumber =>
           (

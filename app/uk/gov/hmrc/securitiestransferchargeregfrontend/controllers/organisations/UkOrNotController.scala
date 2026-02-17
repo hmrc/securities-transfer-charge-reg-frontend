@@ -43,22 +43,16 @@ class UkOrNotController @Inject()(
 
   val form: Form[Boolean] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
     implicit request =>
 
       val preparedForm = request.userAnswers
           .flatMap(_.get(UkOrNotPage))
           .fold(form)(form.fill)
 
-      request.userAnswers match {
+      val backLinkCall = navigator.previousPage(UkOrNotPage, mode)
 
-        case Some(ua) => navigator.previousPage(UkOrNotPage, mode, ua).map {
-        backLinkCall =>
-              Ok(view(preparedForm, mode, backLinkCall))
-            }
-
-        case None => Future.successful(Ok(view(preparedForm, mode, routes.RegForSecuritiesTransferChargeController.onPageLoad())))
-      }
+      Ok(view(preparedForm, mode, backLinkCall))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
@@ -66,12 +60,11 @@ class UkOrNotController @Inject()(
 
       form.bindFromRequest().fold[Future[play.api.mvc.Result]](
 
-        formWithErrors =>
-          navigator
-            .previousPage(UkOrNotPage, mode, request.userAnswers)
-            .map { backLinkCall =>
-              BadRequest(view(formWithErrors, mode, backLinkCall))
-            },
+        formWithErrors => {
+          val backLinkCall = navigator.previousPage(UkOrNotPage, mode)
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+        },
 
         isUk =>
           for {

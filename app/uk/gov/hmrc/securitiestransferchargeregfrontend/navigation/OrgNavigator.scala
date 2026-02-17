@@ -78,10 +78,10 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
         _          = logger.info(s"Navigating to registration complete - session data cleared.")
       } yield nextPage
 
-    case _ => _ => defaultPage
+    case _ => _ => defaultPageF
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
+  private val checkRoute = routes.CheckYourAnswersController.onPageLoad()
   
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
@@ -92,23 +92,23 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     }
   }
 
-  private val normalPreviousRoutes: Page => UserAnswers => Future[Call] = {
+  private val normalPreviousRoutes: Page => Call = {
 
-    case organisationsPages.UkOrNotPage => _ => Future.successful(orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad())
+    case organisationsPages.UkOrNotPage => orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
 
-    case organisationsPages.SelectBusinessTypePage => _ => Future.successful(orgRoutes.UkOrNotController.onPageLoad(NormalMode))
+    case organisationsPages.SelectBusinessTypePage => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
 
-    case organisationsPages.TypeOfPartnershipPage => _ => Future.successful(orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode))
+    case organisationsPages.TypeOfPartnershipPage => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
 
-    case organisationsPages.ContactNumberPage => _ => Future.successful(orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
+    case organisationsPages.ContactNumberPage => orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
 
-    case _ => _ => defaultPage
+    case _ => defaultPage
   }
 
-  override def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
+  def previousPage(page: Page, mode: Mode): Call =
     mode match {
-      case NormalMode => normalPreviousRoutes(page)(userAnswers)
-      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
+      case NormalMode => normalPreviousRoutes(page)
+      case CheckMode => checkRoute
     }
 
   override val errorPage: Page => Call = {

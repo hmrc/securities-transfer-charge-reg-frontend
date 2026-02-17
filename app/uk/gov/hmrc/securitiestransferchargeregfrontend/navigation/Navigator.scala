@@ -28,15 +28,13 @@ import scala.concurrent.{ExecutionContext, Future}
 
 trait Navigator:
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call]
-  def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call]
+  def previousPage(page: Page, mode: Mode): Call
   val errorPage: Page => Call
 
 abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit ec: ExecutionContext) extends Navigator:
 
-  protected[navigation] val defaultPage: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
-
-  override def previousPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
-    defaultPage 
+  protected[navigation] val defaultPageF: Future[Call] = Future.successful(routes.JourneyRecoveryController.onPageLoad())
+  protected[navigation] val defaultPage: Call = routes.JourneyRecoveryController.onPageLoad()
 
   protected[navigation] def goTo(success: Call, userAnswers: Option[UserAnswers] = None): Future[Call] =
     userAnswers.fold
@@ -48,7 +46,7 @@ abstract class AbstractNavigator(sessionRepository: SessionRepository)(implicit 
 
   protected[navigation] def dataDependent[A: Reads](page: Page & Gettable[A], userAnswers: UserAnswers)(f: A => Call): Future[Call] =
     userAnswers.get(page)
-      .fold(defaultPage)(value => 
+      .fold(defaultPageF)(value => 
         sessionRepository.set(userAnswers).map {
           _ => f(value) 
         }
