@@ -48,13 +48,13 @@ class WhatsYourContactNumberController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
       implicit request =>
 
-      val preparedForm =
-        request.userAnswers
-          .get(WhatsYourContactNumberPage)
-          .fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
       val backLinkCall = navigator.previousPage(WhatsYourContactNumberPage, mode)
-      
+
       Ok(view(preparedForm, mode, backLinkCall))
     }
 
@@ -68,7 +68,7 @@ class WhatsYourContactNumberController @Inject()(
 
         formWithErrors => {
           val backLinkCall = navigator.previousPage(WhatsYourContactNumberPage, mode)
-          
+
           Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
         },
 

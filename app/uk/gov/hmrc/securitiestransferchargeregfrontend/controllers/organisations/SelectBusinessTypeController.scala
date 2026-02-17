@@ -47,7 +47,10 @@ class SelectBusinessTypeController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(SelectBusinessTypePage).fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(SelectBusinessTypePage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
 
       val backLinkCall = navigator.previousPage(SelectBusinessTypePage, mode)
 

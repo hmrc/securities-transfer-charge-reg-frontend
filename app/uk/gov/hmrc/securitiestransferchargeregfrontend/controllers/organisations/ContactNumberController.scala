@@ -48,29 +48,28 @@ class ContactNumberController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(ContactNumberPage).fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(ContactNumberPage) match {
+        case None => form
+        case Some(value) => form.fill(value)
+      }
 
       val backLinkCall = navigator.previousPage(ContactNumberPage, mode)
-      
+
       Ok(view(preparedForm, mode, backLinkCall))
-        
+
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
       val innerRequest = request.request
-      val subscribeAndEnrol =
-        subscriptionConnector.subscribeAndEnrolOrganisation(
-          innerRequest.userId,
-          innerRequest.credId
-        )
+      val subscribeAndEnrol = subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId, innerRequest.credId)
 
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors => {
           val backLinkCall = navigator.previousPage(ContactNumberPage, mode)
-          
+
           Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
         },
 
