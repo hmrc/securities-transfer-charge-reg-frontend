@@ -45,8 +45,7 @@ class CheckYourDetailsController @Inject()(
   private val form: Form[Boolean] = formProvider()
 
   private def backLinkCall: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
-
-
+  
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData) { implicit request =>
       val preparedForm = request.userAnswers
@@ -56,8 +55,7 @@ class CheckYourDetailsController @Inject()(
       val innerRequest = request.request
       Ok(view(preparedForm, innerRequest.firstName, innerRequest.lastName, innerRequest.nino, mode, backLinkCall))
     }
-
-
+  
   def onSubmit(mode: Mode): Action[AnyContent] = {
     (validIndividual andThen getData andThen requireData).async { implicit request =>
       val innerRequest = request.request

@@ -41,8 +41,7 @@ class DateOfBirthRegController @Inject()(
                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
-
-
+  
   def onPageLoad(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData) { implicit request =>
 
@@ -61,7 +60,6 @@ class DateOfBirthRegController @Inject()(
       
       Ok(view(preparedForm, mode, backLinkCall))
     }
-
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData).async { implicit request =>
@@ -91,4 +89,3 @@ class DateOfBirthRegController @Inject()(
           }
       )
     }
-

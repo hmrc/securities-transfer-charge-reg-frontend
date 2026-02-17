@@ -50,7 +50,7 @@ class TypeOfPartnershipController @Inject()(
       val preparedForm = request.userAnswers.get(TypeOfPartnershipPage).fold(form)(form.fill)
 
       val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
-        
+
       Ok(view(preparedForm, mode, backLinkCall))
       
     }
@@ -62,7 +62,7 @@ class TypeOfPartnershipController @Inject()(
 
         formWithErrors => {
           val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
-          
+
           Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
         },
 

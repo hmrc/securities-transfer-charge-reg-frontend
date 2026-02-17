@@ -50,7 +50,7 @@ class SelectBusinessTypeController @Inject()(
       val preparedForm = request.userAnswers.get(SelectBusinessTypePage).fold(form)(form.fill)
 
       val backLinkCall = navigator.previousPage(SelectBusinessTypePage, mode)
-      
+
       Ok(view(preparedForm, mode, backLinkCall))
       
     }
@@ -62,7 +62,7 @@ class SelectBusinessTypeController @Inject()(
 
         formWithErrors => {
           val backLinkCall = navigator.previousPage(SelectBusinessTypePage, mode)
-            
+
           Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
         },
 
