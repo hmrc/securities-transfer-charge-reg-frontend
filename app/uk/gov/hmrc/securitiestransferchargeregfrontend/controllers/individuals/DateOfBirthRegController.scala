@@ -20,7 +20,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationConnector, RegistrationErrorException}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.DateOfBirthRegFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -39,7 +38,7 @@ class DateOfBirthRegController @Inject()(
                                           val controllerComponents: MessagesControllerComponents,
                                           view: DateOfBirthRegView,
                                           registrationConnector: RegistrationConnector,
-                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport:
+                                      )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
 
@@ -58,34 +57,30 @@ class DateOfBirthRegController @Inject()(
             form.fill(value)
         }
 
-      withBackLink(
-        navigator,
-        DateOfBirthRegPage,
-        mode,
-        request.userAnswers
-      ) { backLinkCall =>
-        Ok(view(preparedForm, mode, backLinkCall))
-      }
+      navigator
+        .previousPage(DateOfBirthRegPage, mode, request.userAnswers)
+        .map { backLinkCall =>
+          Ok(view(preparedForm, mode, backLinkCall))
+        }
     }
+
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData).async { implicit request =>
 
       val innerRequest = request.request
       val registerUser = registrationConnector.registerIndividual(innerRequest.userId)(innerRequest)
+
       val form = formProvider()
 
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors =>
-          withBackLink(
-            navigator,
-            DateOfBirthRegPage,
-            mode,
-            request.userAnswers
-          ) { backLinkCall =>
-            BadRequest(view(formWithErrors, mode, backLinkCall))
-          },
+          navigator
+            .previousPage(DateOfBirthRegPage, mode, request.userAnswers)
+            .map { backLinkCall =>
+              BadRequest(view(formWithErrors, mode, backLinkCall))
+            },
 
         dateOfBirth =>
           (

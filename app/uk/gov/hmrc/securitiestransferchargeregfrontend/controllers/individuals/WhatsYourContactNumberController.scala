@@ -21,7 +21,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.individuals.WhatsYourContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -32,14 +31,15 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Wh
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatsYourContactNumberController @Inject()( override val messagesApi: MessagesApi,
+class WhatsYourContactNumberController @Inject()(
+                                                  override val messagesApi: MessagesApi,
                                                   auth: IndividualAuth,
                                                   @Named("individuals") navigator: Navigator,
                                                   formProvider: WhatsYourContactNumberFormProvider,
                                                   val controllerComponents: MessagesControllerComponents,
                                                   subscriptionConnector: SubscriptionConnector,
                                                   view: WhatsYourContactNumberView
-                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport:
+                                                )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport:
 
   import auth.*
   
@@ -49,19 +49,16 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       implicit request =>
 
       val preparedForm =
-        request.userAnswers.get(WhatsYourContactNumberPage)
+        request.userAnswers
+          .get(WhatsYourContactNumberPage)
           .fold(form)(form.fill)
 
-      withBackLink(
-        navigator,
-        WhatsYourContactNumberPage,
-        mode,
-        request.userAnswers
-      ) { backLinkCall =>
-        Ok(view(preparedForm, mode, backLinkCall))
-      }
+      navigator
+        .previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
+        .map { backLinkCall =>
+          Ok(view(preparedForm, mode, backLinkCall))
+        }
     }
-
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData).async { implicit request =>
@@ -69,28 +66,25 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       val innerRequest = request.request
       val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
-      form.bindFromRequest().fold(
+      form.bindFromRequest().fold[Future[play.api.mvc.Result]](
 
         formWithErrors =>
-          withBackLink(
-            navigator,
-            WhatsYourContactNumberPage,
-            mode,
-            request.userAnswers
-          ) { backLinkCall =>
-            BadRequest(view(formWithErrors, mode, backLinkCall))
-          },
+          navigator
+            .previousPage(WhatsYourContactNumberPage, mode, request.userAnswers)
+            .map { backLinkCall =>
+              BadRequest(view(formWithErrors, mode, backLinkCall))
+            },
 
         contactNumber => (
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
-            nextPage        <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
-            _               <- subscribe(updatedAnswers, innerRequest)
-          } yield Redirect(nextPage)
-        ).recover { 
-          case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
+              nextPage       <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
+              _              <- subscribe(updatedAnswers, innerRequest)
+            } yield Redirect(nextPage)
+            ).recover {
+            case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
             => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
-        }
+          }
       )
     }
 

@@ -21,7 +21,6 @@ import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.SubscriptionConnector
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.OrgAuth
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.ContactNumberFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{Mode, NormalMode}
@@ -40,7 +39,7 @@ class ContactNumberController @Inject()(
                                          val controllerComponents: MessagesControllerComponents,
                                          view: ContactNumberView,
                                          subscriptionConnector: SubscriptionConnector,
-                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport {
+                                       )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
 
@@ -49,47 +48,44 @@ class ContactNumberController @Inject()(
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers.get(ContactNumberPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+      val preparedForm = request.userAnswers.get(ContactNumberPage).fold(form)(form.fill)
 
-      withBackLink(
-        navigator,
-        ContactNumberPage,
-        mode,
-        request.userAnswers
-      ) { backLinkCall =>
-        Ok(view(preparedForm, mode, backLinkCall))
-      }
-  }
+      navigator
+        .previousPage(ContactNumberPage, mode, request.userAnswers)
+        .map { backLinkCall =>
+          Ok(view(preparedForm, mode, backLinkCall))
+        }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
-      
+
       val innerRequest = request.request
+      val subscribeAndEnrol =
+        subscriptionConnector.subscribeAndEnrolOrganisation(
+          innerRequest.userId,
+          innerRequest.credId
+        )
 
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors =>
-          withBackLink(
-            navigator,
-            ContactNumberPage,
-            mode,
-            request.userAnswers
-          ) { backLinkCall =>
-            BadRequest(view(formWithErrors, mode, backLinkCall))
-          },
+          navigator
+            .previousPage(ContactNumberPage, mode, request.userAnswers)
+            .map { backLinkCall =>
+              BadRequest(view(formWithErrors, mode, backLinkCall))
+            },
 
         contactNumber =>
-          val subscribeAndEnrol = subscriptionConnector.subscribeAndEnrolOrganisation(innerRequest.userId, innerRequest.credId)
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(ContactNumberPage, contactNumber))
-            nextPage        <- navigator.nextPage(ContactNumberPage, NormalMode, updatedAnswers)
-            _               <- subscribeAndEnrol(updatedAnswers)
-          } yield Redirect(nextPage)
-      ).recover {
-        case _ => Redirect(navigator.errorPage(ContactNumberPage))
-      }
-  }
+          (
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(ContactNumberPage, contactNumber))
+              nextPage       <- navigator.nextPage(ContactNumberPage, NormalMode, updatedAnswers)
+              _              <- subscribeAndEnrol(updatedAnswers)
+            } yield Redirect(nextPage)
+            ).recover {
+            case _ => Redirect(navigator.errorPage(ContactNumberPage))
+          }
+      )
+    }
 }

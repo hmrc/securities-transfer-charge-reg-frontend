@@ -20,7 +20,6 @@ import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.BackLinkSupport
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
@@ -34,32 +33,28 @@ import scala.concurrent.{ExecutionContext, Future}
 
 class TypeOfPartnershipController @Inject()(
                                              override val messagesApi: MessagesApi,
-                                             @Named("organisations") navigator: Navigator,                                             auth: OrgAuth,
+                                             @Named("organisations") navigator: Navigator,
+                                             auth: OrgAuth,
                                              formProvider: TypeOfPartnershipFormProvider,
                                              val controllerComponents: MessagesControllerComponents,
                                              view: TypeOfPartnershipView
-                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with BackLinkSupport with I18nSupport {
+                                           )(implicit ec: ExecutionContext) extends FrontendBaseController with I18nSupport {
 
   import auth.*
 
   val form: Form[TypeOfPartnership] = formProvider()
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData).async {
+  def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
 
-      val preparedForm = request.userAnswers
-        .flatMap(_.get(TypeOfPartnershipPage))
-        .fold(form)(form.fill)
+      val preparedForm = request.userAnswers.get(TypeOfPartnershipPage).fold(form)(form.fill)
 
-      withBackLink(
-        navigator,
-        TypeOfPartnershipPage,
-        mode,
-        request.userAnswers
-      ) { backLinkCall =>
-        Ok(view(preparedForm, mode, backLinkCall))
-      }
-  }
+      navigator
+        .previousPage(TypeOfPartnershipPage, mode, request.userAnswers)
+        .map { backLinkCall =>
+          Ok(view(preparedForm, mode, backLinkCall))
+        }
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
     implicit request =>
@@ -67,14 +62,11 @@ class TypeOfPartnershipController @Inject()(
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors =>
-          withBackLink(
-            navigator,
-            TypeOfPartnershipPage,
-            mode,
-            request.userAnswers
-          ) { backLinkCall =>
-            BadRequest(view(formWithErrors, mode, backLinkCall))
-          },
+          navigator
+            .previousPage(TypeOfPartnershipPage, mode, request.userAnswers)
+            .map { backLinkCall =>
+              BadRequest(view(formWithErrors, mode, backLinkCall))
+            },
 
         typeOfPartnership =>
           for {
