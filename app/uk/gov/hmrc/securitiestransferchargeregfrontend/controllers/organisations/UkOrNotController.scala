@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.UkOrNotFormProvider
@@ -42,6 +42,7 @@ class UkOrNotController @Inject()(
   import auth.*
 
   val form: Form[Boolean] = formProvider()
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(UkOrNotPage, mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData) {
     implicit request =>
@@ -50,9 +51,7 @@ class UkOrNotController @Inject()(
           .flatMap(_.get(UkOrNotPage))
           .fold(form)(form.fill)
 
-      val backLinkCall = navigator.previousPage(UkOrNotPage, mode)
-
-      Ok(view(preparedForm, mode, backLinkCall))
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
   }
 
   def onSubmit(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData).async {
@@ -61,9 +60,8 @@ class UkOrNotController @Inject()(
       form.bindFromRequest().fold[Future[play.api.mvc.Result]](
 
         formWithErrors => {
-          val backLinkCall = navigator.previousPage(UkOrNotPage, mode)
 
-          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
         },
 
         isUk =>

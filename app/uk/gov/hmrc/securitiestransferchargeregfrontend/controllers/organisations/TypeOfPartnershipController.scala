@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisation
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents, Result}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.TypeOfPartnershipFormProvider
@@ -43,15 +43,14 @@ class TypeOfPartnershipController @Inject()(
   import auth.*
 
   val form: Form[TypeOfPartnership] = formProvider()
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(TypeOfPartnershipPage, mode)
 
   def onPageLoad(mode: Mode): Action[AnyContent] = (validOrg andThen getData andThen requireData) {
     implicit request =>
 
       val preparedForm = request.userAnswers.get(TypeOfPartnershipPage).fold(form)(form.fill)
 
-      val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
-
-      Ok(view(preparedForm, mode, backLinkCall))
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
       
     }
 
@@ -61,9 +60,8 @@ class TypeOfPartnershipController @Inject()(
       form.bindFromRequest().fold[Future[Result]](
 
         formWithErrors => {
-          val backLinkCall = navigator.previousPage(TypeOfPartnershipPage, mode)
 
-          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
         },
 
         typeOfPartnership =>

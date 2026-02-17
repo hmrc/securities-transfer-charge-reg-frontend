@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -45,6 +45,8 @@ class WhatsYourContactNumberController @Inject()(
   
   val form: Form[String] = formProvider()
 
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(WhatsYourContactNumberPage, mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
       implicit request =>
 
@@ -53,9 +55,7 @@ class WhatsYourContactNumberController @Inject()(
           case Some(value) => form.fill(value)
         }
 
-      val backLinkCall = navigator.previousPage(WhatsYourContactNumberPage, mode)
-
-      Ok(view(preparedForm, mode, backLinkCall))
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
     }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
@@ -67,9 +67,8 @@ class WhatsYourContactNumberController @Inject()(
       form.bindFromRequest().fold[Future[play.api.mvc.Result]](
 
         formWithErrors => {
-          val backLinkCall = navigator.previousPage(WhatsYourContactNumberPage, mode)
 
-          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall)))
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
         },
 
         contactNumber => (
