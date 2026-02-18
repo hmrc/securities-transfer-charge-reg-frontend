@@ -57,7 +57,8 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with Scala
   
   lazy val dateOfBirthRegRoute: String = individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode).url
   lazy val dateOfBirthPostRoute: String = individualRoutes.DateOfBirthRegController.onSubmit(NormalMode).url
-
+  val backLinkRoute: Call = individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+  
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 
   def getRequest(): FakeRequest[AnyContentAsEmpty.type] =
@@ -82,7 +83,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with Scala
         val view   = application.injector.instanceOf[DateOfBirthRegView]
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form, NormalMode)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form, NormalMode, backLinkRoute)(getRequest(), messages(application)).toString
       }
     }
 
@@ -96,7 +97,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with Scala
         val result = route(application, getRequest()).value
 
         status(result) mustEqual OK
-        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode)(getRequest(), messages(application)).toString
+        contentAsString(result) mustEqual view(form.fill(validAnswer), NormalMode, backLinkRoute)(getRequest(), messages(application)).toString
       }
     }
 
@@ -165,7 +166,7 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with Scala
         val result = route(application, request).value
 
         status(result) mustEqual BAD_REQUEST
-        contentAsString(result) mustEqual view(boundForm, NormalMode)(request, messages(application)).toString
+        contentAsString(result) mustEqual view(boundForm, NormalMode, backLinkRoute)(request, messages(application)).toString
       }
     }
 

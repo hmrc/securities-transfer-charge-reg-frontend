@@ -17,7 +17,7 @@
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents, Result}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.{RegistrationConnector, RegistrationErrorException}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.IndividualAuth
@@ -42,11 +42,13 @@ class DateOfBirthRegController @Inject()(
 
   import auth.*
 
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(DateOfBirthRegPage, mode)
 
-  def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
-    implicit request =>
+  def onPageLoad(mode: Mode): Action[AnyContent] =
+    (validIndividual andThen getData andThen requireData) { implicit request =>
+
       val form = formProvider()
-      
+
       val preparedForm =
         request.userAnswers.get(DateOfBirthRegPage) match {
           case None => form
@@ -55,27 +57,34 @@ class DateOfBirthRegController @Inject()(
             registrationConnector.clearRegistration(request.request.userId)
             form.fill(value)
         }
-      Ok(view(preparedForm, mode))
-  }
 
-  def onSubmit(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData).async {
-    implicit request =>
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
+    }
+
+  def onSubmit(mode: Mode): Action[AnyContent] =
+    (validIndividual andThen getData andThen requireData).async { implicit request =>
+
       val innerRequest = request.request
       val registerUser = registrationConnector.registerIndividual(innerRequest.userId)(innerRequest)
+
       val form = formProvider()
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+      form.bindFromRequest().fold[Future[Result]](
 
-        dateOfBirth => (
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
-            nextPage        <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
-            _               <- registerUser(dateOfBirth.toString)
-          } yield Redirect(nextPage)
-      ).recover {
-          case _: RegistrationErrorException => Redirect(navigator.errorPage(DateOfBirthRegPage))
-        }
+        formWithErrors => {
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
+        },
+
+        dateOfBirth =>
+          (
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(DateOfBirthRegPage, dateOfBirth))
+              nextPage       <- navigator.nextPage(DateOfBirthRegPage, mode, updatedAnswers)
+              _              <- registerUser(dateOfBirth.toString)
+            } yield Redirect(nextPage)
+            ).recover {
+            case _: RegistrationErrorException => Redirect(navigator.errorPage(DateOfBirthRegPage))
+          }
       )
-  }
+    }

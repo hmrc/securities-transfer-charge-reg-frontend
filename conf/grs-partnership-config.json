@@ -1,16 +1,16 @@
 {
   "continueUrl": "REPLACEME",
-  "optServiceName": "Securities Transfer Charge",
+  "optServiceName": "",
   "deskProServiceId": "Securities Transfer Charge",
   "signOutUrl": "/account/sign-out",
   "accessibilityUrl": "/accessibility-statement/my-service",
   "regime": "STC",
   "labels": {
     "cy": {
-      "optServiceName": "Service name translated into welsh"
+      "optServiceName": ""
     },
     "en": {
-      "optServiceName": "Securities Transfer Charge"
+      "optServiceName": ""
     }
   }
 }

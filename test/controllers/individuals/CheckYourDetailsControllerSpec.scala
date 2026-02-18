@@ -18,6 +18,7 @@ package controllers.individuals
 
 import base.SpecBase
 import org.scalatestplus.mockito.MockitoSugar
+import play.api.mvc.Call
 import play.api.test.FakeRequest
 import play.api.test.Helpers.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
@@ -33,6 +34,8 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
   lazy val checkYourDetailsRoute: String =
     routes.CheckYourDetailsController.onPageLoad(NormalMode).url
+    
+  val backLinkRoute: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
 
   "CheckYourDetailsController" - {
 
@@ -48,7 +51,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(form, firstName, lastName, nino, NormalMode)(
+          view(form, firstName, lastName, nino, NormalMode, backLinkRoute)(
             request,
             messages(application)
           ).toString
@@ -71,7 +74,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual OK
         contentAsString(result) mustEqual
-          view(form.fill(true), firstName, lastName, nino, NormalMode)(
+          view(form.fill(true), firstName, lastName, nino, NormalMode, backLinkRoute)(
             request,
             messages(application)
           ).toString
@@ -93,7 +96,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
 
         status(result) mustEqual BAD_REQUEST
         contentAsString(result) mustEqual
-          view(boundForm, firstName, lastName, nino, NormalMode)(
+          view(boundForm, firstName, lastName, nino, NormalMode, backLinkRoute)(
             request,
             messages(application)
           ).toString

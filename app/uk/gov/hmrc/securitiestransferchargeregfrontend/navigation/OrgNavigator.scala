@@ -78,18 +78,38 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
         _          = logger.info(s"Navigating to registration complete - session data cleared.")
       } yield nextPage
 
-    case _ => _ => defaultPage
+    case _ => _ => defaultPageF
   }
 
-  private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
+  private val checkRoute = routes.CheckYourAnswersController.onPageLoad()
   
 
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
+      case CheckMode => Future.successful(routes.CheckYourAnswersController.onPageLoad())
+
     }
   }
+
+  private val normalPreviousRoutes: Page => Call = {
+
+    case organisationsPages.UkOrNotPage => orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
+
+    case organisationsPages.SelectBusinessTypePage => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+
+    case organisationsPages.TypeOfPartnershipPage => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+
+    case organisationsPages.ContactNumberPage => orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
+
+    case _ => defaultPage
+  }
+
+  def previousPage(page: Page, mode: Mode): Call =
+    mode match {
+      case NormalMode => normalPreviousRoutes(page)
+      case CheckMode => checkRoute
+    }
 
   override val errorPage: Page => Call = {
     // TODO: This is not the right kick out page.

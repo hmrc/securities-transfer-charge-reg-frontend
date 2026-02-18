@@ -53,6 +53,8 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
 
     override def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] =
       Future.successful(testCall)
+
+    override def previousPage(page: Page, mode: Mode): Call = testCall
   }
 
   "All navigators should" - {
@@ -87,7 +89,7 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
       val result = navigator.dataRequired(testPage, UserAnswers(""), testCall)
       for {
         res     <- result
-        default <- navigator.defaultPage
+        default <- navigator.defaultPageF
       } yield {
         res mustBe default
       }
@@ -104,7 +106,7 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
       val result = navigator.dataDependent(testPage, UserAnswers(""))(_ => testCall)
       for {
         res     <- result
-        default <- navigator.defaultPage
+        default <- navigator.defaultPageF
       } yield {
         res mustBe default
       }
@@ -119,5 +121,4 @@ class NavigatorSpec extends SpecBase with MockitoSugar with ScalaFutures {
       }
     }
   }
-
 }

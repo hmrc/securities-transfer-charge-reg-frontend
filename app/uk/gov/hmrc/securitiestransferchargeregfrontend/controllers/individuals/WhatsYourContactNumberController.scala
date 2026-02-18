@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
 import play.api.data.Form
 import play.api.i18n.{I18nSupport, MessagesApi}
-import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
+import play.api.mvc.{Action, AnyContent, Call, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
@@ -31,7 +31,8 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.Wh
 import javax.inject.{Inject, Named}
 import scala.concurrent.{ExecutionContext, Future}
 
-class WhatsYourContactNumberController @Inject()( override val messagesApi: MessagesApi,
+class WhatsYourContactNumberController @Inject()(
+                                                  override val messagesApi: MessagesApi,
                                                   auth: IndividualAuth,
                                                   @Named("individuals") navigator: Navigator,
                                                   formProvider: WhatsYourContactNumberFormProvider,
@@ -44,16 +45,18 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
   
   val form: Form[String] = formProvider()
 
+  lazy val backLinkCall: Mode => Call = mode => navigator.previousPage(WhatsYourContactNumberPage, mode)
+
   def onPageLoad(mode: Mode): Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
-    implicit request =>
+      implicit request =>
 
       val preparedForm = request.userAnswers.get(WhatsYourContactNumberPage) match {
-        case None => form
-        case Some(value) => form.fill(value)
-      }
+          case None => form
+          case Some(value) => form.fill(value)
+        }
 
-      Ok(view(preparedForm, mode))
-  }
+      Ok(view(preparedForm, mode, backLinkCall(mode)))
+    }
 
   def onSubmit(mode: Mode): Action[AnyContent] =
     (validIndividual andThen getData andThen requireData).async { implicit request =>
@@ -61,20 +64,22 @@ class WhatsYourContactNumberController @Inject()( override val messagesApi: Mess
       val innerRequest = request.request
       val subscribe = subscriptionConnector.subscribeAndEnrolIndividual(innerRequest.userId)
 
-      form.bindFromRequest().fold(
-        formWithErrors =>
-          Future.successful(BadRequest(view(formWithErrors, mode))),
+      form.bindFromRequest().fold[Future[play.api.mvc.Result]](
+
+        formWithErrors => {
+
+          Future.successful(BadRequest(view(formWithErrors, mode, backLinkCall(mode))))
+        },
 
         contactNumber => (
-          for {
-            updatedAnswers  <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
-            nextPage        <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
-            _               <- subscribe(updatedAnswers, innerRequest)
-          } yield Redirect(nextPage)
-        ).recover { 
-          case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
+            for {
+              updatedAnswers <- Future.fromTry(request.userAnswers.set(WhatsYourContactNumberPage, contactNumber))
+              nextPage       <- navigator.nextPage(WhatsYourContactNumberPage, mode, updatedAnswers)
+              _              <- subscribe(updatedAnswers, innerRequest)
+            } yield Redirect(nextPage)
+            ).recover {
+            case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
             => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
-        }
+          }
       )
     }
-

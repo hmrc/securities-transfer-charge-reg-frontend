@@ -19,10 +19,12 @@ package views.organisations
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Document
 import play.api.Application
+import play.api.mvc.Call
 import uk.gov.hmrc.securitiestransferchargeregfrontend.forms.organisations.SelectBusinessTypeFormProvider
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.NormalMode
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.organisations.SelectBusinessTypeView
 import views.ViewBaseSpec
+import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 
 class SelectBusinessTypeViewSpec extends ViewBaseSpec {
 
@@ -32,8 +34,10 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
   private val formProvider = new SelectBusinessTypeFormProvider()
   private val form = formProvider()
 
+  val backLinkRoute: Call = routes.UkOrNotController.onPageLoad(NormalMode)
+
   def view(): Document = Jsoup.parse(
-    viewInstance(form, NormalMode)(fakeRequest, messages).body
+    viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body
   )
 
   object ExpectedMessages {
