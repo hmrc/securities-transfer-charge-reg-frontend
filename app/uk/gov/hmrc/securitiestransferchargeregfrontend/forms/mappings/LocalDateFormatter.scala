@@ -43,11 +43,23 @@ private[mappings] class LocalDateFormatter(
       case Success(date) =>
         Right(date)
       case Failure(_) =>
-        Left(Seq(FormError(key, invalidKey, args)))
+        Left(Seq(FormError(key, invalidKey, getErrorArgs(day, month))))
+    }
+
+  private def getErrorArgs(day: Int, month: Int): Seq[String] = {
+      val isDayError   = day < 1 || day > 31
+      val isMonthError = month < 1 || month > 12
+
+      (isDayError, isMonthError) match {
+        case (true, false) => Seq("day")
+        case (false, true) => Seq("month")
+        case (_, _)        => Seq("day", "month", "year")
+      }
     }
 
   private def formatDate(key: String, data: Map[String, String]): Either[Seq[FormError], LocalDate] = {
-
+    
+    val monthVal = s"$key.month"
     val int = intFormatter(
       requiredKey = invalidKey,
       wholeNumberKey = invalidKey,
@@ -59,7 +71,10 @@ private[mappings] class LocalDateFormatter(
 
     for {
       day   <- int.bind(s"$key.day", data)
-      month <- month.bind(s"$key.month", data)
+      month <- data(monthVal).toIntOption match {
+        case Some(_) => int.bind(monthVal, data)
+        case _       => month.bind(monthVal, data)
+      }
       year  <- int.bind(s"$key.year", data)
       date  <- toDate(key, day, month, year)
     } yield date

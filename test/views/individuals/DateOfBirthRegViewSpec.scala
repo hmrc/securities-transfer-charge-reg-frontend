@@ -42,7 +42,7 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
   object ExpectedIndividual {
     val title = "What’s your date of birth?"
     val heading = "What’s your date of birth?"
-    val hint = "For example, 27 3 2007."
+    val hint = "For example, 27 3 2007"
 
     val continue = "Continue"
   }
