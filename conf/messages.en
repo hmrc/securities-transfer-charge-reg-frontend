@@ -179,3 +179,7 @@ internalError.p1 = Try again later.
 nonAdminOrgUserKickOut.title = You cannot use this service
 nonAdminOrgUserKickOut.heading = You cannot use this service
 nonAdminOrgUserKickOut.p1 = Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+
+lowConfidenceKickOut.title = Before you use the service
+lowConfidenceKickOut.heading = Before you use the service
+lowConfidenceKickOut.p1 = Before you can tell us about a securities transfer you need to provide more information to confirm your identity.
