@@ -47,8 +47,8 @@ private[mappings] class LocalDateFormatter(
     }
 
   private def getErrorArgs(day: Int, month: Int): Seq[String] = {
-      val isDayError   = if (day < 1 || day > 31) true else false
-      val isMonthError = if (month < 1 || month > 12) true else false
+      val isDayError   = day < 1 || day > 31
+      val isMonthError = month < 1 || month > 12
 
       (isDayError, isMonthError) match {
         case (true, false) => Seq("day")
