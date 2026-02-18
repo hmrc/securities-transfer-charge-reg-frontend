@@ -106,3 +106,5 @@ GET        /org/registration/minor-entity/unincorporated-association    uk.gov.h
 GET        /org/registration/minor-entity/return                        uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.GrsMinorEntityController.returnFromJourney(journeyId: String)
 
 GET        /nonAdminOrgUserKickOut                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.NonAdminOrgUserKickOutController.onPageLoad()
+
+GET        /lowConfidenceKickOut                       uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.LowConfidenceKickOutController.onPageLoad()

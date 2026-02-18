@@ -65,6 +65,9 @@ class StcValidIndividualActionImpl @Inject()( override val authConnector: AuthCo
         Redirect(config.loginUrl, Map("continue" -> Seq(config.loginContinueUrl)))
       case _: UnsupportedAffinityGroup =>
         Redirect(routes.RegistrationController.routingLogic())
+      case low: InsufficientConfidenceLevel =>
+        logger.warn(s"InsufficientConfidenceLevel caught in StcValidIndividualAction: ${low.getMessage}")
+        Redirect(routes.LowConfidenceKickOutController.onPageLoad())
       case ae: AuthorisationException =>
         logger.info(s"AuthorisationException caught in StcValidIndividualAction: ${ae.getMessage}")
         Redirect(routes.UnauthorisedController.onPageLoad())
