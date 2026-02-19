@@ -78,10 +78,10 @@
         "editAddressLinkText": "Enter address manually"
       },
       "confirmPageLabels": {
-        "title": "Confirm your company\u2019s address",
-        "heading": "Confirm your company\u2019s address",
+        "title": "Confirm your company’s address",
+        "heading": "Confirm your company’s address",
         "infoSubheading": "Your selected address",
-        "submitLabel": "Confirm Address",
+        "submitLabel": "Confirm address",
         "changeLinkText": "Edit address"
       },
       "editPageLabels": {
@@ -153,3 +153,4 @@
     }
   }
 }
+
