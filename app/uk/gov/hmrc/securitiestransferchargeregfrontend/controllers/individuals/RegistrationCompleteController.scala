@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals
 
+import play.api.Logging
 import play.api.i18n.{I18nSupport, MessagesApi}
 import play.api.mvc.{Action, AnyContent, MessagesControllerComponents}
 import uk.gov.hmrc.play.bootstrap.frontend.controller.FrontendBaseController
@@ -23,18 +24,22 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.actions.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.individuals.RegistrationCompleteView
 
 import javax.inject.Inject
+import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.SessionRepository
 
 class RegistrationCompleteController @Inject()(
                                        override val messagesApi: MessagesApi,
                                        auth: IndividualAuth,
                                        val controllerComponents: MessagesControllerComponents,
-                                       view: RegistrationCompleteView
-                                     ) extends FrontendBaseController with I18nSupport {
+                                       view: RegistrationCompleteView,
+                                       sessionRepository: SessionRepository
+                                     ) extends FrontendBaseController with I18nSupport with Logging {
 
   import auth.*
   
-  def onPageLoad: Action[AnyContent] = validIndividual {
+  def onPageLoad: Action[AnyContent] = (validIndividual andThen getData andThen requireData) {
     implicit request =>
+      sessionRepository.clear(request.request.userId)
+      logger.info(s"Registration complete - session data cleared.")
       Ok(view())
   }
 }

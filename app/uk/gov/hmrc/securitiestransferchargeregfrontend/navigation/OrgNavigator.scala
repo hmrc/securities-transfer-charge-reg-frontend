@@ -72,11 +72,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
       userAnswers => dataRequired(organisationsPages.ContactEmailAddressPage, userAnswers, orgRoutes.ContactNumberController.onPageLoad(NormalMode))
 
     case organisationsPages.ContactNumberPage =>
-      userAnswers => for {
-        nextPage  <- dataRequired(organisationsPages.ContactNumberPage, userAnswers, orgRoutes.RegistrationCompleteController.onPageLoad())
-        _         <- sessionRepository.clear(userAnswers.id)
-        _          = logger.info(s"Navigating to registration complete - session data cleared.")
-      } yield nextPage
+      userAnswers => dataRequired(organisationsPages.ContactNumberPage, userAnswers, orgRoutes.RegistrationCompleteController.onPageLoad())
 
     case _ => _ => defaultPageF
   }

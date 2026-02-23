@@ -52,11 +52,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
       userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode))
       
     case individualsPages.WhatsYourContactNumberPage => 
-      userAnswers => for {
-        nextPage  <- dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
-        _         <- sessionRepository.clear(userAnswers.id)
-        _          = logger.info(s"Navigating to registration complete - session data cleared.")
-      } yield nextPage
+      userAnswers => dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
 
     case _ => _ => defaultPageF
   }
