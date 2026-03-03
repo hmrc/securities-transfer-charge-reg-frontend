@@ -24,7 +24,8 @@ case class RegistrationAuditModel[T](
                                       userEnteredDetails: T,
                                       affinityGroup: String,
                                       registrationStarted: Option[Instant],
-                                      credentialId: String
+                                      credentialId: String,
+                                      outcome: RegistrationOutcome
                                     )
 
 object RegistrationAuditModel {
@@ -32,4 +33,16 @@ object RegistrationAuditModel {
     Json.writes[RegistrationAuditModel[T]]
 }
 
+case class RegistrationOutcome(subscribed: Boolean, enrolled: Boolean, failureReason: Option[String])
+object RegistrationOutcome:
+  implicit val format: OFormat[RegistrationOutcome] = Json.format[RegistrationOutcome]
+
+  def success(): RegistrationOutcome =
+      RegistrationOutcome(true, true, None)
+      
+  def subscriptionFailed(reason: String): RegistrationOutcome =
+      RegistrationOutcome(subscribed = false, enrolled = false, Some(reason))
+  
+  def enrolmentFailed(reason: String): RegistrationOutcome =
+    RegistrationOutcome(subscribed = true, enrolled = false, Some(reason))
 

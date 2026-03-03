@@ -78,8 +78,8 @@ class WhatsYourContactNumberController @Inject()(
               _              <- subscribe(updatedAnswers, innerRequest)
             } yield Redirect(nextPage)
             ).recover {
-            case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException
-            => Redirect(navigator.errorPage(WhatsYourContactNumberPage))
+            case _: RegistrationDataNotFoundException | _: SubscriptionErrorException | _: EnrolmentErrorException =>
+              Redirect(navigator.errorPage(WhatsYourContactNumberPage))
           }
       )
     }

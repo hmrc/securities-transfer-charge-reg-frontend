@@ -22,7 +22,6 @@ import uk.gov.hmrc.play.audit.http.connector.AuditConnector
 import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditModel
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.UserAnswers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
-
 import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.ExecutionContext
@@ -46,21 +45,24 @@ class RegistrationAuditService @Inject()(
   def auditOrganisationRegistrationComplete(
                                              registrationStarted: Option[Instant],
                                              userAnswers: UserAnswers,
-                                             credId: String
+                                             credId: String,
+                                             outcome: RegistrationOutcome = RegistrationOutcome.success()
                                            )(implicit hc: HeaderCarrier): Unit =
-    buildOrganisationAuditModel(registrationStarted, userAnswers, credId).foreach(sendAuditEvent)
+    buildOrganisationAuditModel(registrationStarted, userAnswers, credId, outcome).foreach(sendAuditEvent)
 
   def auditIndividualRegistrationComplete(
                                            registrationStarted: Option[Instant],
                                            data: ValidIndividualData,
-                                           userAnswers: UserAnswers
+                                           userAnswers: UserAnswers,
+                                           outcome: RegistrationOutcome = RegistrationOutcome.success()
                                          )(implicit hc: HeaderCarrier): Unit =
-    buildIndividualAuditModel(registrationStarted, data, userAnswers).foreach(sendAuditEvent)
+    buildIndividualAuditModel(registrationStarted, data, userAnswers, outcome).foreach(sendAuditEvent)
 
   private def buildOrganisationAuditModel(
                                            registrationStarted: Option[Instant],
                                            userAnswers: UserAnswers,
-                                           credId: String
+                                           credId: String,
+                                           regOutcome: RegistrationOutcome
                                          ): Option[RegistrationAuditModel[OrganisationDetailsPayload]] =
     for {
       details <- RegistrationDetailsPayload.fromOrganisation(userAnswers)
@@ -68,12 +70,14 @@ class RegistrationAuditService @Inject()(
       userEnteredDetails = details,
       affinityGroup = "Organisation",
       registrationStarted = registrationStarted,
-      credentialId = credId
+      credentialId = credId,
+      outcome = regOutcome
     )
 
   private def buildIndividualAuditModel(registrationStarted: Option[Instant],
                                         data: ValidIndividualData,
-                                        userAnswers: UserAnswers
+                                        userAnswers: UserAnswers,
+                                        regOutcome: RegistrationOutcome
                                        ): Option[RegistrationAuditModel[IndividualDetailsPayload]] =
     for {
       details <- RegistrationDetailsPayload.fromIndividual(data, userAnswers)
@@ -81,7 +85,8 @@ class RegistrationAuditService @Inject()(
       userEnteredDetails = details,
       affinityGroup = "Individual",
       registrationStarted = registrationStarted,
-      credentialId = data.credId
+      credentialId = data.credId,
+      outcome = regOutcome
     )
 
 }
