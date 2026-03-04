@@ -53,8 +53,8 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   private def noUtr[A] : Future[A]    = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val auditFailedSub: AuditFailureHandler[String] = s => t => auditSubscriptionFailure(s, userAnswers, data, t)
-    val auditFailedEnrol: AuditFailureHandler[Unit] = s => t => auditEnrolmentFailure(s, userAnswers, data, t)
+    val auditFailedSub: AuditFailureHandler[String] = start => ex => auditSubscriptionFailure(start, userAnswers, data, ex)
+    val auditFailedEnrol: AuditFailureHandler[Unit] = start => ex => auditEnrolmentFailure(start, userAnswers, data, ex)
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
       startedAt        = regData.startedAt
@@ -75,8 +75,8 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
   }
 
   override def subscribeAndEnrolOrganisation(userId: String, credId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
-    val auditFailedSub: AuditFailureHandler[String] = s => t => auditOrgSubscriptionFailure(s, userAnswers, credId, t)
-    val auditFailedEnrol: AuditFailureHandler[Unit] = s => t => auditOrgEnrolmentFailure(s, userAnswers, credId, t)
+    val auditFailedSub: AuditFailureHandler[String] = start => ex => auditOrgSubscriptionFailure(start, userAnswers, credId, ex)
+    val auditFailedEnrol: AuditFailureHandler[Unit] = start => ex => auditOrgEnrolmentFailure(start, userAnswers, credId, ex)
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
       startedAt        = regData.startedAt
