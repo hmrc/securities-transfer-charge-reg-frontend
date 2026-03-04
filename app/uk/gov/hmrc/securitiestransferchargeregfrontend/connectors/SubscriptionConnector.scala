@@ -18,7 +18,7 @@ package uk.gov.hmrc.securitiestransferchargeregfrontend.connectors
 
 import play.api.Logging
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditService
+import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.{RegistrationAuditService, RegistrationOutcome}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.SubscriptionSuccessful
@@ -28,6 +28,7 @@ import uk.gov.hmrc.securitiestransferchargeregfrontend.repositories.{Registratio
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers
 import uk.gov.hmrc.securitiestransferchargeregfrontend.utils.CommonHelpers.*
 
+import java.time.Instant
 import javax.inject.Inject
 import scala.concurrent.{ExecutionContext, Future}
 
@@ -44,28 +45,56 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
                                           registrationAuditService: RegistrationAuditService)
                                          (implicit ec: ExecutionContext) extends SubscriptionConnector with Logging:
 
+  private type AuditFailureHandler[A] = Option[Instant] => PartialFunction[Throwable, Future[A]]
   private val logInfoAndFail = CommonHelpers.logInfoAndFail(logger)
-  private def noSafeId[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing safeId"))
+  
+  private def noSafeId[A]: Future[A]  = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing safeId"))
   private def noDetails[A]: Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Subscription failed: missing subscription details"))
-  private def noUtr[A] : Future[A] = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
+  private def noUtr[A] : Future[A]    = logInfoAndFail(new RegistrationDataNotFoundException("Enrolment failed: missing ctUtr"))
 
   override def subscribeAndEnrolIndividual(userId: String)(userAnswers: UserAnswers, data: ValidIndividualData)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val auditFailedSub: AuditFailureHandler[String] = start => ex => auditSubscriptionFailure(start, userAnswers, data, ex)
+    val auditFailedEnrol: AuditFailureHandler[Unit] = start => ex => auditEnrolmentFailure(start, userAnswers, data, ex)
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
+      startedAt        = regData.startedAt
       safeId          <- getSafeId(regData)
-      subscriptionId  <- subscribe(safeId, userAnswers, data)
-      _               <- enrol(subscriptionId, data.nino)
-    } yield registrationAuditService.auditIndividualRegistrationComplete(regData.startedAt, data, userAnswers)
+      subscriptionId  <- subscribe(safeId, userAnswers, data).recoverWith(auditFailedSub(startedAt))
+      _               <- enrol(subscriptionId, data.nino).recoverWith(auditFailedEnrol(startedAt))
+    } yield registrationAuditService.auditIndividualRegistrationComplete(startedAt, data, userAnswers)
+  }
+
+  private def auditSubscriptionFailure(registrationStarted: Option[Instant], userAnswers: UserAnswers, data: ValidIndividualData, t: Throwable)(implicit hc: HeaderCarrier): Future[String] = {
+    registrationAuditService.auditIndividualRegistrationComplete(registrationStarted, data, userAnswers, RegistrationOutcome.subscriptionFailed(t.getLocalizedMessage))
+    Future.failed(t)
+  }
+
+  private def auditEnrolmentFailure(registrationStarted: Option[Instant], userAnswers: UserAnswers, data: ValidIndividualData, t: Throwable)(implicit hc: HeaderCarrier): Future[Unit] = {
+    registrationAuditService.auditIndividualRegistrationComplete(registrationStarted, data, userAnswers, RegistrationOutcome.enrolmentFailed(t.getLocalizedMessage))
+    Future.failed(t)
   }
 
   override def subscribeAndEnrolOrganisation(userId: String, credId: String)(userAnswers: UserAnswers)(implicit hc: HeaderCarrier): Future[Unit] = {
+    val auditFailedSub: AuditFailureHandler[String] = start => ex => auditOrgSubscriptionFailure(start, userAnswers, credId, ex)
+    val auditFailedEnrol: AuditFailureHandler[Unit] = start => ex => auditOrgEnrolmentFailure(start, userAnswers, credId, ex)
     for {
       regData         <- registrationDataRepository.getRegistrationData(userId)
+      startedAt        = regData.startedAt
       safeId          <- getSafeId(regData)
       utr             <- getUtr(regData)
-      subscriptionId  <- subscribeOrganisation(safeId, userAnswers)
-      _               <- enrolOrganisation(subscriptionId, utr)
-    } yield registrationAuditService.auditOrganisationRegistrationComplete(regData.startedAt, userAnswers, credId)
+      subscriptionId  <- subscribeOrganisation(safeId, userAnswers).recoverWith(auditFailedSub(startedAt))
+      _               <- enrolOrganisation(subscriptionId, utr).recoverWith(auditFailedEnrol(startedAt))
+    } yield registrationAuditService.auditOrganisationRegistrationComplete(startedAt, userAnswers, credId)
+  }
+
+  private def auditOrgSubscriptionFailure(registrationStarted: Option[Instant], userAnswers: UserAnswers, credId: String, t: Throwable)(implicit hc: HeaderCarrier): Future[String] = {
+    registrationAuditService.auditOrganisationRegistrationComplete(registrationStarted, userAnswers, credId, RegistrationOutcome.subscriptionFailed(t.getLocalizedMessage))
+    Future.failed(t)
+  }
+
+  private def auditOrgEnrolmentFailure(registrationStarted: Option[Instant], userAnswers: UserAnswers, credId: String, t: Throwable)(implicit hc: HeaderCarrier): Future[Unit] = {
+    registrationAuditService.auditOrganisationRegistrationComplete(registrationStarted, userAnswers, credId, RegistrationOutcome.enrolmentFailed(t.getLocalizedMessage))
+    Future.failed(t)
   }
 
   private val getSafeId: RegistrationData => Future[String] = data =>
@@ -161,4 +190,3 @@ class SubscriptionConnectorImpl @Inject()(registrationClient: RegistrationClient
       val msg = s"SubscriptionConnector: Error response when enrolling subscriptionId: $subscriptionId, error: $error"
       logInfoAndFail(new EnrolmentErrorException(msg))
   }
-

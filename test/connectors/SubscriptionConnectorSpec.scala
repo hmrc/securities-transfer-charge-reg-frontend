@@ -22,10 +22,10 @@ import org.mockito.Mockito.*
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatestplus.mockito.MockitoSugar
 import uk.gov.hmrc.http.HeaderCarrier
-import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.RegistrationAuditService
+import uk.gov.hmrc.securitiestransferchargeregfrontend.audit.{RegistrationAuditService, RegistrationOutcome}
+import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.EnrolmentResponse.EnrolmentSuccessful
 import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.SubscriptionResponse.{SubscriptionFailed, SubscriptionSuccessful}
-import uk.gov.hmrc.securitiestransferchargeregfrontend.clients.registration.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.connectors.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.requests.ValidIndividualData
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.{AlfAddress, AlfConfirmedAddress, Country, UserAnswers}
@@ -100,33 +100,36 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
     override def credId: String = "cred-id"
     override def userId: String = testId
   }
-   
 
+
+  private val regAudit = mock[RegistrationAuditService]
   def testSetupForIndividuals(regData: Option[RegistrationData] = Some(testRegData),
-                              subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId))): SubscriptionConnector = {
+                              subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId)),
+                              enrolmentResult: EnrolmentResult = Right(EnrolmentSuccessful)): SubscriptionConnector = {
+    reset(regAudit)
     val regClient = mock[RegistrationClient]
     val regRepo = mock[RegistrationDataRepository]
-    val regAudit = mock[RegistrationAuditService]
 
     when(regRepo.getRegistrationData(testId)).thenReturn(regData.fold(Future.failed(new RegistrationDataNotFoundException("No registration data found")))(Future.successful))
     when(regRepo.setSubscriptionId(testId)(testSubscriptionId)).thenReturn(Future.successful(()))
     when(regClient.subscribe(any[IndividualSubscriptionDetails])(any[HeaderCarrier])).thenReturn(Future.successful(subscriptionResult))
-    when(regClient.enrolIndividual(any[IndividualEnrolmentDetails])(any[HeaderCarrier])).thenReturn(Future.successful(Right(EnrolmentSuccessful)))
-    doNothing().when(regAudit).auditIndividualRegistrationComplete(any[Option[Instant]], any[ValidIndividualData], any[UserAnswers])(any[HeaderCarrier])
+    when(regClient.enrolIndividual(any[IndividualEnrolmentDetails])(any[HeaderCarrier])).thenReturn(Future.successful(enrolmentResult))
+    doNothing().when(regAudit).auditIndividualRegistrationComplete(any[Option[Instant]], any[ValidIndividualData], any[UserAnswers], any[RegistrationOutcome])(any[HeaderCarrier])
     new SubscriptionConnectorImpl(regClient, regRepo, regAudit)
   }
 
   def testSetupForOrganisations(regData: Option[RegistrationData] = Some(testRegData),
-                              subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId))): SubscriptionConnector = {
+                                subscriptionResult: SubscriptionResult = Right(SubscriptionSuccessful(testSubscriptionId)),
+                                enrolmentResult: EnrolmentResult = Right(EnrolmentSuccessful)): SubscriptionConnector = {
+    reset(regAudit)
     val regClient = mock[RegistrationClient]
     val regRepo = mock[RegistrationDataRepository]
-    val regAudit = mock[RegistrationAuditService]
 
     when(regRepo.getRegistrationData(testId)).thenReturn(regData.fold(Future.failed(new RegistrationDataNotFoundException("No registration data found")))(Future.successful))
     when(regRepo.setSubscriptionId(testId)(testSubscriptionId)).thenReturn(Future.successful(()))
     when(regClient.subscribe(any[OrganisationSubscriptionDetails])(any[HeaderCarrier])).thenReturn(Future.successful(subscriptionResult))
-    when(regClient.enrolOrganisation(any[OrganisationEnrolmentDetails])(any[HeaderCarrier])).thenReturn(Future.successful(Right(EnrolmentSuccessful)))
-    doNothing().when(regAudit).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String])(any[HeaderCarrier])
+    when(regClient.enrolOrganisation(any[OrganisationEnrolmentDetails])(any[HeaderCarrier])).thenReturn(Future.successful(enrolmentResult))
+    doNothing().when(regAudit).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String], any[RegistrationOutcome])(any[HeaderCarrier])
     new SubscriptionConnectorImpl(regClient, regRepo, regAudit)
   }
 
@@ -205,6 +208,31 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
         }
       }
 
+      "calls the audit service if the subscription and enrolment is successful" in {
+        val connector = testSetupForIndividuals()
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
+
+        whenReady(result) { _ =>
+          verify(regAudit, times(1)).auditIndividualRegistrationComplete(any[Option[Instant]], any[ValidIndividualData], any[UserAnswers], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
+
+      "calls the audit service if the subscription fails" in {
+        val connector = testSetupForIndividuals(subscriptionResult = Left(SubscriptionServerError("Error")))
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
+        whenReady(result.failed) { _ =>
+          verify(regAudit, times(1)).auditIndividualRegistrationComplete(any[Option[Instant]], any[ValidIndividualData], any[UserAnswers], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
+
+      "calls the audit service if the enrolment fails" in {
+        val connector = testSetupForIndividuals(enrolmentResult = Left(EnrolmentServerError("Error")))
+        val result = connector.subscribeAndEnrolIndividual(testId)(testUserAnswersForIndividuals(), testValidIndividualData)
+        whenReady(result.failed) { _ =>
+          verify(regAudit, times(1)).auditIndividualRegistrationComplete(any[Option[Instant]], any[ValidIndividualData], any[UserAnswers], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
+
     }
     "when subscribing and enrolling organisations" - {
 
@@ -279,7 +307,31 @@ class SubscriptionConnectorSpec extends SpecBase with MockitoSugar with ScalaFut
         }
       }
 
+      "calls the audit service if the subscription and enrolment is successful" in {
+        val connector = testSetupForOrganisations()
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+
+        whenReady(result) { result =>
+          result mustBe()
+          verify(regAudit, times(1)).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
+
+      "calls the audit service if the subscription fails" in {
+        val connector = testSetupForOrganisations(subscriptionResult = Left(SubscriptionServerError("Error")))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+        whenReady(result.failed) { _ =>
+          verify(regAudit, times(1)).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
+
+      "calls the audit service if the enrolment fails" in {
+        val connector = testSetupForOrganisations(enrolmentResult = Left(EnrolmentServerError("Error")))
+        val result = connector.subscribeAndEnrolOrganisation(testId, testCredId)(testUserAnswersForOrganisation())
+        whenReady(result.failed) { _ =>
+          verify(regAudit, times(1)).auditOrganisationRegistrationComplete(any[Option[Instant]], any[UserAnswers], any[String], any[RegistrationOutcome])(any[HeaderCarrier])
+        }
+      }
     }
   }
 }
-
