@@ -53,9 +53,9 @@
         "phaseBannerHtml": ""
       },
       "countryPickerLabels": {
-        "title": "Your address",
-        "heading": "Your address",
-        "countryLabel": "Which country do you live in?",
+        "title": "Which country do you live in?",
+        "heading": "Which country do you live in?",
+        "countryLabel": "",
         "submitLabel": "Continue"
       },
       "lookupPageLabels": {
