@@ -53,9 +53,9 @@
         "phaseBannerHtml": ""
       },
       "countryPickerLabels": {
-        "title": "Your company address",
-        "heading": "Your company address",
-        "countryLabel": "Which country is your company registered in?",
+        "title": "Which country is your company registered in?",
+        "heading": "Which country is your company registered in?",
+        "countryLabel": "",
         "submitLabel": "Continue"
       },
       "lookupPageLabels": {
@@ -153,4 +153,3 @@
     }
   }
 }
-
