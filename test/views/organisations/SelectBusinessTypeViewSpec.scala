@@ -34,7 +34,7 @@ class SelectBusinessTypeViewSpec extends ViewBaseSpec {
   private val formProvider = new SelectBusinessTypeFormProvider()
   private val form = formProvider()
 
-  val backLinkRoute: Call = routes.UkOrNotController.onPageLoad(NormalMode)
+  val backLinkRoute: Call = routes.UkOrNotController.onPageLoad()
 
   def view(): Document = Jsoup.parse(
     viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body

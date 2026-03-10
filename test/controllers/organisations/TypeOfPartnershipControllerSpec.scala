@@ -42,8 +42,8 @@ class TypeOfPartnershipControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute: Call = Call("GET", "/foo")
 
-  lazy val typeOfPartnershipRoute: String = routes.TypeOfPartnershipController.onPageLoad(NormalMode).url
-  val backLinkRoute: Call = routes.SelectBusinessTypeController.onPageLoad(NormalMode)
+  lazy val typeOfPartnershipRoute: String = routes.TypeOfPartnershipController.onPageLoad().url
+  val backLinkRoute: Call = routes.SelectBusinessTypeController.onPageLoad()
   
   val formProvider = new TypeOfPartnershipFormProvider()
   val form: Form[TypeOfPartnership] = formProvider()

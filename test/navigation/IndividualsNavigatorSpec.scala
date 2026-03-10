@@ -45,7 +45,7 @@ class IndividualsNavigatorSpec extends SpecBase {
       "must go from the RegForSecuritiesTransferChargePage to CheckYourDetailsPage" in {
         val result = navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, emptyUserAnswers)
         whenReady(result) { res =>
-          res mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+          res mustBe individualRoutes.CheckYourDetailsController.onPageLoad()
         }
       }
 
@@ -53,7 +53,7 @@ class IndividualsNavigatorSpec extends SpecBase {
         val answers = emptyUserAnswers.set(CheckYourDetailsPage, true).success.value
         val result = navigator.nextPage(CheckYourDetailsPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
+          res mustBe individualRoutes.DateOfBirthRegController.onPageLoad()
         }
       }
       
@@ -84,7 +84,7 @@ class IndividualsNavigatorSpec extends SpecBase {
         val answers = emptyUserAnswers.set(IndividualAddressPage, Fixtures.fakeAlfConfirmedAddress).get
         val result = navigator.nextPage(IndividualAddressPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+          res mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad()
         }
       }
       
@@ -92,7 +92,7 @@ class IndividualsNavigatorSpec extends SpecBase {
         val answers = emptyUserAnswers.set(WhatsYourEmailAddressPage, "foo@bar.com").get
         val result = navigator.nextPage(WhatsYourEmailAddressPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode)
+          res mustBe individualRoutes.WhatsYourContactNumberController.onPageLoad()
         }
       }
       "must go from the WhatsYourContactNumberPage to RegistrationComplete" in {
@@ -114,35 +114,13 @@ class IndividualsNavigatorSpec extends SpecBase {
         "must go from DateOfBirthRegPage back to CheckYourDetailsPage" in {
           val result = navigator.previousPage(DateOfBirthRegPage, NormalMode)
 
-          result mustBe individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+          result mustBe individualRoutes.CheckYourDetailsController.onPageLoad()
         }
 
         "must go from WhatsYourContactNumberPage back to WhatsYourEmailAddressPage" in {
           val result = navigator.previousPage(WhatsYourContactNumberPage, NormalMode)
 
-          result mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
-        }
-      }
-    }
-
-    "in Check mode" - {
-
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-
-        case object UnknownPage extends Page
-        val result = navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id"))
-        whenReady(result) { res =>
-          res mustBe routes.CheckYourAnswersController.onPageLoad()
-        }
-        
-      }
-
-      "previousPage" - {
-
-        "must go to CheckYourAnswers" in {
-          val result = navigator.previousPage(DateOfBirthRegPage, CheckMode)
-
-          result mustBe routes.CheckYourAnswersController.onPageLoad()
+          result mustBe individualRoutes.WhatsYourEmailAddressController.onPageLoad()
         }
       }
     }

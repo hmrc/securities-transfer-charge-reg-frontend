@@ -33,7 +33,7 @@ class DateOfBirthRegViewSpec extends ViewBaseSpec {
   private val viewInstance = app.injector.instanceOf[DateOfBirthRegView]
   private val formProvider = new DateOfBirthRegFormProvider()
   private val form = formProvider()
-  val backLinkRoute: Call = routes.CheckYourDetailsController.onPageLoad(NormalMode)
+  val backLinkRoute: Call = routes.CheckYourDetailsController.onPageLoad()
 
   def view(): Document = Jsoup.parse(
     viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body

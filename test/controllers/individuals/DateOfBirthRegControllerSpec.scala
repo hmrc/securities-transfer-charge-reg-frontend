@@ -55,9 +55,9 @@ class DateOfBirthRegControllerSpec extends SpecBase with MockitoSugar with Scala
   val validAnswer: LocalDate = LocalDate.of(1990, 1, 1)
   val success: Future[Unit] = Future.successful(())
   
-  lazy val dateOfBirthRegRoute: String = individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode).url
-  lazy val dateOfBirthPostRoute: String = individualRoutes.DateOfBirthRegController.onSubmit(NormalMode).url
-  val backLinkRoute: Call = individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+  lazy val dateOfBirthRegRoute: String = individualRoutes.DateOfBirthRegController.onPageLoad().url
+  lazy val dateOfBirthPostRoute: String = individualRoutes.DateOfBirthRegController.onSubmit().url
+  val backLinkRoute: Call = individualRoutes.CheckYourDetailsController.onPageLoad()
   
   override val emptyUserAnswers = UserAnswers(userAnswersId)
 

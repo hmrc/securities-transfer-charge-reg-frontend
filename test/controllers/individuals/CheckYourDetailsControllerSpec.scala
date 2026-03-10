@@ -33,7 +33,7 @@ class CheckYourDetailsControllerSpec extends SpecBase with MockitoSugar {
   private val form = formProvider()
 
   lazy val checkYourDetailsRoute: String =
-    routes.CheckYourDetailsController.onPageLoad(NormalMode).url
+    routes.CheckYourDetailsController.onPageLoad().url
     
   val backLinkRoute: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
 

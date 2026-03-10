@@ -34,7 +34,7 @@ class ContactNumberViewSpec extends ViewBaseSpec {
   private val formProvider = new ContactNumberFormProvider()
   private val form = formProvider()
 
-  val backLinkRoute: Call = routes.ContactEmailAddressController.onPageLoad(NormalMode)
+  val backLinkRoute: Call = routes.ContactEmailAddressController.onPageLoad()
 
   def view(): Document = Jsoup.parse(
     viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body

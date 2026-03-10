@@ -33,7 +33,7 @@ class WhatsYourContactNumberViewSpec extends ViewBaseSpec {
   private val viewInstance         = app.injector.instanceOf[WhatsYourContactNumberView]
   private val formProvider = new WhatsYourContactNumberFormProvider()
   private val form = formProvider()
-  val backLinkRoute: Call = routes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+  val backLinkRoute: Call = routes.WhatsYourEmailAddressController.onPageLoad()
 
   def view(): Document = Jsoup.parse(
     viewInstance(form, NormalMode, backLinkRoute)(fakeRequest, messages).body

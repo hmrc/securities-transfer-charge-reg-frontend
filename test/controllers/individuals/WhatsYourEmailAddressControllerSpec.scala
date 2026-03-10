@@ -36,7 +36,7 @@ class WhatsYourEmailAddressControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourEmailAddressFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourEmailAddressRoute: String = individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode).url
+  lazy val whatsYourEmailAddressRoute: String = individualRoutes.WhatsYourEmailAddressController.onPageLoad().url
 
   "WhatsYourEmailAddress Controller" - {
 

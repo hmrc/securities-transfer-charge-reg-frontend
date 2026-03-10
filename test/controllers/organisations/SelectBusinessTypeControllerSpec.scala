@@ -41,8 +41,8 @@ class SelectBusinessTypeControllerSpec extends SpecBase with MockitoSugar {
 
   def onwardRoute = Call("GET", "/foo")
 
-  lazy val selectBusinessTypeRoute = orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode).url
-  val backLinkRoute: Call = orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+  lazy val selectBusinessTypeRoute = orgRoutes.SelectBusinessTypeController.onPageLoad().url
+  val backLinkRoute: Call = orgRoutes.UkOrNotController.onPageLoad()
   
   val formProvider = new SelectBusinessTypeFormProvider()
   val form = formProvider()
