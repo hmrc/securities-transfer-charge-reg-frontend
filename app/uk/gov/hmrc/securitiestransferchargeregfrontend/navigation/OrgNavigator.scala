@@ -77,11 +77,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     case _ => _ => defaultPageF
   }
 
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
-    mode match {
-      case NormalMode => normalRoutes(page)(userAnswers)
-    }
-  }
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = normalRoutes(page)(userAnswers)
 
   private val normalPreviousRoutes: Page => Call = {
 
@@ -96,10 +92,7 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     case _ => defaultPage
   }
 
-  def previousPage(page: Page, mode: Mode): Call =
-    mode match {
-      case NormalMode => normalPreviousRoutes(page)
-    }
+  def previousPage(page: Page, mode: Mode): Call = normalPreviousRoutes(page)
 
   override val errorPage: Page => Call = {
     // TODO: This is not the right kick out page.

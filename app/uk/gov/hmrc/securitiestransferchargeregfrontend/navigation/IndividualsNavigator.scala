@@ -32,7 +32,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
                                     (implicit ec: ExecutionContext) extends AbstractNavigator(sessionRepository) with Logging {
 
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
-    
+
     case individualsPages.RegForSecuritiesTransferChargePage =>
       userAnswers => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(), Some(userAnswers))
 
@@ -44,24 +44,20 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
 
     case individualsPages.DateOfBirthRegPage =>
       userAnswers => dataRequired(individualsPages.DateOfBirthRegPage, userAnswers, individualRoutes.AddressController.onPageLoad())
-      
+
     case individualsPages.IndividualAddressPage =>
       userAnswers => dataRequired(individualsPages.IndividualAddressPage, userAnswers, individualRoutes.WhatsYourEmailAddressController.onPageLoad())
 
     case individualsPages.WhatsYourEmailAddressPage =>
       userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad())
-      
-    case individualsPages.WhatsYourContactNumberPage => 
+
+    case individualsPages.WhatsYourContactNumberPage =>
       userAnswers => dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
 
     case _ => _ => defaultPageF
   }
-  
-  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
-    mode match {
-      case NormalMode => normalRoutes(page)(userAnswers)
-    }
-  }
+
+  def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = normalRoutes(page)(userAnswers)
 
   private val normalPreviousRoutes: Page => Call = {
 
@@ -74,11 +70,7 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
     case _ => routes.JourneyRecoveryController.onPageLoad()
   }
 
-  def previousPage(page: Page, mode: Mode): Call =
-    mode match {
-      case NormalMode => normalPreviousRoutes(page)
-    }
-
+  def previousPage(page: Page, mode: Mode): Call = normalPreviousRoutes(page)
 
   override val errorPage: Page => Call = {
     case individualsPages.DateOfBirthRegPage => individualRoutes.UpdateDobKickOutController.onPageLoad()
