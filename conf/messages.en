@@ -31,9 +31,6 @@ index.title = securities-transfer-charge-reg-frontend
 index.heading = securities-transfer-charge-reg-frontend
 index.guidance = Welcome to your new frontend. Please see the README file for a guide to getting started.
 
-checkYourAnswers.title = Check your answers
-checkYourAnswers.heading = Check your answers
-
 journeyRecovery.continue.title = There is a problem with the service
 journeyRecovery.continue.heading = There is a problem with the service
 journeyRecovery.startAgain.title = There is a problem with the service
@@ -60,7 +57,6 @@ dateOfBirthReg.title = What’s your date of birth?
 dateOfBirthReg.pageTitle = Your details
 dateOfBirthReg.heading = What’s your date of birth?
 dateOfBirthReg.hint = For example, 27 3 2007
-dateOfBirthReg.checkYourAnswersLabel = Your date of birth
 dateOfBirthReg.error.required.all = Enter your date of birth
 dateOfBirthReg.error.required.two = Date of birth must include a {0} and a {1}
 dateOfBirthReg.error.required = Date of birth must include a {0}
@@ -73,7 +69,6 @@ dateOfBirthReg.change.hidden = Change your date of birth
 checkYourDetails.title = Check your details
 checkYourDetails.heading = Check your details
 checkYourDetails.hint = Your details
-checkYourDetails.checkYourAnswersLabel = Are these details correct?
 checkYourDetails.areTheseDetailsCorrect = Are these details correct?
 checkYourDetails.error.required = Select yes if these details are correct
 checkYourDetails.change.hidden = CheckYourDetails
@@ -93,7 +88,6 @@ updateDobKickOut.p1 = Lorem ipsum dolor sit amet, consectetur adipiscing elit, s
 
 whatsYourEmailAddress.title = What’s your email address?
 whatsYourEmailAddress.heading = What’s your email address?
-whatsYourEmailAddress.checkYourAnswersLabel = What’s your email address?
 whatsYourEmailAddress.error.required = Enter your email address
 whatsYourEmailAddress.error.invalid = Enter an email address in the correct format, like name@example.com
 whatsYourEmailAddress.error.length = Your email must be 50 characters or fewer
@@ -102,7 +96,6 @@ whatsYourEmailAddress.change.hidden = What’s your email address?
 whatsYourContactNumber.title = What’s your contact number?
 whatsYourContactNumber.heading = What’s your contact number?
 whatsYourContactNumber.hint = For international numbers, include the country code.
-whatsYourContactNumber.checkYourAnswersLabel = What’s your contact number?
 whatsYourContactNumber.error.required = Enter your contact number
 whatsYourContactNumber.error.invalid = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
 whatsYourContactNumber.error.length = Enter a real telephone number, like 01642 123 456, 07777 777 777 or +33 1 23 45 67 88
@@ -115,7 +108,6 @@ registrationComplete.p1.link = tell us about a securities transfer.
 
 ukOrNot.title = Does your company operate in the UK?
 ukOrNot.heading = Does your company operate in the UK?
-ukOrNot.checkYourAnswersLabel = Does your company operate in the UK?
 ukOrNot.error.required = Select yes if your company operates in the UK
 ukOrNot.change.hidden = Does your company operate in the UK?
 
@@ -134,7 +126,6 @@ selectBusinessType.soleTrader = Sole Trader
 selectBusinessType.trust = Trust
 selectBusinessType.registeredSociety = Registered Society
 selectBusinessType.unincorporatedAssociation = Unincorporated Association
-selectBusinessType.checkYourAnswersLabel = Select your business type
 selectBusinessType.error.required = Select your business type
 selectBusinessType.change.hidden = Select your business type
 
@@ -145,7 +136,6 @@ typeOfPartnership.scottishPartnership = Scottish Partnership
 typeOfPartnership.scottishLimitedPartnership = Scottish Limited Partnership
 typeOfPartnership.limitedPartnership = Limited Partnership
 typeOfPartnership.limitedLiabilityPartnership = Limited Liability Partnership
-typeOfPartnership.checkYourAnswersLabel = What is your business partnership type?
 typeOfPartnership.error.required = Select your business partnership type
 typeOfPartnership.change.hidden = Change your business partnership type
 
@@ -158,7 +148,6 @@ partnershipKickOut.linkText = create one using your personal details.
 
 contactEmailAddress.title = Enter a contact email address
 contactEmailAddress.heading = Enter a contact email address
-contactEmailAddress.checkYourAnswersLabel = Enter a contact email address
 contactEmailAddress.error.required = Enter your email address
 contactEmailAddress.error.length = Your email must be 50 characters or fewer
 contactEmailAddress.error.invalid = Enter an email address in the correct format, like name@example.com
