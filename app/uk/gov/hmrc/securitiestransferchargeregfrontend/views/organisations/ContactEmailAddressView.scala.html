@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.InputWidth._
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LabelSize.Large
@@ -32,7 +31,7 @@
 
 @layout(pageTitle = title(form, messages("contactEmailAddress.title"))) {
 
-    @formHelper(action = routes.ContactEmailAddressController.onSubmit(mode)) {
+    @formHelper(action = routes.ContactEmailAddressController.onSubmit()) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

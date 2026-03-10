@@ -47,8 +47,8 @@ class ContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new ContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val contactNumberRoute: String = ContactNumberController.onPageLoad(NormalMode).url
-  val backLinkRoute: Call = ContactEmailAddressController.onPageLoad(NormalMode)
+  lazy val contactNumberRoute: String = ContactNumberController.onPageLoad().url
+  val backLinkRoute: Call = ContactEmailAddressController.onPageLoad()
   "ContactNumber Controller" - {
 
     "must return OK and the correct view for a GET" in {

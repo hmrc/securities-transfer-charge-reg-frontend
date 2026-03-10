@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LegendSize.Large
@@ -31,7 +30,7 @@
 
 @layout(pageTitle = title(form, messages("dateOfBirthReg.title")), backLinkUrl = Some(backLinkCall.url)) {
 
-    @formHelper(action = routes.DateOfBirthRegController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.DateOfBirthRegController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> s"value.${form.errors.flatMap(_.args).headOption.getOrElse("day")}")

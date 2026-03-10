@@ -15,7 +15,6 @@
  *@
 
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.InputWidth._
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.individuals.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.viewmodels.LabelSize.Large
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
@@ -32,7 +31,7 @@
 
 @layout(pageTitle = title(form, messages("whatsYourContactNumber.title")), backLinkUrl = Some(backLinkCall.url)) {
 
-    @formHelper(action = routes.WhatsYourContactNumberController.onSubmit(mode)) {
+    @formHelper(action = routes.WhatsYourContactNumberController.onSubmit()) {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form))

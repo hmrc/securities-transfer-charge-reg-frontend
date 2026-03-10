@@ -34,11 +34,11 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
     
     case individualsPages.RegForSecuritiesTransferChargePage =>
-      userAnswers => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode), Some(userAnswers))
+      userAnswers => goTo(individualRoutes.CheckYourDetailsController.onPageLoad(), Some(userAnswers))
 
     case individualsPages.CheckYourDetailsPage =>
       userAnswers => dataDependent(individualsPages.CheckYourDetailsPage, userAnswers) { detailsCorrect =>
-        if (detailsCorrect) individualRoutes.DateOfBirthRegController.onPageLoad(NormalMode)
+        if (detailsCorrect) individualRoutes.DateOfBirthRegController.onPageLoad()
         else individualRoutes.UpdateDetailsKickOutController.onPageLoad()
       }
 
@@ -46,23 +46,20 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
       userAnswers => dataRequired(individualsPages.DateOfBirthRegPage, userAnswers, individualRoutes.AddressController.onPageLoad())
       
     case individualsPages.IndividualAddressPage =>
-      userAnswers => dataRequired(individualsPages.IndividualAddressPage, userAnswers, individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode))
+      userAnswers => dataRequired(individualsPages.IndividualAddressPage, userAnswers, individualRoutes.WhatsYourEmailAddressController.onPageLoad())
 
     case individualsPages.WhatsYourEmailAddressPage =>
-      userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode))
+      userAnswers => dataRequired(individualsPages.WhatsYourEmailAddressPage, userAnswers, individualRoutes.WhatsYourContactNumberController.onPageLoad())
       
     case individualsPages.WhatsYourContactNumberPage => 
       userAnswers => dataRequired(individualsPages.WhatsYourContactNumberPage, userAnswers, individualRoutes.RegistrationCompleteController.onPageLoad())
 
     case _ => _ => defaultPageF
   }
-
-  private val checkRouteMap: Page => UserAnswers => Call = (_ => _ => routes.CheckYourAnswersController.onPageLoad())
-
+  
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode => Future.successful(checkRouteMap(page)(userAnswers))
     }
   }
 
@@ -70,9 +67,9 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
 
     case individualsPages.CheckYourDetailsPage => individualRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
 
-    case individualsPages.DateOfBirthRegPage => individualRoutes.CheckYourDetailsController.onPageLoad(NormalMode)
+    case individualsPages.DateOfBirthRegPage => individualRoutes.CheckYourDetailsController.onPageLoad()
 
-    case individualsPages.WhatsYourContactNumberPage => individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+    case individualsPages.WhatsYourContactNumberPage => individualRoutes.WhatsYourEmailAddressController.onPageLoad()
 
     case _ => routes.JourneyRecoveryController.onPageLoad()
   }
@@ -80,7 +77,6 @@ class IndividualsNavigator @Inject()(sessionRepository: SessionRepository)
   def previousPage(page: Page, mode: Mode): Call =
     mode match {
       case NormalMode => normalPreviousRoutes(page)
-      case CheckMode => routes.CheckYourAnswersController.onPageLoad()
     }
 
 

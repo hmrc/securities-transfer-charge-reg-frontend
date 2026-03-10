@@ -36,18 +36,18 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   private val normalRoutes: Page => UserAnswers => Future[Call] = {
 
     case organisationsPages.RegForSecuritiesTransferChargePage =>
-      userAnswers => goTo(orgRoutes.UkOrNotController.onPageLoad(NormalMode), Some(userAnswers))
+      userAnswers => goTo(orgRoutes.UkOrNotController.onPageLoad(), Some(userAnswers))
 
     case organisationsPages.UkOrNotPage =>
       userAnswers => dataDependent(organisationsPages.UkOrNotPage, userAnswers) { isUk =>
-        if (isUk) orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+        if (isUk) orgRoutes.SelectBusinessTypeController.onPageLoad()
         else orgRoutes.UkOrNotKickOutController.onPageLoad()
       }
 
     case organisationsPages.SelectBusinessTypePage =>
       userAnswers => dataDependent(organisationsPages.SelectBusinessTypePage, userAnswers) {
         case LimitedCompany             => orgRoutes.GrsIncorporatedEntityController.limitedCompanyJourney
-        case Partnership                => orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+        case Partnership                => orgRoutes.TypeOfPartnershipController.onPageLoad()
         case SoleTrader                 => orgRoutes.PartnershipKickOutController.onPageLoad()
         case Trust                      => orgRoutes.GrsMinorEntityController.trustJourney
         case RegisteredSociety          => orgRoutes.GrsIncorporatedEntityController.registeredSocietyJourney
@@ -66,10 +66,10 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
       _ => goTo(orgRoutes.AddressController.onPageLoad())
 
     case organisationsPages.OrgAddressPage =>
-        userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode))
+        userAnswers => dataRequired(organisationsPages.OrgAddressPage, userAnswers, orgRoutes.ContactEmailAddressController.onPageLoad())
       
     case organisationsPages.ContactEmailAddressPage =>
-      userAnswers => dataRequired(organisationsPages.ContactEmailAddressPage, userAnswers, orgRoutes.ContactNumberController.onPageLoad(NormalMode))
+      userAnswers => dataRequired(organisationsPages.ContactEmailAddressPage, userAnswers, orgRoutes.ContactNumberController.onPageLoad())
 
     case organisationsPages.ContactNumberPage =>
       userAnswers => dataRequired(organisationsPages.ContactNumberPage, userAnswers, orgRoutes.RegistrationCompleteController.onPageLoad())
@@ -77,14 +77,9 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
     case _ => _ => defaultPageF
   }
 
-  private val checkRoute = routes.CheckYourAnswersController.onPageLoad()
-  
-
   def nextPage(page: Page, mode: Mode, userAnswers: UserAnswers): Future[Call] = {
     mode match {
       case NormalMode => normalRoutes(page)(userAnswers)
-      case CheckMode => Future.successful(routes.CheckYourAnswersController.onPageLoad())
-
     }
   }
 
@@ -92,11 +87,11 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
 
     case organisationsPages.UkOrNotPage => orgRoutes.RegForSecuritiesTransferChargeController.onPageLoad()
 
-    case organisationsPages.SelectBusinessTypePage => orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+    case organisationsPages.SelectBusinessTypePage => orgRoutes.UkOrNotController.onPageLoad()
 
-    case organisationsPages.TypeOfPartnershipPage => orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+    case organisationsPages.TypeOfPartnershipPage => orgRoutes.SelectBusinessTypeController.onPageLoad()
 
-    case organisationsPages.ContactNumberPage => orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
+    case organisationsPages.ContactNumberPage => orgRoutes.ContactEmailAddressController.onPageLoad()
 
     case _ => defaultPage
   }
@@ -104,7 +99,6 @@ class OrgNavigator @Inject()(sessionRepository: SessionRepository)
   def previousPage(page: Page, mode: Mode): Call =
     mode match {
       case NormalMode => normalPreviousRoutes(page)
-      case CheckMode => checkRoute
     }
 
   override val errorPage: Page => Call = {

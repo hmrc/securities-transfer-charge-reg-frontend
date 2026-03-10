@@ -19,11 +19,9 @@ package navigation
 import base.SpecBase
 import org.scalatest.concurrent.ScalaFutures
 import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes as orgRoutes
-import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.routes
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.*
 import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.{SelectBusinessType, TypeOfPartnership}
 import uk.gov.hmrc.securitiestransferchargeregfrontend.navigation.OrgNavigator
-import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.Page
 import uk.gov.hmrc.securitiestransferchargeregfrontend.pages.organisations.*
 
 class OrgNavigatorSpec extends SpecBase with ScalaFutures {
@@ -37,7 +35,7 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
         val answers = emptyUserAnswers
         val result = navigator.nextPage(RegForSecuritiesTransferChargePage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+          res mustBe orgRoutes.UkOrNotController.onPageLoad()
         }
       }
 
@@ -45,7 +43,7 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
         val answers = emptyUserAnswers.set(UkOrNotPage, true).get
         val result = navigator.nextPage(UkOrNotPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+          res mustBe orgRoutes.SelectBusinessTypeController.onPageLoad()
         }
       }
 
@@ -71,7 +69,7 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
           .set(SelectBusinessTypePage, SelectBusinessType.Partnership).success.value
         val result = navigator.nextPage(SelectBusinessTypePage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.TypeOfPartnershipController.onPageLoad(NormalMode)
+          res mustBe orgRoutes.TypeOfPartnershipController.onPageLoad()
         }
       }
 
@@ -161,7 +159,7 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
           .set(ContactEmailAddressPage, "foo@example.com").success.value
         val result = navigator.nextPage(ContactEmailAddressPage, NormalMode, answers)
         whenReady(result) { res =>
-          res mustBe orgRoutes.ContactNumberController.onPageLoad(NormalMode)
+          res mustBe orgRoutes.ContactNumberController.onPageLoad()
         }
       }
 
@@ -176,40 +174,19 @@ class OrgNavigatorSpec extends SpecBase with ScalaFutures {
         "must go from SelectBusinessTypePage back to UkOrNotPage" in {
           val result = navigator.previousPage(SelectBusinessTypePage, NormalMode)
 
-          result mustBe orgRoutes.UkOrNotController.onPageLoad(NormalMode)
+          result mustBe orgRoutes.UkOrNotController.onPageLoad()
         }
 
         "must go from TypeOfPartnershipPage back to SelectBusinessTypePage" in {
           val result = navigator.previousPage(TypeOfPartnershipPage, NormalMode)
 
-          result mustBe orgRoutes.SelectBusinessTypeController.onPageLoad(NormalMode)
+          result mustBe orgRoutes.SelectBusinessTypeController.onPageLoad()
         }
 
         "must go from ContactNumberPage back to ContactEmailAddressPage" in {
           val result = navigator.previousPage(ContactNumberPage, NormalMode)
 
-          result mustBe orgRoutes.ContactEmailAddressController.onPageLoad(NormalMode)
-        }
-      }
-    }
-
-    "in Check mode" - {
-
-      "must go from a page that doesn't exist in the edit route map to CheckYourAnswers" in {
-
-        case object UnknownPage extends Page
-        val result = navigator.nextPage(UnknownPage, CheckMode, UserAnswers("id"))
-        whenReady(result) { res =>
-          res mustBe routes.CheckYourAnswersController.onPageLoad()
-        }
-      }
-
-      "previousPage" - {
-
-        "must go to CheckYourAnswers" in {
-          val result = navigator.previousPage(UkOrNotPage, CheckMode)
-
-          result mustBe routes.CheckYourAnswersController.onPageLoad()
+          result mustBe orgRoutes.ContactEmailAddressController.onPageLoad()
         }
       }
     }

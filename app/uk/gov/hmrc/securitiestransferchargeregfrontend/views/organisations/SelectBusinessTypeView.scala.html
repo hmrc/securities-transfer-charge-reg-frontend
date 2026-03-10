@@ -14,7 +14,6 @@
  * limitations under the License.
  *@
 
-@import uk.gov.hmrc.securitiestransferchargeregfrontend.models.Mode
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.controllers.organisations.routes
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.models.organisations.SelectBusinessType
 @import uk.gov.hmrc.securitiestransferchargeregfrontend.views.html.templates
@@ -32,7 +31,7 @@
 
 @layout(pageTitle = title(form, messages("selectBusinessType.title")), backLinkUrl = Some(backLinkCall.url)) {
 
-    @formHelper(action = routes.SelectBusinessTypeController.onSubmit(mode), Symbol("autoComplete") -> "off") {
+    @formHelper(action = routes.SelectBusinessTypeController.onSubmit(), Symbol("autoComplete") -> "off") {
 
         @if(form.errors.nonEmpty) {
             @govukErrorSummary(ErrorSummaryViewModel(form, errorLinkOverrides = Map("value" -> "value_0")))

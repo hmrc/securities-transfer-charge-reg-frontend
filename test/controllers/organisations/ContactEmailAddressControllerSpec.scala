@@ -44,7 +44,7 @@ class ContactEmailAddressControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new ContactEmailAddressFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val contactEmailAddressRoute: String = ContactEmailAddressController.onPageLoad(NormalMode).url
+  lazy val contactEmailAddressRoute: String = ContactEmailAddressController.onPageLoad().url
 
   "ContactEmailAddress Controller" - {
 

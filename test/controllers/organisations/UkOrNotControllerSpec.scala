@@ -35,7 +35,7 @@ class UkOrNotControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new UkOrNotFormProvider()
   val form: Form[Boolean] = formProvider()
 
-  lazy val ukOrNotRoute: String = routes.UkOrNotController.onPageLoad(NormalMode).url
+  lazy val ukOrNotRoute: String = routes.UkOrNotController.onPageLoad().url
   val backLinkRoute: Call = routes.RegForSecuritiesTransferChargeController.onPageLoad()
 
   "UkOrNot Controller" - {

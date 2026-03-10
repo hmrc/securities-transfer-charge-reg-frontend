@@ -52,8 +52,8 @@ class WhatsYourContactNumberControllerSpec extends SpecBase with MockitoSugar {
   val formProvider = new WhatsYourContactNumberFormProvider()
   val form: Form[String] = formProvider()
 
-  lazy val whatsYourContactNumberRoute: String = individualRoutes.WhatsYourContactNumberController.onPageLoad(NormalMode).url
-  val backLinkRoute: Call = individualRoutes.WhatsYourEmailAddressController.onPageLoad(NormalMode)
+  lazy val whatsYourContactNumberRoute: String = individualRoutes.WhatsYourContactNumberController.onPageLoad().url
+  val backLinkRoute: Call = individualRoutes.WhatsYourEmailAddressController.onPageLoad()
   
   "WhatsYourContactNumber Controller" - {
 
