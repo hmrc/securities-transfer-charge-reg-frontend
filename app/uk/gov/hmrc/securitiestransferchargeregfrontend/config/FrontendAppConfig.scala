@@ -39,13 +39,10 @@ class FrontendAppConfig @Inject() (configuration: Configuration, servicesConfig:
   val loginUrl: String         = configuration.get[String]("urls.login")
   val loginContinueUrl: String = configuration.get[String]("urls.loginContinue")
   val signOutUrl: String       = configuration.get[String]("urls.signOut")
-  val continueUrlBase: String = configuration.get[String]("urls.continue-url-base")
+  private val continueUrlBase: String = configuration.get[String]("urls.continue-url-base")
   
-  val unauthorisedUrl: String = configuration.get[String]("microservice.redirects.unauthorised-url")
   val registerUrl: String = configuration.get[String]("microservice.redirects.register-url")
-  val registerIndividualUrl: String = configuration.get[String]("microservice.redirects.register-individual-url")
   val asaUrl: String = configuration.get[String]("microservice.redirects.asa-url")
-  val registerOrganisationUrl: String = configuration.get[String]("microservice.redirects.register-organisation-url")
   val ivUpliftUrl: String = configuration.get[String]("microservice.redirects.iv-uplift-url")
   val stcServiceUrl: String = configuration.get[String]("microservice.redirects.stc-service-url")
 

@@ -32,13 +32,12 @@ class Redirects @Inject()(appConfig: FrontendAppConfig)  {
   val toFuture: Result => Future[Result] = result => Future.successful(result)
   val unauthorisedPath: String = routes.UnauthorisedController.onPageLoad().url
   
-  val redirectToLogin: Result = Redirect(appConfig.unauthorisedUrl)
-  def redirectToRegisterIndividualF: Future[Result] = toFuture(Redirect(appConfig.registerIndividualUrl))
   def redirectToIVUpliftF: Future[Result] = toFuture(Redirect(appConfig.ivUpliftUrl))
-  def redirectToRegisterOrganisationF: Future[Result] = toFuture(Redirect(appConfig.registerOrganisationUrl))
   def redirectToAsaF: Future[Result] = toFuture(Redirect(appConfig.asaUrl))
   def redirectToRegisterF: Future[Result] = toFuture(Redirect(appConfig.registerUrl))
   def redirectToService: Result = Redirect(appConfig.stcServiceUrl)
   def redirectToServiceF: Future[Result] = toFuture(redirectToService)
   def redirectToAssistantKOPageF: Future[Result] = toFuture(Redirect(organisations.routes.NonAdminOrgUserKickOutController.onPageLoad()))
 }
+
+
